@@ -17,12 +17,13 @@ WHERE timestamp >= '2023-01-01' AND timestamp < '2024-01-01'
     legend=true
 />
 
-```views_long
+```views_long_2023
 SELECT
     timestamp,
     sum_total_views AS value,
     'total_views' AS category
 from nfcore_db.view_counts
+WHERE timestamp >= '2023-01-01' AND timestamp < '2024-01-01'
 
 UNION ALL
 
@@ -31,13 +32,16 @@ SELECT
     sum_total_views_unique AS value,
     'total_views_unique' AS category
 from nfcore_db.view_counts
+WHERE timestamp >= '2023-01-01' AND timestamp < '2024-01-01'
 ```
 
 <AreaChart 
-    data={views_long}
+    data={views_long_2023}
     x=timestamp
     y=value
     series=category
+    title="Visitors: All nf-core repositories in 2023" 
+    subtitle="nf-core repository web views per day"
 />
 
 ```view_counts_summary
