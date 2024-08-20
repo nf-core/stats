@@ -2,6 +2,9 @@
 
 This is a new page in Evidence.
 
-```my_query_summary_pipeline_metrics
+```view_counts_summary
+select * from nfcore_db.view_counts
 ```
+
+<DataTable data={view_counts_summary} />
 
