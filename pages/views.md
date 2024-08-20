@@ -1,29 +1,42 @@
 ## Views per day
 
+```sql view_days
+select
+    timestamp
+from nfcore_db.view_counts
+group by 1
+```
+
+<DateRange
+    name=range_filtering_a_query
+    data={view_days}
+    dates=timestamp
+    defaultValue="Last Year"
+/>
 
 <!-- https://github.com/nf-core/website/blob/33acd6a2fab2bf9251e14212ce731ef3232b5969/public_html/stats.php#L1423C29-L1423C42 -->
 
-```views_by_day_2023
+```views_by_day_filtered
 select * from nfcore_db.view_counts
-WHERE timestamp >= '2023-01-01' AND timestamp < '2024-01-01'
+where timestamp between '${inputs.range_filtering_a_query.start}' and '${inputs.range_filtering_a_query.end}'
 ```
 
 <CalendarHeatmap 
-    data={views_by_day_2023}
+    data={views_by_day_filtered}
     date=timestamp
     value=sum_total_views_unique
-    title="Visitors: All nf-core repositories in 2023"
-    subtitle="Unique views per day"
+    title="Visitors: All nf-core repositories"
+    subtitle="Unique views per day from {inputs.range_filtering_a_query.start} to {inputs.range_filtering_a_query.end}"
     legend=true
 />
 
-```views_long_2023
+```views_long_filtered
 SELECT
     timestamp,
     sum_total_views AS value,
     'total_views' AS category
 from nfcore_db.view_counts
-WHERE timestamp >= '2023-01-01' AND timestamp < '2024-01-01'
+where timestamp between '${inputs.range_filtering_a_query.start}' and '${inputs.range_filtering_a_query.end}'
 
 UNION ALL
 
@@ -32,16 +45,16 @@ SELECT
     sum_total_views_unique AS value,
     'total_views_unique' AS category
 from nfcore_db.view_counts
-WHERE timestamp >= '2023-01-01' AND timestamp < '2024-01-01'
+where timestamp between '${inputs.range_filtering_a_query.start}' and '${inputs.range_filtering_a_query.end}'
 ```
 
 <AreaChart 
-    data={views_long_2023}
+    data={views_long_filtered}
     x=timestamp
     y=value
     series=category
     title="Visitors: All nf-core repositories in 2023" 
-    subtitle="nf-core repository web views per day"
+    subtitle="nf-core repository web views per day from {inputs.range_filtering_a_query.start} to {inputs.range_filtering_a_query.end}"
 />
 
 ```view_counts_summary
@@ -63,4 +76,3 @@ limit 100
    <Column id=sum_total_views title = "Total Views" />
    <Column id=sum_total_views_unique title = "Total Unique Views" />
 </DataTable>
-
