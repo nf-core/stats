@@ -4,6 +4,7 @@ SELECT
     timestamp,
     SUM(views) AS sum_total_views,
     SUM(views_uniques) AS sum_total_views_unique
+
 FROM github_traffic_stats
 INNER JOIN
     nfcore_pipelines
