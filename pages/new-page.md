@@ -21,3 +21,20 @@ limit 100
    <Column id=sum_total_views title = "Total Views" />
    <Column id=sum_total_views_unique title = "Total Unique Views" />
 </DataTable>
+
+### Views per day
+
+<!-- https://github.com/nf-core/website/blob/33acd6a2fab2bf9251e14212ce731ef3232b5969/public_html/stats.php#L1423C29-L1423C42 -->
+
+```views_by_day_2021
+select * from nfcore_db.view_counts
+```
+
+<CalendarHeatmap 
+    data={views_by_day_2021}
+    date=timestamp
+    value=sum_total_views_unique
+    title="Visitors: All nf-core repositories"
+    subtitle="Unique views per day"
+    legend=true
+/>
