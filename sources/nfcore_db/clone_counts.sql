@@ -1,3 +1,5 @@
+USE nfcore_db;
+
 SELECT
     timestamp,
     SUM(clones) AS sum_total_clones,

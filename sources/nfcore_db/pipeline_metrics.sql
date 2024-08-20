@@ -1,3 +1,5 @@
+USE nfcore_db;
+
 SELECT
     timestamp,
     SUM(views) AS sum_total_views,
