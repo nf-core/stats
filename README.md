@@ -1,3 +1,9 @@
+Argument for why this isn't in nf-core/website
+
+- Evidence is a completely different build system, not using Astro
+  - Just going to wrap it as an iframe
+- There's also the whole data-engineering side. That could live in the nf-core/ops monorepo, but it might be better to just start yet another monorepo.
+
 # Evidence Template Project
 
 ## Using Codespaces
