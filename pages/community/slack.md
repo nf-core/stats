@@ -25,6 +25,7 @@ group by 1
 ```users_long_filtered
 select * from nfcore_db.slack_users
 where timestamp between '${inputs.range_filtering_a_query.start}' and '${inputs.range_filtering_a_query.end}'
+order by 3 asc
 ```
 
 <AreaChart
