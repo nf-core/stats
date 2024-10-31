@@ -7,7 +7,7 @@ Whilst we always prefer quality over quantity, these numbers reflect the work ou
 
 <!-- FIXME Generate this from data and make it pretty -->
 ```num_repos
-select num_pipelines from overview
+select num_pipelines from code_overview
 ```
 
 <Value data={num_repos} /> Repositories
