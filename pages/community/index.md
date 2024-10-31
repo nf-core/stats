@@ -14,7 +14,7 @@ select count(*) from slack;
 Slack users
 
 ```total_gh_org_members
-select count(*) from community_total_gh_org_members;
+select * from community_total_gh_org_members;
 ```
 
 <!-- 916 -->
@@ -29,5 +29,10 @@ select * from community_total_gh_contributors;
 <Value data={total_gh_contributors} />
 GitHub contributors
 
+```total_twitter_followers
+select count(*) from twitter;
+```
+
 <!-- 3705 -->
+<Value data={total_twitter_followers} />
 Twitter followers
