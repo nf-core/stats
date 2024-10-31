@@ -9,7 +9,7 @@ Slack is a real-time messaging tool, with discussion split into channels and gro
 select
     to_timestamp(timestamp) as timestamp
 from slack
-group by timestamp
+group by 1
 ```
 
 <DateRange
@@ -23,21 +23,8 @@ group by timestamp
 
 
 ```users_long_filtered
-SELECT
-    to_timestamp(timestamp) AS timestamp,
-    inactive_users AS value,
-    'inactive_users' AS category
-from slack
--- where timestamp between '${inputs.range_filtering_a_query.start}' and '${inputs.range_filtering_a_query.end}'
-
-UNION ALL
-
-SELECT
-    to_timestamp(timestamp) AS timestamp,
-    active_users AS value,
-    'active_users' AS category
-from slack
---where timestamp between '${inputs.range_filtering_a_query.start}' and '${inputs.range_filtering_a_query.end}'
+select * from nfcore_db.slack_users
+where timestamp between '${inputs.range_filtering_a_query.start}' and '${inputs.range_filtering_a_query.end}'
 ```
 
 <AreaChart
