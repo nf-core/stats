@@ -1,4 +1,1 @@
----
-title: {params.pipeline} Regulatory
----
-
+# {params.pipeline} Regulatory Report
