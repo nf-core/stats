@@ -23,4 +23,21 @@ select * from community_github_members;
 
 Anybody can fork nf-core repositories and open a pull-request. Here we count how many different people have contributed at least one commit to an nf-core repository, or created or commented on an issue or pull-request.
 
+### Commits and Issues
+
 <!-- commits, commits and issues, issues area chart -->
+
+```commits_over_time
+select 
+to_timestamp(timestamp) as timestamp,
+sum(number_of_commits) over (order by timestamp) as number_of_commits,
+from
+nfcore_issues_stats.gh_commits
+```
+
+<AreaChart
+    data={commits_over_time}
+    x=timestamp
+    y=number_of_commits
+/>
+
