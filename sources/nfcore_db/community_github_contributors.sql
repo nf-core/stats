@@ -2,5 +2,5 @@ USE nfcore_db;
 
 select 
 username,
-gh_id
+to_timestamp(gh_id) as timestamp, -- FIXME change column name in md
 from gh_contributors;
