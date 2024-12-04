@@ -19,6 +19,8 @@ select * from community_github_members;
     y=total_github_members
 />
 
+> By default, organisation membership is private. This is why you'll see a lower number if you visit the nf-core organisation page and are not a member.
+
 ## GitHub Contributors
 
 Anybody can fork nf-core repositories and open a pull-request. Here we count how many different people have contributed at least one commit to an nf-core repository, or created or commented on an issue or pull-request.
@@ -37,6 +39,8 @@ group by timestamp
     x=timestamp
     y=number_of_contributors
 />
+
+> Plot truncated to start of 2018 (some pipelines moved to nf-core so have older contributions).
 
 
 
