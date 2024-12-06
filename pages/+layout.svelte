@@ -5,6 +5,6 @@
     export let data;
 </script>
 
-<EvidenceDefaultLayout {data} hideHeader={true} fullWidth={true}>
+<EvidenceDefaultLayout {data} hideHeader={false} fullWidth={true}>
     <slot slot="content" />
 </EvidenceDefaultLayout>
