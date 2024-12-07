@@ -7,6 +7,8 @@ All nf-core pipelines are only considered stable when they have at least one rel
 
 <!-- TODO nf-core pipeline numbers over time -->
 
+<!-- BUG https://github.com/nf-core/stats/issues/9 -->
+
 ## Pipelines
 
 <!-- TODO Table with Name 	Age 	Releases 	Committers 	Commits 	Stargazers 	Watchers 	Network Forks 	Clones 	Unique cloners 	Repo views 	Unique repo visitors -->
