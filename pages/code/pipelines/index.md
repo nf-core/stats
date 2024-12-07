@@ -59,6 +59,7 @@ data={pipeline_table}
 defaultSort={[{ id: 'Stargazers', desc: true }]}
 search=true
 wrapTitles=true
+totalRow=true
 />
 
 ## Core repos
@@ -76,4 +77,5 @@ data={core_repos_table}
 defaultSort={[{ id: 'Stargazers', desc: true }]}
 search=true
 wrapTitles=true
+totalRow=true
 />
