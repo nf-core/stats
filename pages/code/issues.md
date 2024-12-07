@@ -3,11 +3,29 @@ title: Issues
 sidebar_position: 3
 ---
 
+# GitHub Issues
+
 GitHub issues can be created to log feature requests, bug reports or questions.
 
-<!-- TODO GitHub Issues over time -->
+<!-- TODO: Live data https://github.com/nf-core/stats/issues/4 -->
 
-*We're working on a dashboard to show the number of issues over time. See [this issue](https://github.com/nf-core/stats/issues/4) for more details.*
+```sql issues_over_time
+select
+date,
+open,
+closed
+from stats_static.github_issues
+order by date asc
+```
+
+<AreaChart
+  data={issues_over_time}
+  x=date
+  y={["open", "closed"]}
+  title="GitHub Issues over time"
+  yAxisTitle="Number of Issues"
+  colorPalette={['#85ea7d', '#ff7675']}
+/>
 
 ## Issue response times
 
