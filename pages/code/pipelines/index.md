@@ -40,8 +40,25 @@ As of <Value data={pipeline_numbers} column=date row=last/>, there are:
 - <Value data={pipeline_numbers} column=count filter="status = 'In development'" /> pipelines in development
 - <Value data={pipeline_numbers} column=count filter="status = 'Released'" /> released pipelines
 
-<!-- TODO Table with Name 	Age 	Releases 	Committers 	Commits 	Stargazers 	Watchers 	Network Forks 	Clones 	Unique cloners 	Repo views 	Unique repo visitors -->
 
 ## Pipelines
 
-<!-- TODO Table with Name 	Age 	Releases 	Committers 	Commits 	Stargazers 	Watchers 	Network Forks 	Clones 	Unique cloners 	Repo views 	Unique repo visitors -->
+```sql pipeline_table
+select
+  *
+from stats_static.pipelines
+order by Stargazers desc
+```
+
+<!-- TODO Add links -->
+
+We're working on using live data for this table, but it's not quite ready yet. Check [this issue](https://github.com/nf-core/stats/issues/9) for updates.
+
+<DataTable
+  data={pipeline_table}
+  defaultSort={[{ id: 'Stargazers', desc: true }]}
+  search=true
+  wrapTitles=true 
+/>
+
+## Core repos
