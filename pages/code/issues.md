@@ -11,20 +11,28 @@ GitHub issues can be created to log feature requests, bug reports or questions.
 
 ```sql issues_over_time
 select
-date,
-open,
-closed
+  date,
+  'Closed' as status,
+  closed as count
 from stats_static.github_issues
-order by date asc
+union all
+select
+  date,
+  'Open' as status,
+  open as count
+from stats_static.github_issues
+order by date asc, status asc
 ```
 
 <AreaChart
   data={issues_over_time}
   x=date
-  y={["open", "closed"]}
+  y=count
+  series=status
+  seriesOrder={['Closed', 'Open']}
   title="GitHub Issues over time"
   yAxisTitle="Number of Issues"
-  colorPalette={['#85ea7d', '#ff7675']}
+  colorPalette={['#ff7675', '#85ea7d']}
 />
 
 ## Issue response times
