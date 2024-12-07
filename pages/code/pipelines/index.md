@@ -8,16 +8,16 @@ All nf-core pipelines are only considered stable when they have at least one rel
 ```sql pipeline_numbers
 select 
   date::date as date,
-  'Released' as status,
-  released as count
+  'In development' as status,
+  in_development as count
 from stats_static.pipeline_numbers
 union all
 select
   date::date as date,
-  'In development' as status,
-  in_development as count
+  'Released' as status,
+  released as count
 from stats_static.pipeline_numbers
-order by date asc, status asc
+order by date asc, status desc
 ```
 
 <AreaChart
@@ -25,10 +25,13 @@ order by date asc, status asc
   x=date
   y=count
   series=status
-  seriesOrder={['Released', 'In development']}
+  seriesOrder={['In development', 'Released']}
   title="nf-core pipeline numbers over time"
   yAxisTitle="Number of pipelines"
-  colorPalette={['#4DB6AC', '#EF5350']}
+  colorPalette={[
+    '#85ea7d',
+    '#ff7675',
+  ]}
 />
 
 ## Pipeline Status
