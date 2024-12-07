@@ -36,10 +36,29 @@ colorPalette={[
 
 ## Pipeline Status
 
-As of <Value data={pipeline_numbers} column=date row=last/>, there are:
+```sql latest_numbers
+-- Get the most recent counts for both statuses
+with latest_date as (
+  select max(date::date) as max_date
+  from stats_static.pipeline_numbers
+)
+select
+  'In development' as status,
+  in_development as count
+from stats_static.pipeline_numbers
+where date::date = (select max_date from latest_date)
+union all
+select
+  'Released' as status,
+  released as count
+from stats_static.pipeline_numbers
+where date::date = (select max_date from latest_date)
+```
 
-- <Value data={pipeline_numbers} column=count filter="status = 'In development'" /> pipelines in development
-- <Value data={pipeline_numbers} column=count filter="status = 'Released'" /> released pipelines
+- <Value data={latest_numbers.where(`status = 'In development'`)} column=count/> pipelines in development
+- <Value data={latest_numbers.where(`status = 'Released'`)} column=count/> released pipelines
+
+<!-- TODO Use pull in live data <LastRefreshed prefix="As of"/> -->
 
 ## Pipelines
 
