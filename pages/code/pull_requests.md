@@ -39,6 +39,7 @@ from stats_static.github_pr_response_time
     x=label
     y=value
     series=category
+    sort=false
     type=grouped
     title="GitHub Pull Request Response Time"
     yAxisTitle="Percentage of PRs"
@@ -46,6 +47,11 @@ from stats_static.github_pr_response_time
         '#a4d5a6',  /* Green for Time to First Response */
         '#9d8ec7',  /* Purple for Time to Close */
     ]}
-    yFmt=percent
+    yFmt=pct
     xType="category"
+    xGridLines=true
+    xLabelRotation={45}
+    legendPosition="bottom"
 />
+
+<LastRefreshed prefix="Data last updated"/>
