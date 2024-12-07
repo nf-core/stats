@@ -7,16 +7,33 @@ When people contribute code to a nf-core repository, we conduct a "Pull request"
 
 ## Pull Requests Over Time
 
+<!-- TODO: Live data https://github.com/nf-core/stats/issues/7 -->
+
+```sql pull_requests_over_time
+select
+  date as timestamp,
+  closed_merged as "Closed / Merged",
+  open
+from stats_static.github_prs
+```
+
+<AreaChart
+  data={pull_requests_over_time}
+  x=timestamp
+  y={["Closed / Merged", "open"]}
+  title="GitHub Pull Requests over time"
+  yAxisTitle="Number of Pull Requests"
+  colorPalette={[
+    '#9d8ec7', /* Purple for Closed/Merged */
+    '#a4d5a6', /* Green for Open */
+  ]}
+/>
+
 ## Pull Request Response Times
 
 Pull-requests are reviewed by the nf-core community - they can contain discussion on the code and can be merged and closed. We aim to be prompt with reviews and merging. Note that some PRs can be a simple type and so very fast to merge, others can be major pipeline updates.
 
-<!-- TODO -->
-<!-- <BigValue
-    data={pr_response_times}
-    value=median_hours
-    title="Median PR Response Time (Hours)"
-/> -->
+<!-- TODO: Live data https://github.com/nf-core/stats/issues/7 -->
 
 ```sql pr_response_times
 select
