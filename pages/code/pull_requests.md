@@ -19,7 +19,7 @@ Pull-requests are reviewed by the nf-core community - they can contain discussio
 /> -->
 
 ```sql pr_response_times
-select 
+select
   label,
   time_to_close as value,
   'Time to merge/close' as category
@@ -27,31 +27,33 @@ from stats_static.github_pr_response_time
 
 union all
 
-select 
+select
   label,
   time_to_first_response as value,
   'Time to First Response' as category
 from stats_static.github_pr_response_time
 ```
 
-<BarChart 
-    data={pr_response_times}
-    x=label
-    y=value
-    series=category
-    sort=false
-    type=grouped
-    title="GitHub Pull Request Response Time"
-    yAxisTitle="Percentage of PRs"
-    colorPalette={[
-        '#a4d5a6',  /* Green for Time to First Response */
-        '#9d8ec7',  /* Purple for Time to Close */
-    ]}
-    yFmt=pct
-    xType="category"
-    xGridLines=true
-    xLabelRotation={45}
-    legendPosition="bottom"
+<BarChart
+data={pr_response_times}
+x=label
+y=value
+swapXY=true
+series=category
+sort=false
+type=grouped
+title="GitHub Pull Request Response Time"
+subtitle="First response is when a comment is made by a GitHub user other than the original PR author"
+yAxisTitle="Percentage of PRs"
+colorPalette={[
+'#a4d5a6', /* Green for Time to First Response */
+'#9d8ec7', /* Purple for Time to Close */
+]}
+yFmt=pct
+xType="category"
+xGridLines=true
+xLabelRotation={45}
+legendPosition="bottom"
 />
 
 <LastRefreshed prefix="Data last updated"/>
