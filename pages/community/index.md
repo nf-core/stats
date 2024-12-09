@@ -2,13 +2,13 @@
 title: Community
 sidebar_position: 1
 queries:
-  - community_growth.sql
+  - community/growth_github_members.sql
 ---
 
 The numbers below track our growth over the various channels that the nf-core community operates in.
 
 <BigValue 
-  data={community_growth} 
+  data={community_growth_github_members} 
   value=members
   title="GitHub Organisation Members"
   sparkline=month
@@ -23,14 +23,14 @@ The numbers below track our growth over the various channels that the nf-core co
   value="count"
   title="Slack Users"
   link='/community/slack'
-/> -->
+/>
 
-<!-- <BigValue 
+<BigValue 
   data={total_gh_contributors}
   title="GitHub Contributors"
-/> -->
+/>
 
-<!-- <BigValue 
+<BigValue 
   data={total_twitter_followers}
   value="count"
   title="Twitter Followers"
