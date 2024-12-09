@@ -332,3 +332,117 @@
 		widows: 2;
 	}
 }
+
+/* Card styles from the stats page */
+.stats_keynumbers .card {
+    @apply border-0 rounded-lg shadow-md mx-2 mb-4 relative overflow-hidden;
+}
+
+.stats_keynumbers .card .bg-icon {
+    @apply absolute text-[#1D9A6C] opacity-10 -right-4 -bottom-4 text-8xl z-0;
+}
+
+.stats_keynumbers .card-body {
+    @apply p-4 z-10 relative;
+}
+
+.stats_keynumbers .display-4 {
+    @apply text-4xl font-bold mb-2;
+}
+
+.stats_keynumbers .card-text {
+    @apply m-0;
+}
+
+/* Progress bar styles */
+.progress {
+    @apply overflow-hidden h-5 rounded-full bg-gray-100;
+}
+
+.progress-bar {
+    @apply h-full transition-all duration-300;
+}
+
+.progress-bar.bg-success {
+    background-color: #1D9A6C;
+}
+
+.progress-bar.bg-warning {
+    background-color: #24C28A;
+}
+
+/* Table styles */
+.table {
+    @apply w-full mb-4;
+}
+
+.table td {
+    @apply p-3 align-middle border-b border-gray-200;
+}
+
+.table img.rounded-circle {
+    @apply w-12 h-12 rounded-full border border-gray-200;
+}
+
+/* Badge styles */
+.badge {
+    @apply px-2 py-1 text-xs font-semibold rounded-full;
+}
+
+.badge.bg-secondary {
+    @apply bg-[#5C5C5C] text-white;
+}
+
+/* Alert styles */
+.alert {
+    @apply p-4 mb-4 rounded-lg;
+}
+
+.alert-light {
+    @apply bg-[#F1F1F1] border border-gray-200;
+}
+
+.alert-heading {
+    @apply text-lg font-semibold mb-2;
+}
+
+/* Chart container styles */
+.card {
+    @apply bg-white rounded-lg shadow-md mb-4 overflow-hidden;
+}
+
+.card-header {
+    @apply p-4 bg-[#F1F1F1] border-b border-gray-200 font-semibold;
+}
+
+.card-body {
+    @apply p-4;
+}
+
+.card-footer {
+    @apply p-4 bg-[#F1F1F1] border-t border-gray-200;
+}
+
+/* Text utilities */
+.text-muted {
+    @apply text-[#5C5C5C];
+}
+
+.lead {
+    @apply text-xl font-semibold;
+}
+
+/* Link styles */
+a.text-muted {
+    @apply hover:text-[#1D9A6C] transition-colors duration-200;
+}
+
+/* Icon styles */
+.fas, .far, .fab {
+    @apply mr-1;
+}
+
+/* Small text */
+.small {
+    @apply text-sm;
+}
