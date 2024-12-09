@@ -1,5 +1,5 @@
 select
-    to_char(date_trunc('month', timestamp), 'YYYY-MM-DD') as month,
+    strftime(date_trunc('month', timestamp), '%Y-%m-%d') as month,
     total_github_members as members,
     lag(total_github_members) over (order by date_trunc('month', timestamp)) as prev_month_members,
     round(cast((total_github_members / nullif(lag(total_github_members) over (order by date_trunc('month', timestamp)), 0) - 1) * 100 as numeric), 1) as growth_rate
