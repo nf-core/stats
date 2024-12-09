@@ -4,9 +4,12 @@ sidebar_position: 1
 queries:
   - community/growth_github_members.sql
   - community/growth_slack_users.sql
+  - community/growth_gh_contributors.sql
 ---
 
 The numbers below track our growth over the various channels that the nf-core community operates in.
+
+NOTE: These numbers are not updated in real-time yet.
 
 <BigValue 
   data={community_growth_github_members} 
@@ -19,7 +22,6 @@ The numbers below track our growth over the various channels that the nf-core co
   link="/community/github"
 />
 
-
 <BigValue 
   data={community_growth_slack_users}
   value=members
@@ -31,13 +33,13 @@ The numbers below track our growth over the various channels that the nf-core co
   link='/community/slack'
 />
 
-<!-- <BigValue 
-  data={total_gh_contributors}
-  title="GitHub Contributors"
-/>
+<!-- TODO Make this over time -->
 
 <BigValue 
-  data={total_twitter_followers}
-  value="count"
-  title="Twitter Followers"
-/> -->
+  data={community_growth_gh_contributors}
+  value=members
+  title="GitHub Contributors"
+  link="/community/github"
+/>
+
+<!-- TODO Add Twitter followers -->
