@@ -2,7 +2,6 @@
 title: Community
 sidebar_position: 1
 queries:
-  - big_community.sql
   - community_growth.sql
 ---
 
