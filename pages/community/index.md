@@ -1,38 +1,35 @@
 ---
 title: Community
 sidebar_position: 1
+queries:
+  - big_community.sql
+  - community_growth.sql
 ---
 
 The numbers below track our growth over the various channels that the nf-core community operates in.
 
-```total_slack_users
-select count(*) from slack;
-```
+<BigValue 
+    data={community_growth}
+    value="members"
+    title="GitHub Organisation Members"
+    comparison_value="growth_rate"
+    comparison_title="vs last month"
+/>
 
-<Value data={total_slack_users} />
-<!-- 8090 -->
-Slack users
+<!-- <BigValue 
+  data={total_slack_users}
+  value="count"
+  title="Slack Users"
+  link='/community/slack'
+/> -->
 
-```total_gh_org_members
-select * from community_total_gh_org_members;
-```
+<!-- <BigValue 
+  data={total_gh_contributors}
+  title="GitHub Contributors"
+/> -->
 
-<!-- 916 -->
-<Value data={total_gh_org_members} />
-GitHub organisation members
-
-```total_gh_contributors
-select * from community_total_gh_contributors;
-```
-
-<!-- 2418 -->
-<Value data={total_gh_contributors} />
-GitHub contributors
-
-```total_twitter_followers
-select count(*) from twitter;
-```
-
-<!-- 3705 -->
-<Value data={total_twitter_followers} />
-Twitter followers
+<!-- <BigValue 
+  data={total_twitter_followers}
+  value="count"
+  title="Twitter Followers"
+/> -->
