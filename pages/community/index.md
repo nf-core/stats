@@ -8,11 +8,14 @@ queries:
 The numbers below track our growth over the various channels that the nf-core community operates in.
 
 <BigValue 
-    data={community_growth}
-    value="members"
-    title="GitHub Organisation Members"
-    comparison_value="growth_rate"
-    comparison_title="vs last month"
+  data={community_growth} 
+  value=members
+  title="GitHub Organisation Members"
+  sparkline=month
+  comparison=growth_rate
+  comparisonFmt=pct1
+  comparisonTitle="vs. Last Month"
+  link="/community/github"
 />
 
 <!-- <BigValue 
