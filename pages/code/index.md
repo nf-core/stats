@@ -4,6 +4,7 @@ sidebar_position: 2
 queries:
   - code/growth_gh_repos.sql
   - code/growth_gh_prs.sql
+  - code/growth_gh_commits.sql
 ---
 
 Whilst we always prefer quality over quantity, these numbers reflect the work output from the nf-core community.
@@ -30,6 +31,14 @@ NOTE: We're working on making these numbers live again. See [nf-core/stats#7](ht
     comparisonTitle="vs. Last Month"
 />
 
-43.66K Commits
+<BigValue 
+    data={code_growth_gh_commits}
+    value=num_commits
+    title="Commits"
+    sparkline=month
+    comparison=growth_rate
+    comparisonFmt=pct1
+    comparisonTitle="vs. Last Month"
+/>
 
 8.21K Issues
