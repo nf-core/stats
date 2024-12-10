@@ -20,11 +20,11 @@ def get_github_headers():
 @dlt.source
 def github_stats(organization: str = "nf-core"):
     """DLT source for GitHub statistics"""
-    return {
-        "traffic_stats": traffic_stats_resource(organization),
-        "contributor_stats": contributor_stats_resource(organization),
-        "issue_stats": issue_stats_resource(organization)
-    }
+    return [
+        dlt.resource(traffic_stats_resource(organization), name="traffic_stats"),
+        dlt.resource(contributor_stats_resource(organization), name="contributor_stats"), 
+        dlt.resource(issue_stats_resource(organization), name="issue_stats")
+    ]
 
 @dlt.resource(write_disposition="merge", primary_key=["pipeline_name", "timestamp"])
 def traffic_stats_resource(organization: str) -> Iterator[Dict]:
