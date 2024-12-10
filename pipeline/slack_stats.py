@@ -1,3 +1,18 @@
+"""DLT pipeline for collecting Slack workspace statistics.
+
+This module uses the Slack SDK instead of direct API calls (unlike the old PHP implementation) for several benefits:
+1. Better error handling through SlackApiError
+2. Type safety and structured data handling
+3. Automatic rate limiting management
+4. Secure authentication and token management
+5. Future API compatibility through SDK updates
+
+The implementation also provides more comprehensive data collection compared to the old version:
+- Detailed access logs for active users
+- Comprehensive user information including profiles and admin status
+- Automatic pagination handling
+"""
+
 import dlt
 from typing import Dict, Iterator
 import os
