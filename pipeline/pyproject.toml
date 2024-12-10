@@ -1,0 +1,19 @@
+[project]
+name = "nf-core-stats"
+version = "0.1.0"
+description = "DLT pipeline for nf-core stats collection"
+authors = [
+    { name = "nf-core team" }
+]
+dependencies = [
+    "dlt>=0.3.6",
+    "json-logging>=1.4.1",
+    "duckdb==0.9.2",
+    "python-dotenv==1.0.0",
+    "requests>=2.31.0",
+]
+requires-python = ">=3.9"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build" 
