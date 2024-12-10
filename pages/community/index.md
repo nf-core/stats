@@ -5,6 +5,7 @@ queries:
   - community/growth_github_members.sql
   - community/growth_slack_users.sql
   - community/growth_gh_contributors.sql
+  - community/growth_twitter.sql
 ---
 
 The numbers below track our growth over the various channels that the nf-core community operates in.
@@ -33,8 +34,6 @@ NOTE: These numbers are not updated in real-time yet.
   link='/community/slack'
 />
 
-<!-- TODO Make this over time -->
-
 <BigValue 
   data={community_growth_gh_contributors}
   value=members
@@ -42,4 +41,16 @@ NOTE: These numbers are not updated in real-time yet.
   link="/community/github"
 />
 
-<!-- TODO Add Twitter followers -->
+
+<BigValue 
+  data={community_growth_twitter}
+  value=followers
+  title="Twitter Followers"
+  sparkline=month
+  comparison=growth_rate
+  comparisonFmt=pct1
+  comparisonTitle="vs. Last Month"
+  link="/community/twitter"
+/>
+
+<!-- TODO Add Bluesky followers -->
