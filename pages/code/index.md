@@ -5,6 +5,7 @@ queries:
   - code/growth_gh_repos.sql
   - code/growth_gh_prs.sql
   - code/growth_gh_commits.sql
+  - code/growth_gh_issues.sql
 ---
 
 Whilst we always prefer quality over quantity, these numbers reflect the work output from the nf-core community.
@@ -41,4 +42,12 @@ NOTE: We're working on making these numbers live again. See [nf-core/stats#7](ht
     comparisonTitle="vs. Last Month"
 />
 
-8.21K Issues
+<BigValue 
+    data={code_growth_gh_issues}
+    value=num_issues
+    title="Issues"
+    sparkline=month
+    comparison=growth_rate
+    comparisonFmt=pct1
+    comparisonTitle="vs. Last Month"
+/>
