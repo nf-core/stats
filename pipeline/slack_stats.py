@@ -33,10 +33,10 @@ def get_slack_client():
 @dlt.source
 def slack_stats():
     """DLT source for Slack workspace statistics"""
-    return {
-        "active_users": active_users_resource(),
-        "total_users": total_users_resource(),
-    }
+    return [
+        active_users_resource(),
+        total_users_resource(),
+    ]
 
 @dlt.resource(write_disposition="merge", primary_key=["date"])
 def active_users_resource() -> Iterator[Dict]:
@@ -102,11 +102,15 @@ def total_users_resource() -> Iterator[Dict]:
         print(f"Error fetching user list: {e.response['error']}")
 
 if __name__ == "__main__":
-    # Initialize the pipeline with DuckDB destination
+    # Initialize the pipeline with MotherDuck destination
     pipeline = dlt.pipeline(
         pipeline_name="slack_stats",
         destination="duckdb",
-        dataset_name="nf_core_stats"
+        dataset_name="nf_core_dlt",
+        credentials={
+            "database": "md:",  # MotherDuck connection string
+            "motherduck_token": os.getenv("MOTHERDUCK_TOKEN")  # Token from environment variables
+        }
     )
     
     # Run the pipeline
