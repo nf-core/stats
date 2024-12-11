@@ -6,22 +6,15 @@ This module uses the Slack SDK instead of direct API calls (unlike the old PHP i
 3. Automatic rate limiting management
 4. Secure authentication and token management
 5. Future API compatibility through SDK updates
-
-The implementation also provides more comprehensive data collection compared to the old version:
-- Detailed access logs for active users
-- Comprehensive user information including profiles and admin status
-- Automatic pagination handling
 """
 
 import dlt
 from typing import Dict, Iterator
-import os
-from datetime import datetime, timedelta
+from datetime import datetime
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
-from dotenv import load_dotenv
 
-@dlt.source(name="slack", max_table_nesting=2)
+@dlt.source(name="slack")
 def slack_source():
     """DLT source for Slack workspace statistics"""
     # Get token explicitly from secrets
@@ -30,69 +23,60 @@ def slack_source():
         raise ValueError("Slack access token not found in secrets")
     
     client = WebClient(token=access_token)
-    return [
-        active_users_resource(client),
-        total_users_resource(client),
-    ]
+    return slack_stats(client)
 
-@dlt.resource(write_disposition="merge", primary_key=["date"])
-def active_users_resource(client: WebClient) -> Iterator[Dict]:
-    """Collect daily active users from Slack"""
+@dlt.resource(write_disposition="merge", primary_key=["timestamp"])
+def slack_stats(client: WebClient) -> Iterator[Dict]:
+    """Collect combined Slack statistics in a single table"""
     try:
-        # Instead of access logs, use conversations.list and conversations.members
-        # to get active users in public channels
+        # Get total users
+        users_response = client.users_list()
+        active_account_users = [user for user in users_response["members"] if not user.get("deleted", False)]
+        total_users = len(active_account_users)
+
+        # Get active users from channels
         channels_response = client.conversations_list(types="public_channel")
-        active_users = set()
+        active_channel_users = set()
         
         for channel in channels_response["channels"]:
             try:
                 members = client.conversations_members(channel=channel["id"])
-                active_users.update(members["members"])
+                active_channel_users.update(members["members"])
             except SlackApiError as e:
                 print(f"Error fetching members for channel {channel['id']}: {e.response['error']}")
-        
-        # Yield current active users
-        yield {
-            "date": datetime.now().strftime("%Y-%m-%d"),
-            "active_user_count": len(active_users),
-            "active_users": list(active_users)
-        }
-            
-    except SlackApiError as e:
-        print(f"Error fetching channels: {e.response['error']}")
 
-@dlt.resource(write_disposition="merge", primary_key=["date"])
-def total_users_resource(client: WebClient) -> Iterator[Dict]:
-    """Collect total (non-deleted) users from Slack"""
-    try:
-        # Get user list
-        response = client.users_list()
-        active_users = [user for user in response["members"] if not user.get("deleted", False)]
-        
+        active_users = len(active_channel_users)
+        inactive_users = total_users - active_users
+
+        # Yield combined stats
         yield {
-            "date": datetime.now().strftime("%Y-%m-%d"),
-            "total_user_count": len(active_users),
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "total_users": total_users,
+            "active_users": active_users,
+            "inactive_users": inactive_users,
+            # Optionally keep detailed user info as nested data
             "user_details": [
                 {
                     "id": user["id"],
                     "name": user.get("real_name_normalized", user["name"]),
                     "email": user.get("profile", {}).get("email"),
                     "is_admin": user.get("is_admin", False),
-                    "is_bot": user.get("is_bot", False)
+                    "is_bot": user.get("is_bot", False),
+                    "is_active": user["id"] in active_channel_users
                 }
-                for user in active_users
+                for user in active_account_users
             ]
         }
             
     except SlackApiError as e:
-        print(f"Error fetching user list: {e.response['error']}")
+        print(f"Error fetching Slack data: {e.response['error']}")
 
 if __name__ == "__main__":
     # Initialize the pipeline with MotherDuck destination
     pipeline = dlt.pipeline(
-        pipeline_name="slack",
+        pipeline_name="slack_stats",
         destination="motherduck",
-        dataset_name="slack_stats",
+        dataset_name="slack",
     )
     
     # Run the pipeline
