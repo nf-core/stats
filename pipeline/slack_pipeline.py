@@ -22,10 +22,13 @@ from slack_sdk.errors import SlackApiError
 from dotenv import load_dotenv
 
 @dlt.source(name="slack", max_table_nesting=2)
-def slack_source(
-    access_token: str = dlt.secrets.value,
-):
+def slack_source():
     """DLT source for Slack workspace statistics"""
+    # Get token explicitly from secrets
+    access_token = dlt.secrets.get("sources.slack_pipeline.access_token")
+    if not access_token:
+        raise ValueError("Slack access token not found in secrets")
+    
     client = WebClient(token=access_token)
     return [
         active_users_resource(client),
@@ -35,36 +38,28 @@ def slack_source(
 @dlt.resource(write_disposition="merge", primary_key=["date"])
 def active_users_resource(client: WebClient) -> Iterator[Dict]:
     """Collect daily active users from Slack"""
-    
-    # Get access logs for the last 30 days (Slack's limit)
-    end_date = datetime.now()
-    start_date = end_date - timedelta(days=30)
-    
     try:
-        # Get team access logs
-        response = client.team_accessLogs(
-            before=end_date.timestamp(),
-            limit=1000  # Maximum allowed by Slack
-        )
+        # Instead of access logs, use conversations.list and conversations.members
+        # to get active users in public channels
+        channels_response = client.conversations_list(types="public_channel")
+        active_users = set()
         
-        # Process access logs
-        daily_users = {}
-        for access in response["logins"]:
-            date_str = datetime.fromtimestamp(access["date_first"]).strftime("%Y-%m-%d")
-            if date_str not in daily_users:
-                daily_users[date_str] = set()
-            daily_users[date_str].add(access["user_id"])
+        for channel in channels_response["channels"]:
+            try:
+                members = client.conversations_members(channel=channel["id"])
+                active_users.update(members["members"])
+            except SlackApiError as e:
+                print(f"Error fetching members for channel {channel['id']}: {e.response['error']}")
         
-        # Yield daily active user counts
-        for date_str, users in daily_users.items():
-            yield {
-                "date": date_str,
-                "active_user_count": len(users),
-                "active_users": list(users)
-            }
+        # Yield current active users
+        yield {
+            "date": datetime.now().strftime("%Y-%m-%d"),
+            "active_user_count": len(active_users),
+            "active_users": list(active_users)
+        }
             
     except SlackApiError as e:
-        print(f"Error fetching access logs: {e.response['error']}")
+        print(f"Error fetching channels: {e.response['error']}")
 
 @dlt.resource(write_disposition="merge", primary_key=["date"])
 def total_users_resource(client: WebClient) -> Iterator[Dict]:
