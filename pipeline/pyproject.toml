@@ -6,7 +6,7 @@ authors = [
     { name = "nf-core team" }
 ]
 dependencies = [
-    "dlt[cli,duckdb,motherduck]>=0.3.6",
+    "dlt[cli,duckdb,motherduck]>=1.4.1",
     "python-dotenv==1.0.0",
     "requests>=2.31.0",
     "slack-sdk>=3.33.5",

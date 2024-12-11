@@ -324,7 +324,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "dlt", extras = ["cli", "duckdb", "motherduck"], specifier = ">=0.3.6" },
+    { name = "dlt", extras = ["cli", "duckdb", "motherduck"], specifier = ">=1.4.1" },
     { name = "python-dotenv", specifier = "==1.0.0" },
     { name = "requests", specifier = ">=2.31.0" },
     { name = "slack-sdk", specifier = ">=3.33.5" },
