@@ -92,7 +92,7 @@ if __name__ == "__main__":
     pipeline = dlt.pipeline(
         pipeline_name="slack",
         destination="motherduck",
-        dataset_name="nf_core_dlt",
+        dataset_name="slack_stats",
     )
     
     # Run the pipeline
