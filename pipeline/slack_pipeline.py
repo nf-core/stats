@@ -21,27 +21,20 @@ from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
-
-def get_slack_client():
-    token = os.getenv("SLACK_BOT_TOKEN")
-    if not token:
-        raise ValueError("SLACK_BOT_TOKEN environment variable is not set")
-    return WebClient(token=token)
-
-@dlt.source
-def slack_stats():
+@dlt.source(name="slack", max_table_nesting=2)
+def slack_source(
+    access_token: str = dlt.secrets.value,
+):
     """DLT source for Slack workspace statistics"""
+    client = WebClient(token=access_token)
     return [
-        active_users_resource(),
-        total_users_resource(),
+        active_users_resource(client),
+        total_users_resource(client),
     ]
 
 @dlt.resource(write_disposition="merge", primary_key=["date"])
-def active_users_resource() -> Iterator[Dict]:
+def active_users_resource(client: WebClient) -> Iterator[Dict]:
     """Collect daily active users from Slack"""
-    client = get_slack_client()
     
     # Get access logs for the last 30 days (Slack's limit)
     end_date = datetime.now()
@@ -74,10 +67,8 @@ def active_users_resource() -> Iterator[Dict]:
         print(f"Error fetching access logs: {e.response['error']}")
 
 @dlt.resource(write_disposition="merge", primary_key=["date"])
-def total_users_resource() -> Iterator[Dict]:
+def total_users_resource(client: WebClient) -> Iterator[Dict]:
     """Collect total (non-deleted) users from Slack"""
-    client = get_slack_client()
-    
     try:
         # Get user list
         response = client.users_list()
@@ -104,16 +95,12 @@ def total_users_resource() -> Iterator[Dict]:
 if __name__ == "__main__":
     # Initialize the pipeline with MotherDuck destination
     pipeline = dlt.pipeline(
-        pipeline_name="slack_stats",
-        destination="duckdb",
+        pipeline_name="slack",
+        destination="motherduck",
         dataset_name="nf_core_dlt",
-        credentials={
-            "database": "md:",  # MotherDuck connection string
-            "motherduck_token": os.getenv("MOTHERDUCK_TOKEN")  # Token from environment variables
-        }
     )
     
     # Run the pipeline
-    load_info = pipeline.run(slack_stats())
+    load_info = pipeline.run(slack_source())
     
     print(load_info) 
