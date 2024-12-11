@@ -116,6 +116,15 @@ wheels = [
 ]
 
 [[package]]
+name = "cron-descriptor"
+version = "1.4.5"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/02/83/70bd410dc6965e33a5460b7da84cf0c5a7330a68d6d5d4c3dfdb72ca117e/cron_descriptor-1.4.5.tar.gz", hash = "sha256:f51ce4ffc1d1f2816939add8524f206c376a42c87a5fca3091ce26725b3b1bca", size = 30666 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/88/20/2cfe598ead23a715a00beb716477cfddd3e5948cf203c372d02221e5b0c6/cron_descriptor-1.4.5-py3-none-any.whl", hash = "sha256:736b3ae9d1a99bc3dbfc5b55b5e6e7c12031e7ba5de716625772f8b02dcd6013", size = 50370 },
+]
+
+[[package]]
 name = "dlt"
 version = "1.4.1"
 source = { registry = "https://pypi.org/simple" }
@@ -152,6 +161,10 @@ wheels = [
 ]
 
 [package.optional-dependencies]
+cli = [
+    { name = "cron-descriptor" },
+    { name = "pipdeptree" },
+]
 duckdb = [
     { name = "duckdb" },
 ]
@@ -303,7 +316,7 @@ name = "nf-core-stats"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
-    { name = "dlt", extra = ["duckdb", "motherduck"] },
+    { name = "dlt", extra = ["cli", "duckdb", "motherduck"] },
     { name = "python-dotenv" },
     { name = "requests" },
     { name = "slack-sdk" },
@@ -311,7 +324,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "dlt", extras = ["duckdb", "motherduck"], specifier = ">=0.3.6" },
+    { name = "dlt", extras = ["cli", "duckdb", "motherduck"], specifier = ">=0.3.6" },
     { name = "python-dotenv", specifier = "==1.0.0" },
     { name = "requests", specifier = ">=2.31.0" },
     { name = "slack-sdk", specifier = ">=3.33.5" },
@@ -467,6 +480,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/dc/51/b49eed0f7c23e7fb1a6affc482f6cc6fbf0bb76a2156c792a97646cd513e/pendulum-3.0.0-pp39-pypy39_pp73-musllinux_1_1_aarch64.whl", hash = "sha256:83a44e8b40655d0ba565a5c3d1365d27e3e6778ae2a05b69124db9e471255c4a", size = 559448 },
     { url = "https://files.pythonhosted.org/packages/80/24/65427759911ec8823e728a40fa86fa8e70f275d0eb036c14c631366f1213/pendulum-3.0.0-pp39-pypy39_pp73-musllinux_1_1_x86_64.whl", hash = "sha256:1a3604e9fbc06b788041b2a8b78f75c243021e0f512447806a6d37ee5214905d", size = 558185 },
     { url = "https://files.pythonhosted.org/packages/5a/8b/f3ac476c70a39818a56dd24144cc2bee276e7a5fe3d254ba5238769224c8/pendulum-3.0.0-pp39-pypy39_pp73-win_amd64.whl", hash = "sha256:92c307ae7accebd06cbae4729f0ba9fa724df5f7d91a0964b1b972a22baa482b", size = 293645 },
+]
+
+[[package]]
+name = "pipdeptree"
+version = "2.9.6"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/0a/b2/2508e11f44e0e7b136555175f21c121f20642d43ab2a09797b178e968834/pipdeptree-2.9.6.tar.gz", hash = "sha256:f815caf165e89c576ce659b866c7a82ae4590420c2d020a92d32e45097f8bc73", size = 30858 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/41/2c/63ad89d8e01d471b91c0ad4d69ed45f5221f70f3ece6c097beecb7c67f7a/pipdeptree-2.9.6-py3-none-any.whl", hash = "sha256:de93f990d21224297c9f03e057da5a3dc65ff732a0147945dd9421671f13626b", size = 19768 },
 ]
 
 [[package]]
