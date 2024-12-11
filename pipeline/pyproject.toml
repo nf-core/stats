@@ -12,3 +12,9 @@ dependencies = [
     "slack-sdk>=3.33.5",
 ]
 requires-python = ">=3.9"
+
+[project.scripts]
+slack = "python slack_pipeline.py"
+# TODO
+# lint = "ruff check ."
+# format = "ruff format ."
