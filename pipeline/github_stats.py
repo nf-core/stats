@@ -155,8 +155,8 @@ if __name__ == "__main__":
     # Initialize the pipeline with DuckDB destination
     pipeline = dlt.pipeline(
         pipeline_name="github_stats",
-        destination="duckdb",
-        dataset_name="nf_core_stats"
+        destination="motherduck",
+        dataset_name="github_stats"
     )
     
     # Run the pipeline
