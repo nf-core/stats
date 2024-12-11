@@ -1,20 +1,20 @@
 name: Run Slack Pipeline
-'on':
+"on":
   schedule:
-    - cron: '0 0 * * *'  # Run daily at midnight
+    - cron: "0 0 * * *" # Run daily at midnight
   workflow_dispatch: # Allow manual triggers
   push:
     branches:
       - main
     paths:
-      - 'pipeline/**'
-      - '.github/workflows/run_slack_workflow.yml'
+      - "pipeline/**"
+      - ".github/workflows/run_slack_workflow.yml"
 
 env:
   # DLT specific environment variables
   DLT__SECRETS__SOURCES__SLACK__ACCESS_TOKEN: ${{ secrets.SLACK_ACCESS_TOKEN }}
   DLT__SECRETS__DESTINATIONS__MOTHERDUCK__TOKEN: ${{ secrets.MOTHERDUCK_TOKEN }}
-  
+
   # Optional: Add any other environment variables needed
   PYTHONUNBUFFERED: "1"
 
@@ -29,7 +29,7 @@ jobs:
         with:
           concurrent_skipping: always
           skip_after_successful_duplicate: false
-          
+
   run_pipeline:
     needs: maybe_skip
     if: needs.maybe_skip.outputs.should_skip != 'true'
@@ -50,6 +50,6 @@ jobs:
           cache-dependency-glob: |
             pipeline/pyproject.toml
             pipeline/uv.lock
-        
+
       - name: Run Slack pipeline
         run: uv run python pipeline/slack_pipeline.py
