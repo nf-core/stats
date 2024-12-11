@@ -23,10 +23,10 @@ def slack_source():
         raise ValueError("Slack access token not found in secrets")
     
     client = WebClient(token=access_token)
-    return slack_stats(client)
+    return slack_stats_resource(client)
 
-@dlt.resource(write_disposition="merge", primary_key=["timestamp"])
-def slack_stats(client: WebClient) -> Iterator[Dict]:
+@dlt.resource(name="workspace_stats", write_disposition="merge", primary_key=["timestamp"])
+def slack_stats_resource(client: WebClient) -> Iterator[Dict]:
     """Collect combined Slack statistics in a single table"""
     try:
         # Get total users

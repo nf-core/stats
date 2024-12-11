@@ -17,8 +17,8 @@ def get_github_headers():
         "Accept": "application/vnd.github.v3+json"
     }
 
-@dlt.source
-def github_stats(organization: str = "nf-core"):
+@dlt.source(name="github")
+def github_source(organization: str = "nf-core"):
     """DLT source for GitHub statistics"""
     return [
         dlt.resource(traffic_stats_resource(organization), name="traffic_stats"),
@@ -26,7 +26,7 @@ def github_stats(organization: str = "nf-core"):
         dlt.resource(issue_stats_resource(organization), name="issue_stats")
     ]
 
-@dlt.resource(write_disposition="merge", primary_key=["pipeline_name", "timestamp"])
+@dlt.resource(name="traffic_stats", write_disposition="merge", primary_key=["pipeline_name", "timestamp"])
 def traffic_stats_resource(organization: str) -> Iterator[Dict]:
     """Collect traffic stats for each repository"""
     headers = get_github_headers()
@@ -68,7 +68,7 @@ def traffic_stats_resource(organization: str) -> Iterator[Dict]:
                 "clones_uniques": clone_data["uniques"]
             }
 
-@dlt.resource(write_disposition="merge", primary_key=["pipeline_name", "author", "week_date"])
+@dlt.resource(name="contributor_stats", write_disposition="merge", primary_key=["pipeline_name", "author", "week_date"])
 def contributor_stats_resource(organization: str) -> Iterator[Dict]:
     """Collect contributor stats for each repository"""
     headers = get_github_headers()
@@ -107,7 +107,7 @@ def contributor_stats_resource(organization: str) -> Iterator[Dict]:
                     "week_commits": week["c"]
                 }
 
-@dlt.resource(write_disposition="merge", primary_key=["pipeline_name", "issue_number"])
+@dlt.resource(name="issue_stats", write_disposition="merge", primary_key=["pipeline_name", "issue_number"])
 def issue_stats_resource(organization: str) -> Iterator[Dict]:
     """Collect issue stats for each repository"""
     headers = get_github_headers()
@@ -154,12 +154,12 @@ def issue_stats_resource(organization: str) -> Iterator[Dict]:
 if __name__ == "__main__":
     # Initialize the pipeline with DuckDB destination
     pipeline = dlt.pipeline(
-        pipeline_name="github_stats",
+        pipeline_name="github",
         destination="motherduck",
-        dataset_name="github_stats"
+        dataset_name="github"
     )
     
     # Run the pipeline
-    load_info = pipeline.run(github_stats())
+    load_info = pipeline.run(github_source())
     
     print(load_info) 
