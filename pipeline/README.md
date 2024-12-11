@@ -36,6 +36,9 @@ api_token = "<your_github_personal_access_token>"
 [sources.slack_pipeline]
 access_token = "<your_slack_token>"
 
+[sources.twitter]
+bearer_token = "<your_twitter_bearer_token>"
+
 [destination.motherduck.credentials]
 database = "<your_motherduck_database_name>"
 password = "<your_motherduck_password>"
