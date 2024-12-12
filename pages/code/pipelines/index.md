@@ -28,10 +28,6 @@ series=status
 seriesOrder={['In development', 'Released']}
 title="nf-core pipeline numbers over time"
 yAxisTitle="Number of pipelines"
-colorPalette={[
-'#85ea7d',
-'#ff7675',
-]}
 />
 
 ## Pipeline Status

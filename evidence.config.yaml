@@ -6,47 +6,44 @@ theme:
   # Define the main colors used throughout the UI
   colors:
     primary:
-      light: "#1D9A6C"  # nf-core green
-      dark: "#24C28A"   # nf-core light green
+      light: "#53A451"  # nf-core green
+      dark: "#85EA7D"   # nf-core light green
     accent:
-      light: "#156F4E"  # nf-core dark green
-      dark: "#1D9A6C"   # nf-core green
+      light: "#215EBE"  # nf-core blue
+      dark: "#93C5FD"   # lighter blue for dark mode
     text:
-      light: "#1F1F1F"  # nf-core black
-      dark: "#F1F1F1"   # nf-core light gray
+      light: "#1F1F1F"  # dark gray/black
+      dark: "#F1F1F1"   # light gray
     textSecondary:
-      light: "#5C5C5C"  # nf-core gray
+      light: "#5C5C5C"  # medium gray
       dark: "#E5E5E5"   # lighter gray for dark mode
     background:
       light: "#FFFFFF"  # white
-      dark: "#1F1F1F"   # nf-core black
+      dark: "#1F1F1F"   # dark gray/black
     surface:
-      light: "#F1F1F1"  # nf-core light gray
+      light: "#F1F1F1"  # light gray
       dark: "#2D2D2D"   # darker gray for dark mode
 
-  # Color palettes for charts
+  # Color palettes for charts with multiple series
   colorPalettes:
     default:
       light:
-        - "#9d8ec7"  
-        - "#a4d5a6"  
+        - "#53A451"  # nf-core green
+        - "#215EBE"  # nf-core blue
+        - "#A16207"  # amber
+        - "#C2410C"  # orange
       dark:
-        - "#a4d5a6"  
-        - "#9d8ec7"  
-    rg:
-      light:
-        - "#ff7675"  # red
-        - "#85ea7d"  # green
-      dark:
-        - "#85ea7d"  # green
-        - "#ff7675"  # red
+        - "#85EA7D"  # light green
+        - "#93C5FD"  # light blue
+        - "#FDE047"  # light amber
+        - "#FDBA74"  # light orange
 
   # Color scales for heatmaps and continuous data
   colorScales:
     default:
       light:
         - "#F1F1F1"  # light gray
-        - "#1D9A6C"  # primary green
+        - "#53A451"  # nf-core green
       dark:
         - "#2D2D2D"  # dark gray
-        - "#24C28A"  # light green
+        - "#85EA7D"  # light green

@@ -69,7 +69,6 @@ from stats_static.github_issue_response_time
   title="GitHub Issues Response Time"
   subtitle="First response is when a comment is made by a GitHub user other than the original issue author"
   yAxisTitle="Percentage of issues"
-  colorPalette=rg
   yFmt=pct
   xType="category"
   xGridLines=true
