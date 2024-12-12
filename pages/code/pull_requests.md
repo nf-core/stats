@@ -23,10 +23,6 @@ from stats_static.github_prs
   y={["Closed / Merged", "open"]}
   title="GitHub Pull Requests over time"
   yAxisTitle="Number of Pull Requests"
-  colorPalette={[
-    '#9d8ec7', /* Purple for Closed/Merged */
-    '#a4d5a6', /* Green for Open */
-  ]}
 />
 
 ## Pull Request Response Times
@@ -62,10 +58,6 @@ type=grouped
 title="GitHub Pull Request Response Time"
 subtitle="First response is when a comment is made by a GitHub user other than the original PR author"
 yAxisTitle="Percentage of PRs"
-colorPalette={[
-'#a4d5a6', /* Green for Time to First Response */
-'#9d8ec7', /* Purple for Time to Close */
-]}
 yFmt=pct
 xType="category"
 xGridLines=true
