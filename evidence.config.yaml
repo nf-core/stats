@@ -1,3 +1,52 @@
 appearance:
   default: system
   switcher: true
+
+theme:
+  # Define the main colors used throughout the UI
+  colors:
+    primary:
+      light: "#1D9A6C"  # nf-core green
+      dark: "#24C28A"   # nf-core light green
+    accent:
+      light: "#156F4E"  # nf-core dark green
+      dark: "#1D9A6C"   # nf-core green
+    text:
+      light: "#1F1F1F"  # nf-core black
+      dark: "#F1F1F1"   # nf-core light gray
+    textSecondary:
+      light: "#5C5C5C"  # nf-core gray
+      dark: "#E5E5E5"   # lighter gray for dark mode
+    background:
+      light: "#FFFFFF"  # white
+      dark: "#1F1F1F"   # nf-core black
+    surface:
+      light: "#F1F1F1"  # nf-core light gray
+      dark: "#2D2D2D"   # darker gray for dark mode
+
+  # Color palettes for charts
+  colorPalettes:
+    default:
+      light:
+        - "#9d8ec7"  
+        - "#a4d5a6"  
+      dark:
+        - "#a4d5a6"  
+        - "#9d8ec7"  
+    rg:
+      light:
+        - "#ff7675"  # red
+        - "#85ea7d"  # green
+      dark:
+        - "#85ea7d"  # green
+        - "#ff7675"  # red
+
+  # Color scales for heatmaps and continuous data
+  colorScales:
+    default:
+      light:
+        - "#F1F1F1"  # light gray
+        - "#1D9A6C"  # primary green
+      dark:
+        - "#2D2D2D"  # dark gray
+        - "#24C28A"  # light green

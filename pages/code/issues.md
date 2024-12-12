@@ -33,7 +33,7 @@ order by date asc, status asc
   seriesOrder={['Closed', 'Open']}
   title="GitHub Issues over time"
   yAxisTitle="Number of Issues"
-  colorPalette={['#ff7675', '#85ea7d']}
+  colorPalette=rg
 />
 
 ## Issue response times
@@ -69,10 +69,7 @@ from stats_static.github_issue_response_time
   title="GitHub Issues Response Time"
   subtitle="First response is when a comment is made by a GitHub user other than the original issue author"
   yAxisTitle="Percentage of issues"
-  colorPalette={[
-    '#ff7675', /* Red for Time to Close */
-    '#85ea7d', /* Green for Time to First Response */
-  ]}
+  colorPalette=rg
   yFmt=pct
   xType="category"
   xGridLines=true
