@@ -3,14 +3,9 @@ with monthly_counts as (
         date_trunc('month', to_timestamp(timestamp)::timestamp) as month,
         sum(number_of_commits) as num_commits
     from nfcore_issues_stats.gh_commits
-    where timestamp >= extract(epoch from timestamp '2020-01-01')
+    where to_timestamp(timestamp)::timestamp >= '2020-01-01'
     group by 1
-),
-cumulative_counts as (
-    select 
-        month,
-        sum(num_commits) over (order by month) as num_commits
-    from monthly_counts
+    order by month
 )
 select 
     month,
@@ -24,5 +19,4 @@ select
         ),
         1
     ) as growth_rate
-from cumulative_counts
-order by month desc 
+from monthly_counts
