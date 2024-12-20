@@ -91,10 +91,6 @@ NOTE: We're working on making these numbers live again. See [nf-core/stats#7](ht
     data={code_growth_gh_commits}
     value=num_commits
     title="Commits"
-    sparkline=month
-    comparison=growth_rate
-    comparisonFmt=pct1
-    comparisonTitle="vs. Last Month"
 />
 
 <BigValue
