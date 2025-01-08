@@ -13,7 +13,7 @@ name: Run Slack Pipeline
 env:
   # DLT specific environment variables
   DLT__SECRETS__SOURCES__SLACK__ACCESS_TOKEN: ${{ secrets.SLACK_ACCESS_TOKEN }}
-  DLT__SECRETS__DESTINATIONS__MOTHERDUCK__TOKEN: ${{ secrets.MOTHERDUCK_TOKEN }}
+  DESTINATION__MOTHERDUCK__CREDENTIALS__PASSWORD: ${{ secrets.MOTHERDUCK_TOKEN }}
 
   # Optional: Add any other environment variables needed
   PYTHONUNBUFFERED: "1"

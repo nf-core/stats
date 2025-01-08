@@ -13,7 +13,7 @@ name: Run Twitter Pipeline
 env:
   # DLT specific environment variables
   DLT__SECRETS__SOURCES__TWITTER__BEARER_TOKEN: ${{ secrets.TWITTER_BEARER_TOKEN }}
-  DLT__SECRETS__DESTINATIONS__MOTHERDUCK__TOKEN: ${{ secrets.MOTHERDUCK_TOKEN }}
+  DESTINATION__MOTHERDUCK__CREDENTIALS__PASSWORD: ${{ secrets.MOTHERDUCK_TOKEN }}
 
   # Optional: Add any other environment variables needed
   PYTHONUNBUFFERED: "1"
