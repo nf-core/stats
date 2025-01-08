@@ -13,9 +13,8 @@ name: Run Twitter Pipeline
 env:
   # DLT specific environment variables
   TWITTER_BEARER_TOKEN: ${{ secrets.TWITTER_BEARER_TOKEN }}
+  MOTHERDUCK_DATABASE: ${{ secrets.MOTHERDUCK_DATABASE }}
   motherduck_token: ${{ secrets.MOTHERDUCK_TOKEN }}
-
-  # Optional: Add any other environment variables needed
   PYTHONUNBUFFERED: "1"
 
 jobs:
@@ -51,5 +50,14 @@ jobs:
             pipeline/pyproject.toml
             pipeline/uv.lock
 
+      - name: Setup DLT credentials
+        run: |
+          mkdir -p pipeline/.dlt
+          cat << EOF > pipeline/.dlt/secrets.toml
+          [destination.motherduck.credentials]
+          database = "nf_core_dlt"
+          password = "${{ secrets.MOTHERDUCK_TOKEN }}"
+          EOF
+          
       - name: Run Twitter pipeline
         run: uv run python twitter_pipeline.py

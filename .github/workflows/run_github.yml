@@ -14,9 +14,8 @@ env:
   # DLT specific environment variables
   # DLT__SECRETS__SOURCES__GITHUB__TOKEN: ${{ secrets.GITHUB_TOKEN }}
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  MOTHERDUCK_DATABASE: ${{ secrets.MOTHERDUCK_DATABASE }}
   motherduck_token: ${{ secrets.MOTHERDUCK_TOKEN }}
-
-  # Optional: Add any other environment variables needed
   PYTHONUNBUFFERED: "1"
 
 jobs:
