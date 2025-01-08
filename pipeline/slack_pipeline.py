@@ -13,16 +13,17 @@ from typing import Dict, Iterator
 from datetime import datetime
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
+import os
 
 @dlt.source(name="slack")
 def slack_source():
     """DLT source for Slack workspace statistics"""
     # Get token explicitly from secrets
-    access_token = dlt.secrets.get("sources.slack_pipeline.access_token")
-    if not access_token:
-        raise ValueError("Slack access token not found in secrets")
+    token = os.getenv("SLACK_BOT_TOKEN")
+    if not token:
+        raise ValueError("SLACK_BOT_TOKEN environment variable is not set")
     
-    client = WebClient(token=access_token)
+    client = WebClient(token=token)
     return slack_stats_resource(client)
 
 @dlt.resource(name="workspace_stats", write_disposition="merge", primary_key=["timestamp"])

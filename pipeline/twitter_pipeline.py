@@ -20,7 +20,7 @@ load_dotenv()
 
 def get_twitter_headers():
     """Get Twitter API headers with bearer token authentication"""
-    access_token = dlt.secrets.get("sources.twitter.bearer_token")
+    access_token = os.getenv("TWITTER_BEARER_TOKEN")
     if not access_token:
         raise ValueError("TWITTER_BEARER_TOKEN environment variable is not set")
     return {
