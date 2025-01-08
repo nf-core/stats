@@ -13,8 +13,8 @@ name: Run Slack Pipeline
 env:
   # DLT specific environment variables
   SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-  MOTHERDUCK_DATABASE: ${{ secrets.MOTHERDUCK_DATABASE }}
-  motherduck_token: ${{ secrets.MOTHERDUCK_TOKEN }}
+  DESTINATION__MOTHERDUCK__CREDENTIALS__DATABASE: ${{ secrets.MOTHERDUCK_DATABASE }}
+  DESTINATION__MOTHERDUCK__CREDENTIALS__PASSWORD: ${{ secrets.MOTHERDUCK_TOKEN }}
   PYTHONUNBUFFERED: "1"
 
 jobs:
