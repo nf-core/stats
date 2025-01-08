@@ -12,7 +12,8 @@ name: Run GitHub Pipeline
 
 env:
   # DLT specific environment variables
-  DLT__SECRETS__SOURCES__GITHUB__TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  # DLT__SECRETS__SOURCES__GITHUB__TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   motherduck_token: ${{ secrets.MOTHERDUCK_TOKEN }}
 
   # Optional: Add any other environment variables needed
