@@ -52,4 +52,4 @@ jobs:
             pipeline/uv.lock
 
       - name: Run GitHub pipeline
-        run: uv run python pipeline/github_pipeline.py
+        run: uv run python github_pipeline.py

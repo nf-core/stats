@@ -52,4 +52,4 @@ jobs:
             pipeline/uv.lock
 
       - name: Run Slack pipeline
-        run: uv run python pipeline/slack_pipeline.py
+        run: uv run python slack_pipeline.py

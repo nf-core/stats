@@ -52,4 +52,4 @@ jobs:
             pipeline/uv.lock
 
       - name: Run Twitter pipeline
-        run: uv run python pipeline/twitter_pipeline.py
+        run: uv run python twitter_pipeline.py
