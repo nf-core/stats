@@ -33,7 +33,6 @@ order by date asc, status asc
   seriesOrder={['Closed', 'Open']}
   title="GitHub Issues over time"
   yAxisTitle="Number of Issues"
-  colorPalette=rg
 />
 
 ## Issue response times
