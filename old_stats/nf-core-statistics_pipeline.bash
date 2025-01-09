@@ -4,6 +4,7 @@ cd nf-core-statistics
 
 # Use Python conversion function to extract all metrics
 uvx git-history file nf-core-stats.db metrics.json \
+--start-after ae5924d2132cec58ec68dbb7827a2921cf65f387 \
 --convert '
 try:
     data = json.loads(content)
