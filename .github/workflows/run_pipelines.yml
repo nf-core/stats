@@ -1,17 +1,18 @@
-name: Run Twitter Pipeline
+name: Run All Pipelines
 "on":
   schedule:
-    - cron: "0 */12 * * *" # Run every 12 hours
+    - cron: "0 0 * * *" # Run daily at midnight
   workflow_dispatch: # Allow manual triggers
   push:
     branches:
       - main
     paths:
       - "pipeline/**"
-      - ".github/workflows/run_twitter.yml"
+      - ".github/workflows/run_pipelines.yml"
 
 env:
-  # DLT specific environment variables
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
   TWITTER_BEARER_TOKEN: ${{ secrets.TWITTER_BEARER_TOKEN }}
   DESTINATION__MOTHERDUCK__CREDENTIALS__DATABASE: ${{ secrets.MOTHERDUCK_DATABASE }}
   DESTINATION__MOTHERDUCK__CREDENTIALS__PASSWORD: ${{ secrets.MOTHERDUCK_TOKEN }}
@@ -29,18 +30,26 @@ jobs:
           concurrent_skipping: always
           skip_after_successful_duplicate: false
 
-  run_pipeline:
+  run_pipelines:
     needs: maybe_skip
     if: needs.maybe_skip.outputs.should_skip != 'true'
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - pipeline: github
+            uuid: 017c8a09-9531-4206-a479-aa51a2209931
+          - pipeline: slack
+            uuid: af9808d6-6dd7-4e8d-8fc7-c132fc579597
+          - pipeline: twitter
+            uuid: 39c783d5-b697-4eb5-b677-05bae13a2490
     defaults:
       run:
         working-directory: pipeline
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
+      
       - name: Set up uv
         uses: astral-sh/setup-uv@v4
         with:
@@ -50,5 +59,14 @@ jobs:
             pipeline/pyproject.toml
             pipeline/uv.lock
 
-      - name: Run Twitter pipeline
-        run: uv run python twitter_pipeline.py
+      - name: Install runitor
+        run: |
+          curl -L https://github.com/bdd/runitor/releases/latest/download/runitor-linux-amd64 -o runitor
+          chmod +x runitor
+          sudo mv runitor /usr/local/bin/
+
+      - name: Run ${{ matrix.pipeline }} pipeline
+        run: |
+            runitor -uuid ${{ matrix.uuid }} -- \
+                uv run python \
+                ${{ matrix.pipeline }}_pipeline.py 
