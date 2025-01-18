@@ -38,11 +38,11 @@ jobs:
       matrix:
         include:
           - pipeline: github
-            hc_url: https://hc-ping.com/017c8a09-9531-4206-a479-aa51a2209931
+            uuid: 017c8a09-9531-4206-a479-aa51a2209931
           - pipeline: slack
-            hc_url: https://hc-ping.com/af9808d6-6dd7-4e8d-8fc7-c132fc579597
+            uuid: af9808d6-6dd7-4e8d-8fc7-c132fc579597
           - pipeline: twitter
-            hc_url: https://hc-ping.com/39c783d5-b697-4eb5-b677-05bae13a2490
+            uuid: 39c783d5-b697-4eb5-b677-05bae13a2490
     defaults:
       run:
         working-directory: pipeline
@@ -59,8 +59,14 @@ jobs:
             pipeline/pyproject.toml
             pipeline/uv.lock
 
-      - name: Run ${{ matrix.pipeline }} pipeline
-        run: uv run python ${{ matrix.pipeline }}_pipeline.py
+      - name: Install runitor
+        run: |
+          curl -L https://github.com/bdd/runitor/releases/latest/download/runitor-linux-amd64 -o runitor
+          chmod +x runitor
+          sudo mv runitor /usr/local/bin/
 
-      - name: Send healthcheck ping
-        run: curl -fsS -m 10 --retry 5 -o /dev/null ${{ matrix.hc_url }} 
+      - name: Run ${{ matrix.pipeline }} pipeline
+        run: |
+            runitor -uuid ${{ matrix.uuid }} -- \
+                uv run python \
+                ${{ matrix.pipeline }}_pipeline.py 
