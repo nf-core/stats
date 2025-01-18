@@ -36,7 +36,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pipeline: [github, slack, twitter]
+        include:
+          - pipeline: github
+            hc_url: https://hc-ping.com/017c8a09-9531-4206-a479-aa51a2209931
+          - pipeline: slack
+            hc_url: https://hc-ping.com/af9808d6-6dd7-4e8d-8fc7-c132fc579597
+          - pipeline: twitter
+            hc_url: https://hc-ping.com/39c783d5-b697-4eb5-b677-05bae13a2490
     defaults:
       run:
         working-directory: pipeline
@@ -54,4 +60,7 @@ jobs:
             pipeline/uv.lock
 
       - name: Run ${{ matrix.pipeline }} pipeline
-        run: uv run python ${{ matrix.pipeline }}_pipeline.py 
+        run: uv run python ${{ matrix.pipeline }}_pipeline.py
+
+      - name: Send healthcheck ping
+        run: curl -fsS -m 10 --retry 5 -o /dev/null ${{ matrix.hc_url }} 
