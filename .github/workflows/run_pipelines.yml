@@ -62,11 +62,13 @@ jobs:
             pipeline/uv.lock
 
       - name: Install runitor
+        env:
+          RUNITOR_VERSION: "v1.3.0-build.4"
         run: |
-          RUNITOR_VERSION="v1.3.0"
+          # Download binary and SHA256 file
           curl -fsSL -o runitor \
-            "https://github.com/bdd/runitor/releases/download/${RUNITOR_VERSION}/runitor-linux-amd64"
-          file runitor
+            "https://github.com/bdd/runitor/releases/download/${RUNITOR_VERSION}/runitor-${RUNITOR_VERSION}-linux-amd64"
+          # Make executable and test
           chmod +x runitor
           ./runitor -version
           sudo mv runitor /usr/local/bin/
