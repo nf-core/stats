@@ -63,8 +63,12 @@ jobs:
 
       - name: Install runitor
         run: |
-          curl -L https://github.com/bdd/runitor/releases/latest/download/runitor-linux-amd64 -o runitor
+          RUNITOR_VERSION="v1.3.0"
+          curl -fsSL -o runitor \
+            "https://github.com/bdd/runitor/releases/download/${RUNITOR_VERSION}/runitor-linux-amd64"
+          file runitor
           chmod +x runitor
+          ./runitor -version
           sudo mv runitor /usr/local/bin/
 
       - name: Run ${{ matrix.pipeline }} pipeline
