@@ -22,6 +22,7 @@ env:
 
 jobs:
   maybe_skip:
+    name: Skip if duplicate
     runs-on: ubuntu-latest
     outputs:
       should_skip: ${{ steps.skip_check.outputs.should_skip }}
@@ -33,6 +34,7 @@ jobs:
           skip_after_successful_duplicate: false
 
   run_pipelines:
+    name: Run ${{ matrix.pipeline }} pipeline
     needs: maybe_skip
     if: needs.maybe_skip.outputs.should_skip != 'true'
     runs-on: ubuntu-latest
