@@ -19,7 +19,7 @@ theme:
       dark: "#E5E5E5" # lighter gray for dark mode
     background:
       light: "#FFFFFF" # white
-      dark: "#1F1F1F" # dark gray/black
+      dark: "#212529" # dark gray/black
     surface:
       light: "#F1F1F1" # light gray
       dark: "#2D2D2D" # darker gray for dark mode
