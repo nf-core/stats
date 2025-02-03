@@ -23,60 +23,49 @@ def slack_source(api_token: str = dlt.secrets.value) -> Iterator[Dict]:
     client = WebClient(token=api_token)
     
     # Test the connection
-    try:
-        auth_test = client.auth_test()
-        print(f"Successfully authenticated as: {auth_test['user']} in workspace: {auth_test['team']}")
-    except SlackApiError as e:
-        print(f"Authentication failed: {e.response['error']}")
-        raise
+    auth_test = client.auth_test()
+    print(f"Successfully authenticated as: {auth_test['user']} in workspace: {auth_test['team']}")
 
     return slack_stats_resource(client)
 
 @dlt.resource(name="workspace_stats", write_disposition="merge", primary_key=["timestamp"])
 def slack_stats_resource(client: WebClient) -> Iterator[Dict]:
     """Collect combined Slack statistics in a single table"""
-    try:
-        # Get total users
-        users_response = client.users_list()
-        active_account_users = [user for user in users_response["members"] if not user.get("deleted", False)]
-        total_users = len(active_account_users)
+    # Get total users
+    users_response = client.users_list()
+    active_account_users = [user for user in users_response["members"] if not user.get("deleted", False)]
+    total_users = len(active_account_users)
 
-        # Get active users from channels
-        channels_response = client.conversations_list(types="public_channel")
-        active_channel_users = set()
-        
-        for channel in channels_response["channels"]:
-            try:
-                members = client.conversations_members(channel=channel["id"])
-                active_channel_users.update(members["members"])
-            except SlackApiError as e:
-                print(f"Error fetching members for channel {channel['id']}: {e.response['error']}")
+    # Get active users from channels
+    channels_response = client.conversations_list(types="public_channel")
+    active_channel_users = set()
+    
+    for channel in channels_response["channels"]:
+        members = client.conversations_members(channel=channel["id"])
+        active_channel_users.update(members["members"])
 
-        active_users = len(active_channel_users)
-        inactive_users = total_users - active_users
+    active_users = len(active_channel_users)
+    inactive_users = total_users - active_users
 
-        # Yield combined stats
-        yield {
-            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "total_users": total_users,
-            "active_users": active_users,
-            "inactive_users": inactive_users,
-            # Optionally keep detailed user info as nested data
-            "user_details": [
-                {
-                    "id": user["id"],
-                    "name": user.get("real_name_normalized", user["name"]),
-                    "email": user.get("profile", {}).get("email"),
-                    "is_admin": user.get("is_admin", False),
-                    "is_bot": user.get("is_bot", False),
-                    "is_active": user["id"] in active_channel_users
-                }
-                for user in active_account_users
-            ]
-        }
-            
-    except SlackApiError as e:
-        print(f"Error fetching Slack data: {e.response['error']}")
+    # Yield combined stats
+    yield {
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "total_users": total_users,
+        "active_users": active_users,
+        "inactive_users": inactive_users,
+        # Optionally keep detailed user info as nested data
+        "user_details": [
+            {
+                "id": user["id"],
+                "name": user.get("real_name_normalized", user["name"]),
+                "email": user.get("profile", {}).get("email"),
+                "is_admin": user.get("is_admin", False),
+                "is_bot": user.get("is_bot", False),
+                "is_active": user["id"] in active_channel_users
+            }
+            for user in active_account_users
+        ]
+    }
 
 if __name__ == "__main__":
     # Initialize the pipeline with MotherDuck destination
@@ -88,5 +77,4 @@ if __name__ == "__main__":
     
     # Run the pipeline
     load_info = pipeline.run(slack_source())
-    
     print(load_info) 
