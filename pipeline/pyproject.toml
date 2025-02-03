@@ -11,7 +11,8 @@ dependencies = [
     "requests>=2.31.0",
     "slack-sdk>=3.33.0",
     "pendulum>=2.1.2",
-    "google-cloud-bigquery>=3.17.2"
+#    "google-cloud-bigquery>=3.17.2",
+#    "connectorx>=0.3.2"
 ]
 requires-python = ">=3.9"
 
