@@ -1,29 +1,8 @@
 import dlt
-from dlt.sources.helpers import requests
-import gzip
-import json
-from datetime import datetime, timedelta
+from google.cloud import bigquery
 import pendulum
 from typing import Iterator, Dict, List
 from collections import defaultdict
-
-def _process_gharchive_hour(hour: datetime) -> Iterator[Dict]:
-    """Process a single hour of GH Archive data."""
-    hour_str = hour.strftime('%Y-%m-%d-%-H')
-    url = f"https://data.gharchive.org/{hour_str}.json.gz"
-    
-    try:
-        response = requests.get(url, stream=True)
-        response.raise_for_status()
-        
-        with gzip.GzipFile(fileobj=response.raw) as gz:
-            for line in gz:
-                event = json.loads(line)
-                # Filter for nf-core organization events
-                if event.get('org', {}).get('login') == 'nf-core':
-                    yield event
-    except Exception as e:
-        print(f"Error processing hour {hour_str}: {str(e)}")
 
 def process_events_for_stats(events: List[Dict]) -> Dict:
     """Process a batch of events to calculate statistics."""
