@@ -1,0 +1,82 @@
+name: Run All Pipelines
+"on":
+  schedule:
+    - cron: "0 0 * * *" # Run daily at midnight
+  workflow_dispatch: # Allow manual triggers
+  # TODO: Run on dev dbs on pull request
+  #   pull_request:
+  push:
+    branches:
+      - main
+    paths:
+      - "pipeline/**"
+      - ".github/workflows/run_pipelines.yml"
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+  TWITTER_BEARER_TOKEN: ${{ secrets.TWITTER_BEARER_TOKEN }}
+  DESTINATION__MOTHERDUCK__CREDENTIALS__DATABASE: ${{ secrets.MOTHERDUCK_DATABASE }}
+  DESTINATION__MOTHERDUCK__CREDENTIALS__PASSWORD: ${{ secrets.MOTHERDUCK_TOKEN }}
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  maybe_skip:
+    name: Skip if duplicate
+    runs-on: ubuntu-latest
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@v5
+        with:
+          concurrent_skipping: always
+          skip_after_successful_duplicate: false
+
+  run_pipelines:
+    name: Run ${{ matrix.pipeline }} pipeline
+    needs: maybe_skip
+    if: needs.maybe_skip.outputs.should_skip != 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - pipeline: github
+            uuid: 017c8a09-9531-4206-a479-aa51a2209931
+          - pipeline: slack
+            uuid: af9808d6-6dd7-4e8d-8fc7-c132fc579597
+          - pipeline: twitter
+            uuid: 39c783d5-b697-4eb5-b677-05bae13a2490
+    defaults:
+      run:
+        working-directory: pipeline
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          python-version: "3.10"
+          enable-cache: true
+          cache-dependency-glob: |
+            pipeline/pyproject.toml
+            pipeline/uv.lock
+
+      - name: Install runitor
+        env:
+          RUNITOR_VERSION: "v1.3.0-build.4"
+        run: |
+          # Download binary and SHA256 file
+          curl -fsSL -o runitor \
+            "https://github.com/bdd/runitor/releases/download/${RUNITOR_VERSION}/runitor-${RUNITOR_VERSION}-linux-amd64"
+          # Make executable and test
+          chmod +x runitor
+          ./runitor -version
+          sudo mv runitor /usr/local/bin/
+
+      - name: Run ${{ matrix.pipeline }} pipeline
+        run: |
+          runitor -uuid ${{ matrix.uuid }} -- \
+              uv run python \
+              ${{ matrix.pipeline }}_pipeline.py
