@@ -11,18 +11,22 @@ theme:
     accent:
       light: "#215EBE" # nf-core blue
       dark: "#93C5FD" # lighter blue for dark mode
-    text:
-      light: "#1F1F1F" # dark gray/black
-      dark: "#F1F1F1" # light gray
-    textSecondary:
-      light: "#5C5C5C" # medium gray
-      dark: "#E5E5E5" # lighter gray for dark mode
-    background:
+    base:
       light: "#FFFFFF" # white
       dark: "#222528" # dark gray/black
-    surface:
-      light: "#F1F1F1" # light gray
-      dark: "#222528" # match background for dark mode
+    # TODO Figure out how to get these colors from the main website
+    # info:
+    #   light: "#CEE2FF"  # Cyan
+    #   dark: "#8be9fd"  # Cyan
+    # warning:
+    #   light: "#ffb86c"  # Orange
+    #   dark: "#ffb86c"  # Orange
+    # negative:
+    #   light: "#ff5555"  # Red
+    #   dark: "#ff5555"  # Red
+    # positive:
+    #   light: "#50fa7b"  # Green
+    #   dark: "#50fa7b"  # Green
 
   # Color palettes for charts with multiple series
   colorPalettes:
