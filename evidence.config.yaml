@@ -19,10 +19,10 @@ theme:
       dark: "#E5E5E5" # lighter gray for dark mode
     background:
       light: "#FFFFFF" # white
-      dark: "#212529" # dark gray/black
+      dark: "#222528" # dark gray/black
     surface:
       light: "#F1F1F1" # light gray
-      dark: "#2D2D2D" # darker gray for dark mode
+      dark: "#222528" # match background for dark mode
 
   # Color palettes for charts with multiple series
   colorPalettes:
