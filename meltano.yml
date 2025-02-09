@@ -6,3 +6,30 @@ environments:
 - name: staging
 - name: prod
 send_anonymous_usage_stats: false
+plugins:
+  extractors:
+  - name: tap-bigquery
+    config:
+      credentials_path: ./client_secrets.json
+      start_datetime: '2023-10-01'
+      streams:
+      - name: github_events
+        table: '`githubarchive.day.*`'
+        table_suffix_pattern: '2023(1[0-2]|2024[0-1])[0-9][0-9]'  # Oct 2023 to Jan 2024
+        columns: 
+          - type
+          - actor
+          - repo
+          - created_at
+          - org
+          - payload
+        datetime_key: created_at
+        query: >
+          SELECT type, actor, repo, created_at, org, payload
+          FROM `{table}`
+          WHERE org.login = 'nf-core'
+          AND (
+            (type = 'PullRequestEvent' AND JSON_EXTRACT(payload, '$.action') = 'closed')  -- closed PRs
+            OR type = 'PushEvent'  -- for unique contributors
+            OR (type = 'ReleaseEvent' AND JSON_EXTRACT(payload, '$.action') = 'published')  -- released pipelines
+          )
