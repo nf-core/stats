@@ -16,9 +16,11 @@ plugins:
       organizations:
       - nf-core
     select:
-    - commits.*
-    - pull_requests.*
-    - releases.*
+      - commits.*            # For commit history
+      - pull_requests.*      # For PR activity
+      - releases.*           # For pipeline releases
+      - contributors.*       # For contributor list
+      - stargazers.*        # Optional: for tracking community growth
   loaders:
   - name: target-jsonl
     variant: andyh1203
