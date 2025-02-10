@@ -14,12 +14,17 @@ plugins:
     config:
       start_date: '2023-10-01'
       organizations:
-        - nf-core
+      - nf-core
     select:
-      - commits.*
-      - pull_requests.*
-      - releases.*
+    - commits.*
+    - pull_requests.*
+    - releases.*
   loaders:
   - name: target-jsonl
     variant: andyh1203
     pip_url: target-jsonl
+  - name: target-duckdb
+    variant: jwills
+    pip_url: target-duckdb~=0.6
+    config:
+      path: md:nf_core_dev
