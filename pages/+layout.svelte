@@ -29,6 +29,7 @@
 
 <EvidenceDefaultLayout
   {data}
+  title="nf-core stats"
   hideHeader={false}
   fullWidth={true}
   builtWithEvidence={true}
