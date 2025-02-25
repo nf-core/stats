@@ -98,6 +98,3 @@ Whilst we always prefer quality over quantity, these numbers reflect the work ou
     comparisonFmt=pct1
     comparisonTitle="vs. Last Month"
 />
-
-<br>
-<small class="float-right">Last update: {new Date().toLocaleString()}</small>
