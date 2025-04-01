@@ -1,7 +1,7 @@
 <script>
   import "@evidence-dev/tailwind/fonts.css";
   import "../app.css";
-  import { EvidenceDefaultLayout } from "@evidence-dev/core-components";
+  import { EvidenceDefaultLayout, LastRefreshed } from "@evidence-dev/core-components";
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
 
@@ -35,5 +35,10 @@
   builtWithEvidence={true}
   githubRepo="https://github.com/nf-core/stats"
 >
-  <slot slot="content" />
+  <div slot="content">
+    <slot />
+    <div class="float-right">
+      <LastRefreshed prefix="Data last updated"/>
+    </div>
+  </div>
 </EvidenceDefaultLayout>

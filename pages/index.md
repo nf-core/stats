@@ -17,7 +17,6 @@ On this page you can see the beating heart of nf-core - the size of our communit
 
 The numbers below track our growth over the various channels that the nf-core community operates in.
 
-NOTE: These numbers are not updated in real-time yet.
 
 <BigValue
   data={community_growth_github_members}
@@ -58,14 +57,11 @@ NOTE: These numbers are not updated in real-time yet.
   comparisonTitle="vs. Last Month"
   link="/community/twitter"
 />
-
 <!-- TODO Add Bluesky followers -->
 
 ## Code Stats
 
 Whilst we always prefer quality over quantity, these numbers reflect the work output from the nf-core community.
-
-NOTE: We're working on making these numbers live again. See [nf-core/stats#7](https://github.com/nf-core/stats/issues/7) for more details.
 
 <BigValue
     data={code_growth_gh_repos}
