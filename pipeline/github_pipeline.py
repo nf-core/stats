@@ -246,33 +246,43 @@ if __name__ == "__main__":
     logger.info("Starting GitHub data pipeline run")
     load_info = pipeline.run(github_source())
 
-    print(load_info)
-
     # Log detailed information about what was loaded
     logger.info("=== Pipeline Run Summary ===")
+    logger.info(f"Load ID: {load_info.load_id}")
+
     for load_package in load_info.load_packages:
-        # Each package can contain multiple tables
-        for table_name, table_info in load_package.schema_update.items():
-            logger.info(f"Table: {table_name}")
-            logger.info(f"Status: {load_package.status}")
+        logger.info(f"\nPackage Status: {load_package.status}")
 
-            # Get row counts from normalize info
-            if pipeline.last_trace and pipeline.last_trace.last_normalize_info:
-                row_counts = pipeline.last_trace.last_normalize_info.row_counts
-                if table_name in row_counts:
-                    logger.info(f"Rows processed: {row_counts[table_name]}")
+        # Log schema updates
+        if hasattr(load_package, "schema_update"):
+            for table_name, table_info in load_package.schema_update.items():
+                logger.info(f"\nTable: {table_name}")
 
-            # Log schema details
-            if table_info.get("description"):
-                logger.info(f"Description: {table_info['description']}")
-            if table_info.get("columns"):
-                logger.info("Columns:")
-                for col_name, col_info in table_info["columns"].items():
-                    logger.info(
-                        f"  - {col_name}: {col_info.get('data_type', 'unknown type')}"
-                    )
+                # Log metrics if available
+                if (
+                    hasattr(load_package, "metrics")
+                    and table_name in load_package.metrics
+                ):
+                    metrics = load_package.metrics[table_name]
+                    logger.info(f"Rows processed: {metrics.get('rows_processed', 0)}")
+                    logger.info(f"Rows inserted: {metrics.get('rows_inserted', 0)}")
+                    logger.info(f"Rows updated: {metrics.get('rows_updated', 0)}")
+                    logger.info(f"Rows deleted: {metrics.get('rows_deleted', 0)}")
 
-    logger.info(f"Pipeline run completed: {load_info.load_id}")
+                # Log schema details
+                if table_info.get("description"):
+                    logger.info(f"Description: {table_info['description']}")
+                if table_info.get("columns"):
+                    logger.info("Columns:")
+                    for col_name, col_info in table_info["columns"].items():
+                        logger.info(
+                            f"  - {col_name}: {col_info.get('data_type', 'unknown type')}"
+                        )
 
-    # Print the load_info object for reference
-    print(load_info)
+        # Log any failed jobs
+        if hasattr(load_package, "failed_jobs") and load_package.failed_jobs:
+            logger.warning(f"\nFailed jobs for package:")
+            for job in load_package.failed_jobs:
+                logger.warning(f"  - {job.table_name}: {job.error_message}")
+
+    logger.info(f"\nPipeline run completed with ID: {load_info.load_id}")
