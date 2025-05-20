@@ -237,21 +237,31 @@ if __name__ == "__main__":
     logger.info("Starting GitHub data pipeline run")
     load_info = pipeline.run(github_source())
 
+    print(load_info)
+
     # Log detailed information about what was loaded
     logger.info("=== Pipeline Run Summary ===")
     for load_package in load_info.load_packages:
-        logger.info(f"Table: {load_package.table_name}")
-        logger.info(f"Status: {load_package.status}")
+        # Each package can contain multiple tables
+        for table_name, table_info in load_package.schema_update.items():
+            logger.info(f"Table: {table_name}")
+            logger.info(f"Status: {load_package.status}")
 
-        # Get row counts from normalize info
-        if pipeline.last_trace and pipeline.last_trace.last_normalize_info:
-            row_counts = pipeline.last_trace.last_normalize_info.row_counts
-            if load_package.table_name in row_counts:
-                logger.info(f"Rows processed: {row_counts[load_package.table_name]}")
+            # Get row counts from normalize info
+            if pipeline.last_trace and pipeline.last_trace.last_normalize_info:
+                row_counts = pipeline.last_trace.last_normalize_info.row_counts
+                if table_name in row_counts:
+                    logger.info(f"Rows processed: {row_counts[table_name]}")
 
-        # Log schema updates if any
-        if hasattr(load_package, "schema_update"):
-            logger.info(f"Schema changes: {load_package.schema_update}")
+            # Log schema details
+            if table_info.get("description"):
+                logger.info(f"Description: {table_info['description']}")
+            if table_info.get("columns"):
+                logger.info("Columns:")
+                for col_name, col_info in table_info["columns"].items():
+                    logger.info(
+                        f"  - {col_name}: {col_info.get('data_type', 'unknown type')}"
+                    )
 
     logger.info(f"Pipeline run completed: {load_info.load_id}")
 
