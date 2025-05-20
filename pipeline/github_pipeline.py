@@ -248,7 +248,6 @@ if __name__ == "__main__":
 
     # Log detailed information about what was loaded
     logger.info("=== Pipeline Run Summary ===")
-    logger.info(f"Load ID: {load_info.load_id}")
 
     for load_package in load_info.load_packages:
         logger.info(f"\nPackage Status: {load_package.status}")
@@ -285,4 +284,4 @@ if __name__ == "__main__":
             for job in load_package.failed_jobs:
                 logger.warning(f"  - {job.table_name}: {job.error_message}")
 
-    logger.info(f"\nPipeline run completed with ID: {load_info.load_id}")
+    logger.info(f"\nPipeline run completed with IDs: {load_info.load_ids}")
