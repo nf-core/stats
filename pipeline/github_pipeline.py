@@ -51,12 +51,21 @@ def traffic_stats_resource(organization: str) -> Iterator[Dict]:
 
     # Get all repositories
     repos_url = f"https://api.github.com/orgs/{organization}/repos"
-    response = requests.get(repos_url, headers=headers)
-    repos = response.json()
 
-    logger.info(f"Found {len(repos)} repositories in {organization}")
+    # Initialize empty list to store all repos
+    all_repos = []
 
-    for repo in repos:
+    # handle pagination
+    while True:
+        response = requests.get(repos_url, headers=headers)
+        all_repos.extend(response.json())
+        if not response.links:
+            break
+        repos_url = response.links["next"]["url"]
+
+    logger.info(f"Found {len(all_repos)} repositories in {organization}")
+
+    for repo in all_repos:
         pipeline_name = repo["name"]
 
         # Get views
