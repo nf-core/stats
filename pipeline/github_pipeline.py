@@ -238,19 +238,21 @@ if __name__ == "__main__":
     load_info = pipeline.run(github_source())
 
     # Log detailed information about what was loaded
-    total_new_rows = 0
-    total_updated_rows = 0
-
     logger.info("=== Pipeline Run Summary ===")
-    for load_package_info in load_info.load_packages:
-        new_rows = load_package_info.metrics.get("inserted_rows", 0)
-        updated_rows = load_package_info.metrics.get("updated_rows", 0)
-        total_new_rows += new_rows
-        total_updated_rows += updated_rows
+    for load_package in load_info.load_packages:
+        logger.info(f"Table: {load_package.table_name}")
+        logger.info(f"Status: {load_package.status}")
 
-        logger.info(f"Resource: {new_rows} new rows, {updated_rows} updated rows")
+        # Get row counts from normalize info
+        if pipeline.last_trace and pipeline.last_trace.last_normalize_info:
+            row_counts = pipeline.last_trace.last_normalize_info.row_counts
+            if load_package.table_name in row_counts:
+                logger.info(f"Rows processed: {row_counts[load_package.table_name]}")
 
-    logger.info(f"Total: {total_new_rows} new rows, {total_updated_rows} updated rows")
+        # Log schema updates if any
+        if hasattr(load_package, "schema_update"):
+            logger.info(f"Schema changes: {load_package.schema_update}")
+
     logger.info(f"Pipeline run completed: {load_info.load_id}")
 
     # Print the load_info object for reference
