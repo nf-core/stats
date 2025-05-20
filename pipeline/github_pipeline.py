@@ -1,5 +1,5 @@
 import dlt
-from typing import Dict, Iterator, List
+from typing import Dict, Iterator, List, Union
 import os
 from datetime import datetime
 import requests
@@ -26,20 +26,39 @@ def get_github_headers():
     }
 
 
-def get_all_repos(organization: str, headers: Dict) -> List[Dict]:
-    """Get all repositories for an organization"""
-    # Get all repositories
-    repos_url = f"https://api.github.com/orgs/{organization}/repos"
-    all_repos = []
+def get_paginated_results(url: str, headers: Dict) -> Union[List[Dict], Dict]:
+    """Get all paginated results from a GitHub API endpoint"""
+    all_results = []
 
-    # handle pagination
     while True:
-        response = requests.get(repos_url, headers=headers)
-        all_repos.extend(response.json())
+        response = requests.get(url, headers=headers)
+        if response.status_code == 202:
+            # GitHub is computing the data
+            logger.warning(f"GitHub is computing data for {url}, skipping...")
+            return []
+
+        results = response.json()
+        # Handle both list and dict responses
+        if isinstance(results, dict) and "items" in results:
+            all_results.extend(results["items"])
+        elif isinstance(results, list):
+            all_results.extend(results)
+        else:
+            # For non-paginated responses (like traffic data)
+            return results
+
         if "next" not in response.links:
             break
-        repos_url = response.links["next"]["url"]
+        url = response.links["next"]["url"]
 
+    return all_results
+
+
+def get_all_repos(organization: str, headers: Dict) -> List[Dict]:
+    """Get all repositories for an organization"""
+    repos_url = f"https://api.github.com/orgs/{organization}/repos"
+    results = get_paginated_results(repos_url, headers)
+    all_repos = results if isinstance(results, list) else []
     logger.info(f"Found {len(all_repos)} repositories in {organization}")
     return all_repos
 
@@ -80,17 +99,19 @@ def traffic_stats_resource(
     for repo in repos:
         pipeline_name = repo["name"]
 
-        # Get views
+        # Get views - traffic endpoints don't support pagination
         views_url = (
             f"https://api.github.com/repos/{organization}/{pipeline_name}/traffic/views"
         )
-        views_response = requests.get(views_url, headers=headers)
-        views_data = views_response.json()
+        views_result = get_paginated_results(views_url, headers)
+        views_data = views_result if isinstance(views_result, dict) else {"views": []}
 
-        # Get clones
+        # Get clones - traffic endpoints don't support pagination
         clones_url = f"https://api.github.com/repos/{organization}/{pipeline_name}/traffic/clones"
-        clones_response = requests.get(clones_url, headers=headers)
-        clones_data = clones_response.json()
+        clones_result = get_paginated_results(clones_url, headers)
+        clones_data = (
+            clones_result if isinstance(clones_result, dict) else {"clones": []}
+        )
 
         # Combine and yield data
         for view in views_data.get("views", []):
@@ -135,17 +156,11 @@ def contributor_stats_resource(
 
         # Get contributor stats
         stats_url = f"https://api.github.com/repos/{organization}/{pipeline_name}/stats/contributors"
-        response = requests.get(stats_url, headers=headers)
+        stats = get_paginated_results(stats_url, headers)
 
-        # Handle 202 response (GitHub is computing stats)
-        if response.status_code == 202:
-            # In production, you might want to implement retry logic here
-            logger.warning(
-                f"GitHub is computing stats for {pipeline_name}, retrying..."
-            )
-            repos.append(repo)
+        if not stats:  # Skip if GitHub is still computing stats
             continue
-        stats = response.json()
+
         logger.debug(f"Found {len(stats)} contributors for {pipeline_name}")
 
         for contributor in stats:
@@ -181,10 +196,9 @@ def issue_stats_resource(
     for repo in repos:
         pipeline_name = repo["name"]
 
-        # Get all issues (including PRs)
+        # Get all issues (including PRs) with pagination
         issues_url = f"https://api.github.com/repos/{organization}/{pipeline_name}/issues?state=all"
-        response = requests.get(issues_url, headers=headers)
-        issues = response.json()
+        issues = get_paginated_results(issues_url, headers)
 
         logger.debug(f"Found {len(issues)} issues for {pipeline_name}")
 
@@ -227,10 +241,9 @@ def org_members_resource(organization: str) -> Iterator[Dict]:
     """Collect member stats for the whole organization"""
     headers = get_github_headers()
 
-    # Get all members in the organization
+    # Get all members in the organization with pagination
     members_url = f"https://api.github.com/orgs/{organization}/members"
-    response = requests.get(members_url, headers=headers)
-    members = response.json()
+    members = get_paginated_results(members_url, headers)
 
     logger.info(f"Found {len(members)} members in {organization}")
 
