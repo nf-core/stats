@@ -26,33 +26,10 @@ def get_github_headers():
     }
 
 
-@dlt.source(name="github")
-def github_source(organization: str = "nf-core"):
-    """DLT source for GitHub statistics"""
-    return [
-        dlt.resource(traffic_stats_resource(organization), name="traffic_stats"),
-        dlt.resource(
-            contributor_stats_resource(organization), name="contributor_stats"
-        ),
-        dlt.resource(issue_stats_resource(organization), name="issue_stats"),
-        dlt.resource(org_members_resource(organization), name="org_members"),
-    ]
-
-
-@dlt.resource(
-    name="traffic_stats",
-    write_disposition="merge",
-    primary_key=["pipeline_name", "timestamp"],
-)
-def traffic_stats_resource(organization: str) -> Iterator[Dict]:
-    """Collect traffic stats for each repository"""
-    headers = get_github_headers()
-    entry_count = 0
-
+def get_all_repos(organization: str, headers: Dict) -> List[Dict]:
+    """Get all repositories for an organization"""
     # Get all repositories
     repos_url = f"https://api.github.com/orgs/{organization}/repos"
-
-    # Initialize empty list to store all repos
     all_repos = []
 
     # handle pagination
@@ -64,8 +41,43 @@ def traffic_stats_resource(organization: str) -> Iterator[Dict]:
         repos_url = response.links["next"]["url"]
 
     logger.info(f"Found {len(all_repos)} repositories in {organization}")
+    return all_repos
 
-    for repo in all_repos:
+
+@dlt.source(name="github")
+def github_source(organization: str = "nf-core"):
+    """DLT source for GitHub statistics"""
+    headers = get_github_headers()
+    all_repos = get_all_repos(organization, headers)
+
+    return [
+        dlt.resource(
+            traffic_stats_resource(organization, headers, all_repos),
+            name="traffic_stats",
+        ),
+        dlt.resource(
+            contributor_stats_resource(organization, headers, all_repos),
+            name="contributor_stats",
+        ),
+        dlt.resource(
+            issue_stats_resource(organization, headers, all_repos), name="issue_stats"
+        ),
+        dlt.resource(org_members_resource(organization), name="org_members"),
+    ]
+
+
+@dlt.resource(
+    name="traffic_stats",
+    write_disposition="merge",
+    primary_key=["pipeline_name", "timestamp"],
+)
+def traffic_stats_resource(
+    organization: str, headers: Dict, repos: List[Dict]
+) -> Iterator[Dict]:
+    """Collect traffic stats for each repository"""
+    entry_count = 0
+
+    for repo in repos:
         pipeline_name = repo["name"]
 
         # Get views
@@ -112,15 +124,11 @@ def traffic_stats_resource(organization: str) -> Iterator[Dict]:
     write_disposition="merge",
     primary_key=["pipeline_name", "author", "week_date"],
 )
-def contributor_stats_resource(organization: str) -> Iterator[Dict]:
+def contributor_stats_resource(
+    organization: str, headers: Dict, repos: List[Dict]
+) -> Iterator[Dict]:
     """Collect contributor stats for each repository"""
-    headers = get_github_headers()
     entry_count = 0
-
-    # Get all repositories
-    repos_url = f"https://api.github.com/orgs/{organization}/repos"
-    response = requests.get(repos_url, headers=headers)
-    repos = response.json()
 
     for repo in repos:
         pipeline_name = repo["name"]
@@ -164,15 +172,11 @@ def contributor_stats_resource(organization: str) -> Iterator[Dict]:
     write_disposition="merge",
     primary_key=["pipeline_name", "issue_number"],
 )
-def issue_stats_resource(organization: str) -> Iterator[Dict]:
+def issue_stats_resource(
+    organization: str, headers: Dict, repos: List[Dict]
+) -> Iterator[Dict]:
     """Collect issue stats for each repository"""
-    headers = get_github_headers()
     entry_count = 0
-
-    # Get all repositories
-    repos_url = f"https://api.github.com/orgs/{organization}/repos"
-    response = requests.get(repos_url, headers=headers)
-    repos = response.json()
 
     for repo in repos:
         pipeline_name = repo["name"]
