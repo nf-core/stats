@@ -123,9 +123,11 @@ def contributor_stats_resource(organization: str) -> Iterator[Dict]:
         # Handle 202 response (GitHub is computing stats)
         if response.status_code == 202:
             # In production, you might want to implement retry logic here
-            logger.warning(f"GitHub is computing stats for {pipeline_name}, skipping")
+            logger.warning(
+                f"GitHub is computing stats for {pipeline_name}, retrying..."
+            )
+            repos.append(repo)
             continue
-
         stats = response.json()
         logger.debug(f"Found {len(stats)} contributors for {pipeline_name}")
 
