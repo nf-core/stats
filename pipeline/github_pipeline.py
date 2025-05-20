@@ -59,7 +59,7 @@ def traffic_stats_resource(organization: str) -> Iterator[Dict]:
     while True:
         response = requests.get(repos_url, headers=headers)
         all_repos.extend(response.json())
-        if not response.links:
+        if "next" not in response.links:
             break
         repos_url = response.links["next"]["url"]
 
