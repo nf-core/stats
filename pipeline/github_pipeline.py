@@ -267,38 +267,4 @@ if __name__ == "__main__":
     logger.info("=== Pipeline Run Summary ===")
 
     for load_package in load_info.load_packages:
-        logger.info(f"\nPackage Status: {load_package.status}")
-
-        # Log schema updates
-        if hasattr(load_package, "schema_update"):
-            for table_name, table_info in load_package.schema_update.items():
-                logger.info(f"\nTable: {table_name}")
-
-                # Log metrics if available
-                if (
-                    hasattr(load_package, "metrics")
-                    and table_name in load_package.metrics
-                ):
-                    metrics = load_package.metrics[table_name]
-                    logger.info(f"Rows processed: {metrics.get('rows_processed', 0)}")
-                    logger.info(f"Rows inserted: {metrics.get('rows_inserted', 0)}")
-                    logger.info(f"Rows updated: {metrics.get('rows_updated', 0)}")
-                    logger.info(f"Rows deleted: {metrics.get('rows_deleted', 0)}")
-
-                # Log schema details
-                if table_info.get("description"):
-                    logger.info(f"Description: {table_info['description']}")
-                if table_info.get("columns"):
-                    logger.info("Columns:")
-                    for col_name, col_info in table_info["columns"].items():
-                        logger.info(
-                            f"  - {col_name}: {col_info.get('data_type', 'unknown type')}"
-                        )
-
-        # Log any failed jobs
-        if hasattr(load_package, "failed_jobs") and load_package.failed_jobs:
-            logger.warning(f"\nFailed jobs for package:")
-            for job in load_package.failed_jobs:
-                logger.warning(f"  - {job.table_name}: {job.error_message}")
-
-    logger.info(f"\nPipeline run completed with IDs: {load_info.load_ids}")
+        logger.info(load_package)
