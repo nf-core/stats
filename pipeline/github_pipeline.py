@@ -240,15 +240,13 @@ if __name__ == "__main__":
     total_updated_rows = 0
 
     logger.info("=== Pipeline Run Summary ===")
-    for resource, load_package_info in load_info.load_packages.items():
+    for load_package_info in load_info.load_packages:
         new_rows = load_package_info.metrics.get("inserted_rows", 0)
         updated_rows = load_package_info.metrics.get("updated_rows", 0)
         total_new_rows += new_rows
         total_updated_rows += updated_rows
 
-        logger.info(
-            f"Resource '{resource}': {new_rows} new rows, {updated_rows} updated rows"
-        )
+        logger.info(f"Resource: {new_rows} new rows, {updated_rows} updated rows")
 
     logger.info(f"Total: {total_new_rows} new rows, {total_updated_rows} updated rows")
     logger.info(f"Pipeline run completed: {load_info.load_id}")
