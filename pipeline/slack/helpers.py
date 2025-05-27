@@ -1,7 +1,7 @@
 """Slack source helpers."""
 
-import logging
-from typing import Any, Generator, Iterable, List, Optional
+from collections.abc import Generator, Iterable
+from typing import Any, List, Optional
 from urllib.parse import urljoin
 
 import pendulum

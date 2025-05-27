@@ -8,10 +8,12 @@ Key differences from the PHP version:
 4. Uses DLT's incremental loading capabilities
 """
 
-import dlt
-from typing import Dict, Iterator
 import os
+from collections.abc import Iterator
 from datetime import datetime
+from typing import Dict
+
+import dlt
 import requests
 from dotenv import load_dotenv
 

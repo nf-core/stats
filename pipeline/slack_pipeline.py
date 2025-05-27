@@ -8,11 +8,13 @@ This module uses the Slack SDK instead of direct API calls (unlike the old PHP i
 5. Future API compatibility through SDK updates
 """
 
-import dlt
-from typing import Dict, Iterator
+from collections.abc import Iterator
 from datetime import datetime
+from typing import Dict
+
+import dlt
 from slack_sdk import WebClient
-from slack_sdk.errors import SlackApiError
+
 
 @dlt.source(name="slack")
 def slack_source(api_token: str = dlt.secrets.value) -> Iterator[Dict]:

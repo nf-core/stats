@@ -1,10 +1,12 @@
-import dlt
-from typing import Dict, Iterator, List, Union
+import logging
 import os
+from collections.abc import Iterator
 from datetime import datetime
+from typing import Dict
+
+import dlt
 import requests
 from dotenv import load_dotenv
-import logging
 
 # Configure logging
 logging.basicConfig(
@@ -26,16 +28,17 @@ def get_github_headers():
     }
 
 
-def get_paginated_results(url: str, headers: Dict) -> Union[List[Dict], Dict]:
+def get_paginated_results(url: str, headers: dict) -> tuple[list[dict], list[str]]:
     """Get all paginated results from a GitHub API endpoint"""
     all_results = []
+    skipped_urls = []
 
     while True:
         response = requests.get(url, headers=headers)
         if response.status_code == 202:
             # GitHub is computing the data
             logger.warning(f"GitHub is computing data for {url}, skipping...")
-            return []
+            skipped_urls.append(url)
 
         results = response.json()
         # Handle both list and dict responses
@@ -51,10 +54,10 @@ def get_paginated_results(url: str, headers: Dict) -> Union[List[Dict], Dict]:
             break
         url = response.links["next"]["url"]
 
-    return all_results
+    return all_results, skipped_urls
 
 
-def get_all_repos(organization: str, headers: Dict) -> List[Dict]:
+def get_all_repos(organization: str, headers: dict) -> list[dict]:
     """Get all repositories for an organization"""
     repos_url = f"https://api.github.com/orgs/{organization}/repos"
     results = get_paginated_results(repos_url, headers)
@@ -91,8 +94,8 @@ def github_source(organization: str = "nf-core"):
     primary_key=["pipeline_name", "timestamp"],
 )
 def traffic_stats_resource(
-    organization: str, headers: Dict, repos: List[Dict]
-) -> Iterator[Dict]:
+    organization: str, headers: dict, repos: list[dict]
+) -> Iterator[dict]:
     """Collect traffic stats for each repository"""
     entry_count = 0
 
