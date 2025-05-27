@@ -10,14 +10,13 @@ This module uses the Slack SDK instead of direct API calls (unlike the old PHP i
 
 from collections.abc import Iterator
 from datetime import datetime
-from typing import Dict
 
 import dlt
 from slack_sdk import WebClient
 
 
 @dlt.source(name="slack")
-def slack_source(api_token: str = dlt.secrets.value) -> Iterator[Dict]:
+def slack_source(api_token: str = dlt.secrets.value) -> Iterator[dict]:
     """DLT source for Slack workspace statistics"""
     # Add debug logging
     print(f"Initializing Slack client with token starting with: {api_token[:5]}...")
@@ -31,7 +30,7 @@ def slack_source(api_token: str = dlt.secrets.value) -> Iterator[Dict]:
     return slack_stats_resource(client)
 
 @dlt.resource(name="workspace_stats", write_disposition="merge", primary_key=["timestamp"])
-def slack_stats_resource(client: WebClient) -> Iterator[Dict]:
+def slack_stats_resource(client: WebClient) -> Iterator[dict]:
     """Collect combined Slack statistics in a single table"""
     # Get total users
     users_response = client.users_list()

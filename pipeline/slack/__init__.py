@@ -24,7 +24,7 @@ def slack_source(
     access_token: str = dlt.secrets.value,
     start_date: Optional[TAnyDateTime] = DEFAULT_START_DATE,
     end_date: Optional[TAnyDateTime] = None,
-    selected_channels: Optional[List[str]] = dlt.config.value,
+    selected_channels: Optional[list[str]] = dlt.config.value,
     table_per_channel: bool = True,
     replies: bool = False,
 ) -> Iterable[DltResource]:
@@ -58,8 +58,8 @@ def slack_source(
     )
 
     def get_channels(
-        slack_api: SlackAPI, selected_channels: Optional[List[str]]
-    ) -> Tuple[List[TDataItem], List[TDataItem]]:
+        slack_api: SlackAPI, selected_channels: Optional[list[str]]
+    ) -> tuple[list[TDataItem], list[TDataItem]]:
         """
         Returns channel fetched from slack and list of selected channels.
 
@@ -70,7 +70,7 @@ def slack_source(
         Returns:
             Tuple[List[TDataItem], List[TDataItem]]: fetched channels and selected fetched channels.
         """
-        channels: List[TDataItem] = []
+        channels: list[TDataItem] = []
         for page_data in slack_api.get_pages(
             resource="conversations.list",
             response_path="$.channels[*]",
@@ -104,16 +104,15 @@ def slack_source(
             Iterable[TDataItem]: A list of users.
         """
 
-        for page_data in api.get_pages(
+        yield from api.get_pages(
             resource="users.list",
             response_path="$.members[*]",
             params=dict(include_locale=True),
             datetime_fields=DEFAULT_DATETIME_FIELDS,
-        ):
-            yield page_data
+        )
 
     def get_messages(
-        channel_data: Dict[str, Any], start_date_ts: float, end_date_ts: float
+        channel_data: dict[str, Any], start_date_ts: float, end_date_ts: float
     ) -> Iterable[TDataItem]:
         """
         Generator, which gets channel messages for specific dates.
@@ -131,16 +130,15 @@ def slack_source(
             "latest": end_date_ts,
         }
 
-        for page_data in api.get_pages(
+        yield from api.get_pages(
             resource="conversations.history",
             response_path="$.messages[*]",
             params=params,
             datetime_fields=MSG_DATETIME_FIELDS,
             context={"channel": channel_data["id"]},
-        ):
-            yield page_data
+        )
 
-    def get_thread_replies(messages: List[Dict[str, Any]]) -> Iterable[TDataItem]:
+    def get_thread_replies(messages: list[dict[str, Any]]) -> Iterable[TDataItem]:
         """
         Generator, which gets replies for each message.
         Args:
@@ -193,7 +191,7 @@ def slack_source(
             yield from get_messages(channel_data, start_date_ts, end_date_ts)
 
     def per_table_messages_resource(
-        channel_data: Dict[str, Any],
+        channel_data: dict[str, Any],
         created_at: dlt.sources.incremental[DateTime] = dlt.sources.incremental(
             "ts",
             initial_value=start_dt,
@@ -230,13 +228,12 @@ def slack_source(
     # it is not an incremental resource it just has an end_date filter
     def logs_resource() -> Iterable[TDataItem]:
         """The access logs resource."""
-        for page_data in api.get_pages(
+        yield from api.get_pages(
             resource="team.accessLogs",
             response_path="$.logins[*]",
             datetime_fields=["date_first", "date_last"],
             params={"before": end_dt if end_dt is None else end_dt.int_timestamp},
-        ):
-            yield page_data
+        )
 
     yield from (channels_resource, users_resource, logs_resource)
 

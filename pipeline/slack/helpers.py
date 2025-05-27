@@ -1,7 +1,7 @@
 """Slack source helpers."""
 
 from collections.abc import Generator, Iterable
-from typing import Any, List, Optional
+from typing import Any, Optional
 from urllib.parse import urljoin
 
 import pendulum
@@ -120,7 +120,7 @@ class SlackAPI:
         return next(extract_jsonpath(cursor_jsonpath, response), None)
 
     def _convert_datetime_fields(
-        self, item: Dict[str, Any], datetime_fields: List[str]
+        self, item: Dict[str, Any], datetime_fields: list[str]
     ) -> Dict[str, Any]:
         """Convert timestamp fields in the item to pendulum datetime objects.
 
@@ -151,7 +151,7 @@ class SlackAPI:
         resource: str,
         response_path: str = None,
         params: Dict[str, Any] = None,
-        datetime_fields: List[str] = None,
+        datetime_fields: list[str] = None,
         context: Dict[str, Any] = None,
     ) -> Iterable[TDataItem]:
         """Get all pages from slack using requests.

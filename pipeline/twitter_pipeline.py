@@ -11,7 +11,6 @@ Key differences from the PHP version:
 import os
 from collections.abc import Iterator
 from datetime import datetime
-from typing import Dict
 
 import dlt
 import requests
@@ -40,7 +39,7 @@ def twitter_source(username: str = "nf_core"):
         primary_key=["timestamp"]
     )
 
-def twitter_stats_resource(username: str) -> Iterator[Dict]:
+def twitter_stats_resource(username: str) -> Iterator[dict]:
     """Resource that fetches Twitter account statistics
     
     Args:

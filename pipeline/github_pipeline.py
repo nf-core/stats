@@ -2,7 +2,6 @@ import logging
 import os
 from collections.abc import Iterator
 from datetime import datetime
-from typing import Dict
 
 import dlt
 import requests
@@ -149,8 +148,8 @@ def traffic_stats_resource(
     primary_key=["pipeline_name", "author", "week_date"],
 )
 def contributor_stats_resource(
-    organization: str, headers: Dict, repos: List[Dict]
-) -> Iterator[Dict]:
+    organization: str, headers: dict, repos: List[dict]
+) -> Iterator[dict]:
     """Collect contributor stats for each repository"""
     entry_count = 0
 
@@ -191,8 +190,8 @@ def contributor_stats_resource(
     primary_key=["pipeline_name", "issue_number"],
 )
 def issue_stats_resource(
-    organization: str, headers: Dict, repos: List[Dict]
-) -> Iterator[Dict]:
+    organization: str, headers: dict, repos: List[dict]
+) -> Iterator[dict]:
     """Collect issue stats for each repository"""
     entry_count = 0
 
@@ -240,7 +239,7 @@ def issue_stats_resource(
     write_disposition="merge",
     primary_key=["timestamp"],
 )
-def org_members_resource(organization: str) -> Iterator[Dict]:
+def org_members_resource(organization: str) -> Iterator[dict]:
     """Collect member stats for the whole organization"""
     headers = get_github_headers()
 
