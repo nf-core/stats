@@ -20,14 +20,15 @@ def slack_source(api_token: str = dlt.secrets.value) -> Iterator[dict]:
     """DLT source for Slack workspace statistics"""
     # Add debug logging
     print(f"Initializing Slack client with token starting with: {api_token[:5]}...")
-    
+
     client = WebClient(token=api_token)
-    
+
     # Test the connection
     auth_test = client.auth_test()
     print(f"Successfully authenticated as: {auth_test['user']} in workspace: {auth_test['team']}")
 
     return slack_stats_resource(client)
+
 
 @dlt.resource(name="workspace_stats", write_disposition="merge", primary_key=["timestamp"])
 def slack_stats_resource(client: WebClient) -> Iterator[dict]:
@@ -40,7 +41,7 @@ def slack_stats_resource(client: WebClient) -> Iterator[dict]:
     # Get active users from channels
     channels_response = client.conversations_list(types="public_channel")
     active_channel_users = set()
-    
+
     for channel in channels_response["channels"]:
         members = client.conversations_members(channel=channel["id"])
         active_channel_users.update(members["members"])
@@ -62,11 +63,12 @@ def slack_stats_resource(client: WebClient) -> Iterator[dict]:
                 "email": user.get("profile", {}).get("email"),
                 "is_admin": user.get("is_admin", False),
                 "is_bot": user.get("is_bot", False),
-                "is_active": user["id"] in active_channel_users
+                "is_active": user["id"] in active_channel_users,
             }
             for user in active_account_users
-        ]
+        ],
     }
+
 
 if __name__ == "__main__":
     # Initialize the pipeline with MotherDuck destination
@@ -75,7 +77,7 @@ if __name__ == "__main__":
         destination="motherduck",
         dataset_name="slack",
     )
-    
+
     # Run the pipeline
     load_info = pipeline.run(slack_source())
-    print(load_info) 
+    print(load_info)
