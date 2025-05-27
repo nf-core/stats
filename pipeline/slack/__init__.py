@@ -2,7 +2,7 @@
 
 from collections.abc import Iterable
 from functools import partial
-from typing import Any, Dict, List, Literal, Optional, Tuple
+from typing import Any, Literal, Optional
 
 import dlt
 from dlt.common.typing import TAnyDateTime, TDataItem
@@ -48,9 +48,7 @@ def slack_source(
 
     end_dt: Optional[DateTime] = ensure_dt_type(end_date)
     start_dt: Optional[DateTime] = ensure_dt_type(start_date)
-    write_disposition: Literal["append", "merge"] = (
-        "append" if end_date is None else "merge"
-    )
+    write_disposition: Literal["append", "merge"] = "append" if end_date is None else "merge"
 
     api = SlackAPI(
         access_token=access_token,
@@ -79,11 +77,7 @@ def slack_source(
             channels.extend(page_data)
 
         if selected_channels:
-            fetch_channels = [
-                c
-                for c in channels
-                if c["name"] in selected_channels or c["id"] in selected_channels
-            ]
+            fetch_channels = [c for c in channels if c["name"] in selected_channels or c["id"] in selected_channels]
         else:
             fetch_channels = channels
         return channels, fetch_channels
@@ -111,9 +105,7 @@ def slack_source(
             datetime_fields=DEFAULT_DATETIME_FIELDS,
         )
 
-    def get_messages(
-        channel_data: dict[str, Any], start_date_ts: float, end_date_ts: float
-    ) -> Iterable[TDataItem]:
+    def get_messages(channel_data: dict[str, Any], start_date_ts: float, end_date_ts: float) -> Iterable[TDataItem]:
         """
         Generator, which gets channel messages for specific dates.
         Args:

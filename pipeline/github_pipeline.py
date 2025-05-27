@@ -190,7 +190,7 @@ def contributor_stats_resource(organization: str, headers: dict, repos: list[dic
     write_disposition="merge",
     primary_key=["pipeline_name", "issue_number"],
 )
-def issue_stats_resource(organization: str, headers: dict, repos: List[dict]) -> Iterator[dict]:
+def issue_stats_resource(organization: str, headers: dict, repos: list[dict]) -> Iterator[dict]:
     """Collect issue stats for each repository"""
     entry_count = 0
 
