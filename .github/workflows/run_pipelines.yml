@@ -75,7 +75,7 @@ jobs:
           ./runitor -version
           sudo mv runitor /usr/local/bin/
 
-      - name: Run ${{ matrix.pipeline }} pipeline
+      - name: Get ${{ matrix.pipeline }} stats
         run: |
           runitor -uuid ${{ matrix.uuid }} -- \
               uv run python \
