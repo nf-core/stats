@@ -2,6 +2,7 @@ import logging
 import os
 from collections.abc import Iterator
 from datetime import datetime
+from typing import Union
 
 import dlt
 import requests
@@ -25,7 +26,7 @@ def get_github_headers():
     }
 
 
-def get_paginated_results(url: str, headers: dict) -> tuple[list[dict], list[str]]:
+def get_paginated_results(url: str, headers: dict) -> tuple[Union[list[dict], dict], list[str]]:
     """Get all paginated results from a GitHub API endpoint"""
     all_results = []
     skipped_urls = []
@@ -45,7 +46,7 @@ def get_paginated_results(url: str, headers: dict) -> tuple[list[dict], list[str
             all_results.extend(results)
         else:
             # For non-paginated responses (like traffic data)
-            return results
+            return results, skipped_urls
 
         if "next" not in response.links:
             break
@@ -101,8 +102,8 @@ def traffic_stats_resource(organization: str, headers: dict, repos: list[dict]) 
         if skipped_urls:
             logger.info(f"Skipped {len(skipped_urls)} views for {pipeline_name}. Rerunning...")
             for url in skipped_urls:
-                views_result, skipped_urls = get_paginated_results(url, headers)
-                views_result.extend(views_result)
+                views_result, _ = get_paginated_results(url, headers)
+                # Traffic endpoints return single dict, no need to extend
 
         views_data = views_result if isinstance(views_result, dict) else {"views": []}
 
@@ -112,8 +113,8 @@ def traffic_stats_resource(organization: str, headers: dict, repos: list[dict]) 
         if skipped_urls:
             logger.info(f"Skipped {len(skipped_urls)} clones for {pipeline_name}. Rerunning...")
             for url in skipped_urls:
-                clones_result, skipped_urls = get_paginated_results(url, headers)
-                clones_result.extend(clones_result)
+                clones_result, _ = get_paginated_results(url, headers)
+                # Traffic endpoints return single dict, no need to extend
 
         clones_data = clones_result if isinstance(clones_result, dict) else {"clones": []}
 
@@ -158,8 +159,9 @@ def contributor_stats_resource(organization: str, headers: dict, repos: list[dic
         if skipped_urls:
             logger.info(f"Skipped {len(skipped_urls)} contributors for {pipeline_name}. Rerunning...")
             for url in skipped_urls:
-                stats, skipped_urls = get_paginated_results(url, headers)
-                stats.extend(stats)
+                retry_stats, _ = get_paginated_results(url, headers)
+                if isinstance(stats, list) and isinstance(retry_stats, list):
+                    stats.extend(retry_stats)
 
         if not stats:  # Skip if GitHub is still computing stats
             continue
