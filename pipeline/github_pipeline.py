@@ -8,9 +8,7 @@ import requests
 from dotenv import load_dotenv
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger("github_pipeline")
 
 # Load environment variables
@@ -59,7 +57,7 @@ def get_paginated_results(url: str, headers: dict) -> tuple[list[dict], list[str
 def get_all_repos(organization: str, headers: dict) -> list[dict]:
     """Get all repositories for an organization"""
     repos_url = f"https://api.github.com/orgs/{organization}/repos"
-    results = get_paginated_results(repos_url, headers)
+    results, _ = get_paginated_results(repos_url, headers)
     all_repos = results if isinstance(results, list) else []
     logger.info(f"Found {len(all_repos)} repositories in {organization}")
     return all_repos
@@ -80,9 +78,7 @@ def github_source(organization: str = "nf-core"):
             contributor_stats_resource(organization, headers, all_repos),
             name="contributor_stats",
         ),
-        dlt.resource(
-            issue_stats_resource(organization, headers, all_repos), name="issue_stats"
-        ),
+        dlt.resource(issue_stats_resource(organization, headers, all_repos), name="issue_stats"),
         dlt.resource(org_members_resource(organization), name="org_members"),
     ]
 
@@ -92,9 +88,7 @@ def github_source(organization: str = "nf-core"):
     write_disposition="merge",
     primary_key=["pipeline_name", "timestamp"],
 )
-def traffic_stats_resource(
-    organization: str, headers: dict, repos: list[dict]
-) -> Iterator[dict]:
+def traffic_stats_resource(organization: str, headers: dict, repos: list[dict]) -> Iterator[dict]:
     """Collect traffic stats for each repository"""
     entry_count = 0
 
@@ -102,18 +96,26 @@ def traffic_stats_resource(
         pipeline_name = repo["name"]
 
         # Get views - traffic endpoints don't support pagination
-        views_url = (
-            f"https://api.github.com/repos/{organization}/{pipeline_name}/traffic/views"
-        )
-        views_result = get_paginated_results(views_url, headers)
+        views_url = f"https://api.github.com/repos/{organization}/{pipeline_name}/traffic/views"
+        views_result, skipped_urls = get_paginated_results(views_url, headers)
+        if skipped_urls:
+            logger.info(f"Skipped {len(skipped_urls)} views for {pipeline_name}. Rerunning...")
+            for url in skipped_urls:
+                views_result, skipped_urls = get_paginated_results(url, headers)
+                views_result.extend(views_result)
+
         views_data = views_result if isinstance(views_result, dict) else {"views": []}
 
         # Get clones - traffic endpoints don't support pagination
         clones_url = f"https://api.github.com/repos/{organization}/{pipeline_name}/traffic/clones"
-        clones_result = get_paginated_results(clones_url, headers)
-        clones_data = (
-            clones_result if isinstance(clones_result, dict) else {"clones": []}
-        )
+        clones_result, skipped_urls = get_paginated_results(clones_url, headers)
+        if skipped_urls:
+            logger.info(f"Skipped {len(skipped_urls)} clones for {pipeline_name}. Rerunning...")
+            for url in skipped_urls:
+                clones_result, skipped_urls = get_paginated_results(url, headers)
+                clones_result.extend(clones_result)
+
+        clones_data = clones_result if isinstance(clones_result, dict) else {"clones": []}
 
         # Combine and yield data
         for view in views_data.get("views", []):
@@ -121,11 +123,7 @@ def traffic_stats_resource(
 
             # Find matching clone data
             clone_data = next(
-                (
-                    c
-                    for c in clones_data.get("clones", [])
-                    if c["timestamp"] == timestamp
-                ),
+                (c for c in clones_data.get("clones", []) if c["timestamp"] == timestamp),
                 {"count": 0, "uniques": 0},
             )
 
@@ -147,9 +145,7 @@ def traffic_stats_resource(
     write_disposition="merge",
     primary_key=["pipeline_name", "author", "week_date"],
 )
-def contributor_stats_resource(
-    organization: str, headers: dict, repos: List[dict]
-) -> Iterator[dict]:
+def contributor_stats_resource(organization: str, headers: dict, repos: list[dict]) -> Iterator[dict]:
     """Collect contributor stats for each repository"""
     entry_count = 0
 
@@ -158,7 +154,12 @@ def contributor_stats_resource(
 
         # Get contributor stats
         stats_url = f"https://api.github.com/repos/{organization}/{pipeline_name}/stats/contributors"
-        stats = get_paginated_results(stats_url, headers)
+        stats, skipped_urls = get_paginated_results(stats_url, headers)
+        if skipped_urls:
+            logger.info(f"Skipped {len(skipped_urls)} contributors for {pipeline_name}. Rerunning...")
+            for url in skipped_urls:
+                stats, skipped_urls = get_paginated_results(url, headers)
+                stats.extend(stats)
 
         if not stats:  # Skip if GitHub is still computing stats
             continue
@@ -189,9 +190,7 @@ def contributor_stats_resource(
     write_disposition="merge",
     primary_key=["pipeline_name", "issue_number"],
 )
-def issue_stats_resource(
-    organization: str, headers: dict, repos: List[dict]
-) -> Iterator[dict]:
+def issue_stats_resource(organization: str, headers: dict, repos: List[dict]) -> Iterator[dict]:
     """Collect issue stats for each repository"""
     entry_count = 0
 
@@ -200,7 +199,7 @@ def issue_stats_resource(
 
         # Get all issues (including PRs) with pagination
         issues_url = f"https://api.github.com/repos/{organization}/{pipeline_name}/issues?state=all"
-        issues = get_paginated_results(issues_url, headers)
+        issues, _ = get_paginated_results(issues_url, headers)
 
         logger.debug(f"Found {len(issues)} issues for {pipeline_name}")
 
@@ -245,7 +244,7 @@ def org_members_resource(organization: str) -> Iterator[dict]:
 
     # Get all members in the organization with pagination
     members_url = f"https://api.github.com/orgs/{organization}/members"
-    members = get_paginated_results(members_url, headers)
+    members, _ = get_paginated_results(members_url, headers)
 
     logger.info(f"Found {len(members)} members in {organization}")
 
@@ -257,9 +256,7 @@ def org_members_resource(organization: str) -> Iterator[dict]:
 
 if __name__ == "__main__":
     # Initialize the pipeline with DuckDB destination
-    pipeline = dlt.pipeline(
-        pipeline_name="github", destination="motherduck", dataset_name="github"
-    )
+    pipeline = dlt.pipeline(pipeline_name="github", destination="motherduck", dataset_name="github")
 
     # Run the pipeline
     logger.info("Starting GitHub data pipeline run")
