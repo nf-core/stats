@@ -42,11 +42,11 @@ jobs:
       matrix:
         include:
           - pipeline: github
-            uuid: 017c8a09-9531-4206-a479-aa51a2209931
+            uuid: 73f22c65-592a-4368-8fc5-23787c1dc67d
           - pipeline: slack
-            uuid: af9808d6-6dd7-4e8d-8fc7-c132fc579597
+            uuid: 585d7c4f-abc9-49fa-980f-64d950d6fd2b
           - pipeline: twitter
-            uuid: 39c783d5-b697-4eb5-b677-05bae13a2490
+            uuid: efc2b7e6-fe77-4c92-9979-b6ccc07bc714
     defaults:
       run:
         working-directory: pipeline
