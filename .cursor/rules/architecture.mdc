@@ -1,0 +1,32 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Project Architecture Overview
+
+This project uses a multi-stage data pipeline to collect statistics from various sources and display them on a static website. The architecture is described in [docs/architecture.md](mdc:docs/architecture.md).
+
+### 1. Data Collection Layer (DLT)
+
+Data is collected using `dlt` (Data Load Tool) pipelines located in the `pipeline/` directory.
+
+- **GitHub Stats:** [pipeline/github_pipeline.py](mdc:pipeline/github_pipeline.py)
+- **Slack Stats:** [pipeline/slack_pipeline.py](mdc:pipeline/slack_pipeline.py)
+- **Twitter Stats:** [pipeline/twitter_pipeline.py](mdc:pipeline/twitter_pipeline.py)
+
+These scripts extract data from the respective APIs.
+
+### 2. Storage Layer (MotherDuck)
+
+The collected data is loaded into MotherDuck. The configuration for the destination can be found in [pipeline/.envrc](mdc:pipeline/.envrc).
+
+### 3. Analytics & Presentation Layer (Evidence)
+
+The frontend is built with the [Evidence](https://www.evidence.dev/) framework.
+
+- **Configuration:** [evidence.config.yaml](mdc:evidence.config.yaml) defines datasources and theme.
+- **Data Queries:** SQL queries that transform data for visualization are located in the `queries/` directory. For example, see [queries/community/growth_slack_users.sql](mdc:queries/community/growth_slack_users.sql).
+- **Pages:** Markdown files in the `pages/` directory combine text, queries, and components to build the website. For example, see [pages/code/repo_traffic.md](mdc:pages/code/repo_traffic.md).
+
+The final output is a static site, where data is embedded at build time.
