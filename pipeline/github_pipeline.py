@@ -95,6 +95,7 @@ def traffic_stats_resource(organization: str, headers: dict, repos: list[dict]) 
 
     for repo in repos:
         pipeline_name = repo["name"]
+        logger.info(f"Collecting traffic stats for {pipeline_name}")
 
         # Get views - traffic endpoints don't support pagination
         views_url = f"https://api.github.com/repos/{organization}/{pipeline_name}/traffic/views"
@@ -104,8 +105,9 @@ def traffic_stats_resource(organization: str, headers: dict, repos: list[dict]) 
             for url in skipped_urls:
                 views_result, _ = get_paginated_results(url, headers)
                 # Traffic endpoints return single dict, no need to extend
-
+        logger.info(f"Views result: {views_result}")
         views_data = views_result if isinstance(views_result, dict) else {"views": []}
+        logger.info(f"Views data: {views_data}")
 
         # Get clones - traffic endpoints don't support pagination
         clones_url = f"https://api.github.com/repos/{organization}/{pipeline_name}/traffic/clones"
