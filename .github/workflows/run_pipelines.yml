@@ -13,7 +13,7 @@ name: Run All Pipelines
       - ".github/workflows/run_pipelines.yml"
 
 env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.NF_CORE_BOT_AUTH_TOKEN }}
   SOURCES__SLACK_PIPELINE__SLACK__API_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
   TWITTER_BEARER_TOKEN: ${{ secrets.TWITTER_BEARER_TOKEN }}
   DESTINATION__MOTHERDUCK__CREDENTIALS__DATABASE: "nf_core_stats_bot"
