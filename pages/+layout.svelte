@@ -1,6 +1,4 @@
 <script>
-  import "@evidence-dev/tailwind/fonts.css";
-  import "../app.css";
   import { EvidenceDefaultLayout, LastRefreshed } from "@evidence-dev/core-components";
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
