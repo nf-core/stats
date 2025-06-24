@@ -16,12 +16,11 @@
   "type": "module",
   "private": true,
   "dependencies": {
-    "@evidence-dev/core-components": "^5.1.2",
+    "@evidence-dev/core-components": "5.1.2",
     "@evidence-dev/csv": "^1.0.12",
     "@evidence-dev/duckdb": "^1.0.11",
-    "@evidence-dev/evidence": "^40.0.9",
-    "@evidence-dev/motherduck": "^1.0.2",
-    "@tailwindcss/vite": "^4.1.10"
+    "@evidence-dev/evidence": "40.0.9",
+    "@evidence-dev/motherduck": "^1.0.2"
   },
   "overrides": {
     "jsonwebtoken": "9.0.0",
