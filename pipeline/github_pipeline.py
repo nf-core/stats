@@ -71,6 +71,7 @@ def github_source(organization: str = "nf-core"):
     all_repos = get_all_repos(organization, headers)
 
     return [
+        dlt.resource(pipelines_resource(organization, headers, all_repos), name="nfcore_pipelines"),
         dlt.resource(
             traffic_stats_resource(organization, headers, all_repos),
             name="traffic_stats",
@@ -256,6 +257,44 @@ def org_members_resource(organization: str) -> Iterator[dict]:
         "timestamp": datetime.now().timestamp(),
         "num_members": len(members),
     }
+
+
+# generate a pipelines table
+@dlt.resource(
+    name="nfcore_pipelines",
+    write_disposition="merge",
+    primary_key=["name"],
+)
+def pipelines_resource(organization: str, headers: dict, repos: list[dict]) -> Iterator[dict]:
+    """Collect pipeline stats for each repository"""
+    headers = get_github_headers()
+
+    # use https://github.com/nf-core/website/blob/main/public/pipeline_names.json as the source of pipeline names
+    pipeline_names_url = "https://raw.githubusercontent.com/nf-core/website/main/public/pipeline_names.json"
+    pipeline_names_response, _ = get_paginated_results(pipeline_names_url, headers)
+    pipeline_names = pipeline_names_response if isinstance(pipeline_names_response, dict) else {}
+    for pipeline_name in pipeline_names.get("pipeline", []):
+        pipeline = next((repo for repo in repos if repo["name"] == pipeline_name), None)
+        if pipeline:
+            # get release date from github api
+            release_url = f"https://api.github.com/repos/{organization}/{pipeline_name}/releases/latest"
+            release, _ = get_paginated_results(release_url, headers)
+            last_release_date = release.get("published_at") if isinstance(release, dict) else None
+            yield {
+                "name": pipeline["name"],
+                "description": pipeline["description"],
+                "gh_created_at": pipeline["created_at"],
+                "gh_updated_at": pipeline["updated_at"],
+                "gh_pushed_at": pipeline["pushed_at"],
+                "stargazers_count": pipeline["stargazers_count"],
+                "watchers_count": pipeline["watchers_count"],
+                "forks_count": pipeline["forks_count"],
+                "open_issues_count": pipeline["open_issues_count"],
+                "topics": pipeline["topics"],
+                "default_branch": pipeline["default_branch"],
+                "archived": pipeline["archived"],
+                "last_release_date": last_release_date,
+            }
 
 
 if __name__ == "__main__":
