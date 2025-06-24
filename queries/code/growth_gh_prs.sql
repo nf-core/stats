@@ -1,7 +1,8 @@
+USE nf_core_stats_bot;
 with monthly_counts as (
     select date_trunc('month', generate_series) as month,
         max(closed_merged) as num_prs
-    from stats_static.github_prs
+    from github.issue_stats
         cross join generate_series(
             date_trunc('month', '2020-01-01'::timestamp),
             date_trunc('month', current_date),

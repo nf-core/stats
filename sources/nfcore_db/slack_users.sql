@@ -1,16 +1,16 @@
-USE nfcore_db;
+USE nf_core_stats_bot;
 
 SELECT
-    to_timestamp(timestamp) as timestamp,
+    timestamp,
     inactive_users AS value,
     'inactive_users' AS category
-from slack
+from slack.workspace_stats
 
 UNION ALL
 
 SELECT
-    to_timestamp(timestamp) as timestamp,
+    timestamp,
     active_users AS value,
     'active_users' AS category
-from slack
+from slack.workspace_stats
 -- "timestamp","value","category"

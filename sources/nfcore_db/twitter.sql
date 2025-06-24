@@ -1,4 +1,4 @@
-use nfcore_db;
+USE nf_core_stats_bot;
 
-select * from nfcore_db.twitter;
+select * from twitter.account_stats;
 -- timestamp, followers
