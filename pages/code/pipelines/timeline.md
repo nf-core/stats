@@ -5,103 +5,21 @@ sidebar_position: 6
 
 This timeline shows when each nf-core pipeline was in development and when they were released. It helps answer whether old pipelines are finally being released or if there are a lot of quick-fire pipelines being added and released quickly.
 
-## Pipeline Development Timeline (Gantt-style)
+## Pipeline Lifecycle Timeline
 
-```sql pipeline_timeline_data
--- Get timeline data for visualization
-SELECT 
-    pipeline_name,
-    development_start,
-    development_end,
-    status,
-    development_days,
-    start_year,
-    -- Create a label for the chart
-    pipeline_name || ' (' || development_days || ' days)' as pipeline_label
-FROM nfcore_db.pipeline_timeline
-ORDER BY development_start
-```
-
-```sql lifecycle_chart_data
--- Create stacked bar chart data showing development + released time
-WITH pipeline_lifecycle AS (
-  SELECT 
-    pipeline_name,
-    development_days,
-    CASE 
-      WHEN status = 'Released' THEN DATE_DIFF('day', development_end, CURRENT_DATE)
-      ELSE 0
-    END as released_days,
-    status,
-    development_start
-  FROM nfcore_db.pipeline_timeline
-  WHERE development_start >= '2018-01-01'
-)
-SELECT 
-  pipeline_name,
-  development_days as days,
-  'Development' as phase,
-  development_start
-FROM pipeline_lifecycle
-
-UNION ALL
-
-SELECT 
-  pipeline_name,
-  released_days as days,
-  'Released' as phase,
-  development_start
-FROM pipeline_lifecycle
-WHERE released_days > 0
-
-ORDER BY development_start, phase DESC
-```
-
-<BarChart 
-    data={lifecycle_chart_data}
-    x=pipeline_name
-    y=days
-    series=phase
-    type=stacked
-    title="Pipeline Lifecycle: Development + Released Time"
-    xAxisTitle="Pipeline (ordered by start date)"
-    yAxisTitle="Days"
-    legend=true
-    seriesOrder={['Development', 'Released']}
-/>
-
-```sql gantt_style_data
--- Create a timeline view by quarters to simulate Gantt chart
-SELECT 
-    DATE_TRUNC('quarter', development_start)::TEXT as quarter,
-    COUNT(*) as pipelines_started,
-    COUNT(CASE WHEN status = 'Released' THEN 1 END) as pipelines_released,
-    AVG(development_days) as avg_development_days
-FROM nfcore_db.pipeline_timeline
-WHERE development_start >= '2020-01-01'
-GROUP BY DATE_TRUNC('quarter', development_start)
-ORDER BY DATE_TRUNC('quarter', development_start)
-```
-
-### Quarterly Pipeline Activity
-<AreaChart 
-    data={gantt_style_data}
-    x=quarter
-    y=pipelines_started
-    y2=pipelines_released
-    title="Pipeline Activity by Quarter"
-    xAxisTitle="Quarter"
-    yAxisTitle="Number of Pipelines"
-/>
+Each row shows a pipeline's complete lifecycle with visual timeline bars:
+- **Timeline** (blue): Total tracked time from creation to today
+- **Development** (red): Time from creation to first release 
+- **Released Time** (green): Time since first release
 
 ## Pipeline Lifecycle Summary
 
 ```sql lifecycle_summary
--- Show complete lifecycle for each pipeline
+-- Show complete lifecycle for each pipeline with bar chart data
 SELECT 
     pipeline_name,
-    development_start,
-    development_end,
+    development_start::DATE as start_date,
+    CASE WHEN status = 'Released' THEN development_end::DATE END as release_date,
     status,
     development_days,
     CASE 
@@ -112,12 +30,12 @@ SELECT
         WHEN status = 'Released' THEN development_days + DATE_DIFF('day', development_end, CURRENT_DATE)
         ELSE development_days
     END as total_days_tracked,
-    ROUND(
-        CASE 
-            WHEN status = 'Released' THEN development_days * 100.0 / (development_days + DATE_DIFF('day', development_end, CURRENT_DATE))
-            ELSE 100.0
-        END, 1
-    ) as pct_time_in_development
+    -- Bar chart values for visualization
+    development_days as dev_duration,
+    CASE 
+        WHEN status = 'Released' THEN DATE_DIFF('day', development_end, CURRENT_DATE)
+        ELSE 0
+    END as release_duration
 FROM nfcore_db.pipeline_timeline
 WHERE development_start >= '2018-01-01'
 ORDER BY development_start DESC
@@ -126,8 +44,18 @@ ORDER BY development_start DESC
 <DataTable 
     data={lifecycle_summary} 
     search=true
-    defaultSort={[{ id: 'development_start', desc: true }]}
-/>
+    defaultSort={[{ id: 'start_date', desc: true }]}
+>
+    <Column id=pipeline_name title="Pipeline" />
+    <Column id=start_date title="Started" />
+    <Column id=release_date title="Released" />
+    <Column id=status title="Status" />
+    <Column id=development_days title="Dev Days" fmt=num0 />
+    <Column id=days_since_release title="Days Released" fmt=num0 />
+    <Column id=total_days_tracked title="Timeline" contentType=bar barColor="#3b82f6" />
+    <Column id=dev_duration title="Development" contentType=bar barColor="#ef4444" />
+    <Column id=release_duration title="Released Time" contentType=bar barColor="#10b981" />
+</DataTable>
 
 ## Development vs Released Time Analysis
 
