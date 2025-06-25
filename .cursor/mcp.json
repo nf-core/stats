@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "mcp-server-motherduck": {
+      "command": "uvx", 
+      "args": [
+        "mcp-server-motherduck",
+        "--db-path",
+        "md:", 
+        "--motherduck-token",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImVkbXVuZC5hLm1pbGxlckBnbWFpbC5jb20iLCJzZXNzaW9uIjoiZWRtdW5kLmEubWlsbGVyLmdtYWlsLmNvbSIsInBhdCI6InRlU0F5WE1Dd1lGVXhXVnJPME9KdUVxbXM1a0ZNWWtFbGotOVc0b3RzRmciLCJ1c2VySWQiOiJlMzljNDdhYS05MWZmLTQ3MjktYTc0MS00NWUzNDAxNTJkZmEiLCJpc3MiOiJtZF9wYXQiLCJyZWFkT25seSI6ZmFsc2UsInRva2VuVHlwZSI6InJlYWRfd3JpdGUiLCJpYXQiOjE3Mzg2MTcyNzcsImV4cCI6MTc3MDE1MzI3N30.WQ4iNs3tAQW6_BRNK6kfcOD7lbloivB8TUcfJpSmqyo" 
+      ]
+    },
+    "browsermcp": {
+      "command": "npx",
+      "args": ["@browsermcp/mcp"]
+    }
+  }
+}

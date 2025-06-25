@@ -82,3 +82,9 @@ search=true
 wrapTitles=true
 totalRow=true
 />
+
+---
+
+## Related
+
+For a detailed timeline view of individual pipeline development cycles, see the [Pipeline Development Timeline](timeline) page. This shows when each pipeline was in development and helps answer whether old pipelines are finally being released or if there are quick-fire pipeline releases.
