@@ -22,33 +22,52 @@ FROM nfcore_db.pipeline_timeline
 ORDER BY development_start
 ```
 
-```sql timeline_chart_data
--- Transform data for timeline visualization - vertical bar chart showing development duration
-SELECT 
+```sql lifecycle_chart_data
+-- Create stacked bar chart data showing development + released time
+WITH pipeline_lifecycle AS (
+  SELECT 
     pipeline_name,
-    development_days as duration,
-    status,
-    start_year,
-    DATE_TRUNC('quarter', development_start) as start_quarter,
-    pipeline_name || ' (' || 
+    development_days,
     CASE 
-        WHEN status = 'Released' THEN development_days || ' days to release)'
-        ELSE development_days || ' days in dev)'
-    END as label
-FROM nfcore_db.pipeline_timeline
-WHERE development_start >= '2018-01-01'
-ORDER BY development_start
+      WHEN status = 'Released' THEN DATE_DIFF('day', development_end, CURRENT_DATE)
+      ELSE 0
+    END as released_days,
+    status,
+    development_start
+  FROM nfcore_db.pipeline_timeline
+  WHERE development_start >= '2018-01-01'
+)
+SELECT 
+  pipeline_name,
+  development_days as days,
+  'Development' as phase,
+  development_start
+FROM pipeline_lifecycle
+
+UNION ALL
+
+SELECT 
+  pipeline_name,
+  released_days as days,
+  'Released' as phase,
+  development_start
+FROM pipeline_lifecycle
+WHERE released_days > 0
+
+ORDER BY development_start, phase DESC
 ```
 
 <BarChart 
-    data={timeline_chart_data}
+    data={lifecycle_chart_data}
     x=pipeline_name
-    y=duration
-    series=status
-    title="Pipeline Development Duration"
-    xAxisTitle="Pipeline"
-    yAxisTitle="Development Duration (Days)"
+    y=days
+    series=phase
+    type=stacked
+    title="Pipeline Lifecycle: Development + Released Time"
+    xAxisTitle="Pipeline (ordered by start date)"
+    yAxisTitle="Days"
     legend=true
+    seriesOrder={['Development', 'Released']}
 />
 
 ```sql gantt_style_data
@@ -75,20 +94,57 @@ ORDER BY DATE_TRUNC('quarter', development_start)
     yAxisTitle="Number of Pipelines"
 />
 
-## Development Duration Analysis
+## Pipeline Lifecycle Summary
+
+```sql lifecycle_summary
+-- Show complete lifecycle for each pipeline
+SELECT 
+    pipeline_name,
+    development_start,
+    development_end,
+    status,
+    development_days,
+    CASE 
+        WHEN status = 'Released' THEN DATE_DIFF('day', development_end, CURRENT_DATE)
+        ELSE 0
+    END as days_since_release,
+    CASE 
+        WHEN status = 'Released' THEN development_days + DATE_DIFF('day', development_end, CURRENT_DATE)
+        ELSE development_days
+    END as total_days_tracked,
+    ROUND(
+        CASE 
+            WHEN status = 'Released' THEN development_days * 100.0 / (development_days + DATE_DIFF('day', development_end, CURRENT_DATE))
+            ELSE 100.0
+        END, 1
+    ) as pct_time_in_development
+FROM nfcore_db.pipeline_timeline
+WHERE development_start >= '2018-01-01'
+ORDER BY development_start DESC
+```
+
+<DataTable 
+    data={lifecycle_summary} 
+    search=true
+    defaultSort={[{ id: 'development_start', desc: true }]}
+/>
+
+## Development vs Released Time Analysis
 
 ```sql duration_stats
--- Calculate statistics about development durations
+-- Calculate statistics about development vs released time
 SELECT 
     status,
     COUNT(*) as pipeline_count,
-    ROUND(AVG(development_days), 0) as avg_duration_days,
-    ROUND(MEDIAN(development_days), 0) as median_duration_days,
-    MIN(development_days) as min_duration_days,
-    MAX(development_days) as max_duration_days
+    ROUND(AVG(development_days), 0) as avg_development_days,
+    ROUND(AVG(CASE WHEN status = 'Released' THEN DATE_DIFF('day', development_end, CURRENT_DATE) END), 0) as avg_days_released,
+    ROUND(MEDIAN(development_days), 0) as median_development_days,
+    MIN(development_days) as min_development_days,
+    MAX(development_days) as max_development_days
 FROM nfcore_db.pipeline_timeline
+WHERE development_start >= '2018-01-01'
 GROUP BY status
-ORDER BY avg_duration_days DESC
+ORDER BY avg_development_days DESC
 ```
 
 <DataTable data={duration_stats} />
