@@ -19,7 +19,7 @@ SELECT
   released as count,
   'released' as status  
 FROM nfcore_db.pipeline_numbers
-ORDER BY date, status
+ORDER BY date, status, count
 ```
 
 <AreaChart
@@ -27,7 +27,7 @@ data={pipeline_chart_data}
 x=date
 y=count
 series=status
-seriesOrder={['in_development', 'released']}
+seriesOrder={['released','in_development']}
 title="nf-core pipeline numbers over time"
 yAxisTitle="Number of pipelines"
 />
