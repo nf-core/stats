@@ -1,7 +1,7 @@
 """Slack source helpers."""
 
-import logging
-from typing import Any, Generator, Iterable, List, Optional
+from collections.abc import Generator, Iterable
+from typing import Any, Optional
 from urllib.parse import urljoin
 
 import pendulum
@@ -13,11 +13,11 @@ from jsonpath_ng.ext import parse  # type: ignore
 from .settings import MAX_PAGE_SIZE, SLACK_API_URL
 
 
-class SlackApiException(Exception):
+class SlackApiExceptionError(Exception):
     """Slack api exception."""
 
 
-class PaidOnlyException(SlackApiException):
+class PaidOnlyExceptionError(SlackApiExceptionError):
     """Slack api exception."""
 
 
@@ -81,9 +81,7 @@ class SlackAPI:
         """Generate the headers to use for the request."""
         return {"Authorization": f"Bearer {self.access_token}"}
 
-    def parameters(
-        self, params: Optional[Dict[str, Any]] = None, next_cursor: str = None
-    ) -> Dict[str, str]:
+    def parameters(self, params: Optional[Dict[str, Any]] = None, next_cursor: str = None) -> Dict[str, str]:
         """
         Generate the query parameters to use for the request.
 
@@ -119,9 +117,7 @@ class SlackAPI:
         cursor_jsonpath = "$.response_metadata.next_cursor"
         return next(extract_jsonpath(cursor_jsonpath, response), None)
 
-    def _convert_datetime_fields(
-        self, item: Dict[str, Any], datetime_fields: List[str]
-    ) -> Dict[str, Any]:
+    def _convert_datetime_fields(self, item: Dict[str, Any], datetime_fields: list[str]) -> Dict[str, Any]:
         """Convert timestamp fields in the item to pendulum datetime objects.
 
         The item is modified in place.
@@ -151,7 +147,7 @@ class SlackAPI:
         resource: str,
         response_path: str = None,
         params: Dict[str, Any] = None,
-        datetime_fields: List[str] = None,
+        datetime_fields: list[str] = None,
         context: Dict[str, Any] = None,
     ) -> Iterable[TDataItem]:
         """Get all pages from slack using requests.
@@ -185,11 +181,9 @@ class SlackAPI:
                 has_next_page = False
                 error = json_response.get("error")
                 if error == "paid_only":
-                    raise PaidOnlyException(
-                        "This resource is just available on paid accounts."
-                    )
+                    raise PaidOnlyExceptionError("This resource is just available on paid accounts.")
                 else:
-                    raise SlackApiException(error)
+                    raise SlackApiExceptionError(error)
 
             # Yield the page converting datetime fields
             output = []

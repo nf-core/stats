@@ -1,6 +1,6 @@
-USE nfcore_db;
+USE nf_core_stats_bot;
 
 select 
-username,
-to_timestamp(gh_id) as timestamp, -- FIXME change column name in md
-from gh_contributors;
+author as username,
+week_date as timestamp, -- FIXME change column name in md
+from github.contributor_stats;

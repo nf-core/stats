@@ -1,3 +1,3 @@
-USE nfcore_db;
+USE nf_core_stats_bot;
 
-select count(*) as total_gh_org_members from gh_org_members;
+select count(*) as total_gh_org_members from github.org_members;

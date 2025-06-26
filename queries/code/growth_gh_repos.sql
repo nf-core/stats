@@ -1,3 +1,4 @@
+USE nf_core_stats_bot;
 with monthly_counts as (
     select date_trunc('month', generate_series) as month,
         count(*) as num_repos

@@ -10,7 +10,7 @@ We use GitHub to manage all of the code written for nf-core. It's a fantastic pl
 It's not required to be a member of the nf-core GitHub organisation to contribute. However, members get the nf-core logo listed on their profile page and full write-access to all nf-core repositories.
 
 ```github_members
-select * from community_github_members;
+select * from community_github_members order by 1 desc
 ```
 
 <AreaChart 
