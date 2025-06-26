@@ -10,9 +10,9 @@ This timeline shows when each nf-core pipeline was in development and when they 
 ## Pipeline Lifecycle Timeline
 
 Each pipeline's lifecycle is visualized with three complementary bar charts:
-- **📊 Total Timeline** (blue): Complete tracked time from repository creation to today
-- **🔨 Development Period** (red): Time from initial commit to **first release** 
-- **🚀 Post-Release Period** (green): Time since **first release** (ongoing development)
+- **📊 Total Timeline** (nf-core blue): Complete tracked time from repository creation to today
+- **🔨 Development Period** (amber): Time from initial commit to **first release** 
+- **🚀 Post-Release Period** (nf-core green): Time since **first release** (ongoing development)
 
 ```sql lifecycle_summary
 -- Show complete lifecycle for each pipeline with bar chart data
@@ -57,9 +57,9 @@ ORDER BY development_start
 >
     <Column id=pipeline_name title="Pipeline" align=left />
     <Column id=start_date title="Development Started" fmt="mmm dd, yyyy" align=center />
-    <Column id=total_days_tracked title="Total Timeline" contentType=bar barColor="#3b82f6" align=center description="Complete timeline from start to today" />
-    <Column id=dev_duration title="Dev Duration" contentType=bar barColor="#ef4444" align=center description="Time to first release" />
-    <Column id=release_duration title="Days Since First Release" contentType=bar barColor="#10b981" align=center description="Time since first release" />
+         <Column id=total_days_tracked title="Total Timeline" contentType=bar barColor="#215EBE" align=center description="Complete timeline from start to today" />
+     <Column id=dev_duration title="Dev Duration" contentType=bar barColor="#A16207" align=center description="Time to first release" />
+     <Column id=release_duration title="Days Since First Release" contentType=bar barColor="#53A451" align=center description="Time since first release" />
     <Column id=first_release_date title="First Release" fmt="mmm dd, yyyy" align=center />
     <Column id=status title="Status" align=center />
 </DataTable>
