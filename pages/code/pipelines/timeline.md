@@ -162,6 +162,7 @@ ORDER BY start_year
     xAxisTitle="Year Pipeline Development Started"
     yAxisTitle="Average Days to First Release"
     yMin=0
+    xFmt="yyyy"
     yFmt="0"
     colorPalette={["#215EBE", "#53A451", "#A16207"]}
 />
@@ -177,6 +178,7 @@ ORDER BY start_year
     xAxisTitle="Year Pipeline Development Started"
     yAxisTitle="Average Development Days"
     yMin=0
+    xFmt="yyyy"
     yFmt="0"
     colorPalette={["#215EBE", "#94A3B8"]}
 />
@@ -187,7 +189,7 @@ ORDER BY start_year
     compact=true
     rowShading=true
 >
-    <Column id=start_year title="Year" align=center />
+    <Column id=start_year title="Year" align=center fmt="yyyy" />
     <Column id=pipelines_started title="Started Total" align=center />
     <Column id=pipelines_released title="Released" align=center />
     <Column id=pipelines_in_development title="In Dev" align=center />
