@@ -1,5 +1,7 @@
-USE nf_core_stats_bot;
-
-SELECT * EXCLUDE (description, last_release_date) 
-FROM github.nfcore_pipelines 
-WHERE NOT list_contains(topics, 'pipeline');
+SELECT p.*
+FROM github.nfcore_pipelines p
+WHERE p._dlt_id NOT IN (
+  SELECT t._dlt_parent_id 
+  FROM github.nfcore_pipelines__topics t 
+  WHERE t.value = 'pipeline'
+);

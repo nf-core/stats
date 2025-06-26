@@ -196,7 +196,7 @@ def contributor_stats_resource(organization: str, headers: dict, repos: list[dic
     primary_key=["pipeline_name", "issue_number"],
 )
 def issue_stats_resource(organization: str, headers: dict, repos: list[dict]) -> Iterator[dict]:
-    """Collect issue stats for each repository"""
+    """Collect issue stats and first response times for each repository"""
     entry_count = 0
 
     for repo in repos:
@@ -210,27 +210,54 @@ def issue_stats_resource(organization: str, headers: dict, repos: list[dict]) ->
 
         for issue in issues:
             is_pr = "pull_request" in issue
-
+            issue_number = issue["number"]
+            created_by = issue["user"]["login"]
             created_at = issue["created_at"]
             closed_at = issue["closed_at"]
-            closed_wait = None
 
+            # Calculate close time
+            closed_wait = None
             if closed_at:
                 created_timestamp = datetime.strptime(created_at, "%Y-%m-%dT%H:%M:%SZ")
                 closed_timestamp = datetime.strptime(closed_at, "%Y-%m-%dT%H:%M:%SZ")
                 closed_wait = (closed_timestamp - created_timestamp).total_seconds()
 
+            # Calculate first response time if there are comments
+            first_response_time = None
+            first_responder = None
+
+            if issue["comments"] > 0:
+                # Get comments for this issue
+                comments_url = (
+                    f"https://api.github.com/repos/{organization}/{pipeline_name}/issues/{issue_number}/comments"
+                )
+                comments, _ = get_paginated_results(comments_url, headers)
+
+                if comments:
+                    created_timestamp = datetime.strptime(created_at, "%Y-%m-%dT%H:%M:%SZ")
+
+                    # Find first comment not by the issue author
+                    for comment in comments:
+                        comment_author = comment["user"]["login"]
+                        if comment_author != created_by:  # First comment not by issue author
+                            comment_timestamp = datetime.strptime(comment["created_at"], "%Y-%m-%dT%H:%M:%SZ")
+                            first_response_time = (comment_timestamp - created_timestamp).total_seconds()
+                            first_responder = comment_author
+                            break
+
             entry_count += 1
             yield {
                 "pipeline_name": pipeline_name,
-                "issue_number": issue["number"],
+                "issue_number": issue_number,
                 "issue_type": "pr" if is_pr else "issue",
                 "state": issue["state"],
-                "created_by": issue["user"]["login"],
+                "created_by": created_by,
                 "created_at": created_at,
                 "updated_at": issue["updated_at"],
                 "closed_at": closed_at,
                 "closed_wait_seconds": closed_wait,
+                "first_response_seconds": first_response_time,
+                "first_responder": first_responder,
                 "num_comments": issue["comments"],
                 "html_url": issue["html_url"],
             }
