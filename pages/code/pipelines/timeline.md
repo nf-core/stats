@@ -3,30 +3,33 @@ title: Pipeline Development Timeline
 sidebar_position: 6
 ---
 
-This timeline shows when each nf-core pipeline was in development and when they were released. It helps answer whether old pipelines are finally being released or if there are a lot of quick-fire pipelines being added and released quickly.
+This timeline shows when each nf-core pipeline was in development and when they had their **first release**. It helps answer whether old pipelines are finally being released or if there are a lot of quick-fire pipelines being added and released quickly.
+
+> **Note**: This analysis tracks time to **first release**, not the most recent release, to better understand the development lifecycle of each pipeline.
 
 ## Pipeline Lifecycle Timeline
 
 Each row shows a pipeline's complete lifecycle with visual timeline bars:
 - **Timeline** (blue): Total tracked time from creation to today
-- **Development** (red): Time from creation to first release 
-- **Released Time** (green): Time since first release
+- **Development** (red): Time from creation to **first release** 
+- **Released Time** (green): Time since **first release** (not most recent release)
 
 ## Pipeline Lifecycle Summary
 
 ```sql lifecycle_summary
 -- Show complete lifecycle for each pipeline with bar chart data
+-- Now showing time to FIRST release, not last release
 SELECT 
     pipeline_name,
     development_start::DATE as start_date,
-    development_end::DATE as release_date,
+    development_end::DATE as first_release_date,
     status,
     development_days,
     CASE 
         WHEN status = 'Released' AND development_end IS NOT NULL 
         THEN DATE_DIFF('day', development_end, CURRENT_DATE)
         ELSE 0
-    END as days_since_release,
+    END as days_since_first_release,
     CASE 
         WHEN status = 'Released' AND development_end IS NOT NULL 
         THEN development_days + DATE_DIFF('day', development_end, CURRENT_DATE)
@@ -51,10 +54,10 @@ ORDER BY development_start
 >
     <Column id=pipeline_name title="Pipeline" />
     <Column id=start_date title="Started" />
-    <Column id=release_date title="Released" />
+    <Column id=first_release_date title="First Released" />
     <Column id=status title="Status" />
     <Column id=development_days title="Dev Days" fmt=num0 />
-    <Column id=days_since_release title="Days Released" fmt=num0 />
+    <Column id=days_since_first_release title="Days Since First Release" fmt=num0 />
     <Column id=total_days_tracked title="Timeline" contentType=bar barColor="#3b82f6" />
     <Column id=dev_duration title="Development" contentType=bar barColor="#ef4444" />
     <Column id=release_duration title="Released Time" contentType=bar barColor="#10b981" />
@@ -63,15 +66,16 @@ ORDER BY development_start
 ## Development vs Released Time Analysis
 
 ```sql duration_stats
--- Calculate statistics about development vs released time
+-- Calculate statistics about development vs time since first release
 SELECT 
     status,
     COUNT(*) as pipeline_count,
     ROUND(AVG(development_days), 0) as avg_development_days,
-    ROUND(AVG(CASE WHEN status = 'Released' THEN DATE_DIFF('day', development_end, CURRENT_DATE) END), 0) as avg_days_released,
+    ROUND(AVG(CASE WHEN status = 'Released' THEN DATE_DIFF('day', development_end, CURRENT_DATE) END), 0) as avg_days_since_first_release,
     ROUND(MEDIAN(development_days), 0) as median_development_days,
     MIN(development_days) as min_development_days,
-    MAX(development_days) as max_development_days
+    MAX(development_days) as max_development_days,
+    -- Note: total_releases temporarily removed due to query issues
 FROM nfcore_db.pipeline_timeline
 WHERE development_start >= '2018-01-01'
 GROUP BY status
@@ -190,9 +194,12 @@ WHERE development_start >= '2018-01-01'
 
 ## Key Insights
 
-Based on this timeline analysis, you can see:
+Based on this timeline analysis using **first release dates**, you can see:
 
-1. **Development Speed**: Most pipelines fall into different speed categories
-2. **Historical Trends**: Whether development times are getting shorter or longer over time
-3. **Release Patterns**: Which pipelines have been in development the longest
-4. **Quick vs Slow**: The distribution between quick-fire releases and long development cycles 
+1. **Development Speed**: Time from initial commit to first stable release for each pipeline
+2. **Historical Trends**: Whether development times to first release are getting shorter or longer over time
+3. **Release Patterns**: Which pipelines took longest to reach their first release
+4. **Quick vs Slow**: The distribution between quick-fire first releases and long development cycles
+5. **Post-Release Activity**: How many total releases each pipeline has had since their first release
+
+> **Important**: This analysis focuses on **first release** rather than most recent release to better understand the initial development effort required for each pipeline. Pipelines with many total releases indicate active ongoing development after the initial release. 
