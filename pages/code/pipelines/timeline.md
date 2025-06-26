@@ -9,10 +9,10 @@ This timeline shows when each nf-core pipeline was in development and when they 
 
 ## Pipeline Lifecycle Timeline
 
-Each row shows a pipeline's complete lifecycle with visual timeline bars:
-- **Timeline** (blue): Total tracked time from creation to today
-- **Development** (red): Time from creation to **first release** 
-- **Released Time** (green): Time since **first release** (not most recent release)
+Each pipeline's lifecycle is visualized with three complementary bar charts:
+- **📊 Total Timeline** (blue): Complete tracked time from repository creation to today
+- **🔨 Development Period** (red): Time from initial commit to **first release** 
+- **🚀 Post-Release Period** (green): Time since **first release** (ongoing development)
 
 ## Pipeline Lifecycle Summary
 
@@ -50,17 +50,18 @@ ORDER BY development_start
 <DataTable 
     data={lifecycle_summary} 
     search=true
+    compact=true
+    rowShading=true
+    wrapTitles=true
     defaultSort={[{ id: 'start_date', desc: true }]}
 >
-    <Column id=pipeline_name title="Pipeline" />
-    <Column id=start_date title="Started" />
-    <Column id=first_release_date title="First Released" />
-    <Column id=status title="Status" />
-    <Column id=development_days title="Dev Days" fmt=num0 />
-    <Column id=days_since_first_release title="Days Since First Release" fmt=num0 />
-    <Column id=total_days_tracked title="Timeline" contentType=bar barColor="#3b82f6" />
-    <Column id=dev_duration title="Development" contentType=bar barColor="#ef4444" />
-    <Column id=release_duration title="Released Time" contentType=bar barColor="#10b981" />
+    <Column id=pipeline_name title="Pipeline" align=left />
+    <Column id=start_date title="Development Started" fmt="mmm dd, yyyy" align=center />
+    <Column id=total_days_tracked title="Total Timeline" contentType=bar barColor="#3b82f6" align=center description="Complete timeline from start to today" />
+    <Column id=dev_duration title="Dev Duration" contentType=bar barColor="#ef4444" align=center description="Time to first release" />
+    <Column id=release_duration title="Days Since First Release" contentType=bar barColor="#10b981" align=center description="Time since first release" />
+    <Column id=first_release_date title="First Release" fmt="mmm dd, yyyy" align=center />
+    <Column id=status title="Status" align=center />
 </DataTable>
 
 ## Development vs Released Time Analysis
