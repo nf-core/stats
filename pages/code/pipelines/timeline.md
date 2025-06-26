@@ -14,8 +14,6 @@ Each pipeline's lifecycle is visualized with three complementary bar charts:
 - **🔨 Development Period** (red): Time from initial commit to **first release** 
 - **🚀 Post-Release Period** (green): Time since **first release** (ongoing development)
 
-## Pipeline Lifecycle Summary
-
 ```sql lifecycle_summary
 -- Show complete lifecycle for each pipeline with bar chart data
 -- Now showing time to FIRST release, not last release
@@ -48,7 +46,9 @@ ORDER BY development_start
 ```
 
 <DataTable 
+    title="Pipeline Lifecycle Summary"
     data={lifecycle_summary} 
+    rows=20
     search=true
     compact=true
     rowShading=true
