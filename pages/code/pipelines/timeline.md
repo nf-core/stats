@@ -22,6 +22,8 @@ SELECT
     development_start::DATE as start_date,
     development_end::DATE as first_release_date,
     status,
+    -- Add grouping columns
+    EXTRACT(YEAR FROM development_start) as start_year,
     development_days,
     CASE 
         WHEN status = 'Released' AND development_end IS NOT NULL 
@@ -42,24 +44,27 @@ SELECT
     END as release_duration
 FROM nfcore_db.pipeline_timeline
 WHERE development_start >= '2017-01-01'
-ORDER BY development_start
+ORDER BY start_year DESC, development_start DESC
 ```
 
 <DataTable 
-    title="Pipeline Lifecycle Summary"
+    title="Pipeline Development Timeline by Year"
     data={lifecycle_summary} 
-    rows=20
     search=true
     compact=true
     rowShading=true
     wrapTitles=true
-    defaultSort={[{ id: 'start_date', desc: true }]}
+    groupBy=start_year
+    groupType=accordion
+    groupsOpen=false
+    subtotals=true
+    accordionRowColor="#f8fafc"
 >
     <Column id=pipeline_name title="Pipeline" align=left />
     <Column id=start_date title="Development Started" fmt="mmm dd, yyyy" align=center />
-         <Column id=total_days_tracked title="Total Timeline" contentType=bar barColor="#215EBE" align=center description="Complete timeline from start to today" />
-     <Column id=dev_duration title="Dev Duration" contentType=bar barColor="#A16207" align=center description="Time to first release" />
-     <Column id=release_duration title="Days Since First Release" contentType=bar barColor="#53A451" align=center description="Time since first release" />
+    <Column id=total_days_tracked title="📊 Total Timeline" contentType=bar barColor="#215EBE" align=center description="Complete timeline from start to today" />
+    <Column id=dev_duration title="🔨 Dev Duration" contentType=bar barColor="#A16207" align=center description="Time to first release" />
+    <Column id=release_duration title="🚀 Days Since First Release" contentType=bar barColor="#53A451" align=center description="Time since first release" />
     <Column id=first_release_date title="First Release" fmt="mmm dd, yyyy" align=center />
     <Column id=status title="Status" align=center />
 </DataTable>
