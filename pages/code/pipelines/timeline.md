@@ -152,16 +152,16 @@ ORDER BY start_year
 
 ### Development Time Trends
 
-**Note**: Recent years (2024+) show lower average development times because many pipelines are still in development. The chart below shows trends for **released pipelines only** to avoid this bias.
+**Note**: Recent years (2024+) show lower average days until first release because many pipelines are still in development. The chart below shows trends for **released pipelines only** to avoid this bias.
 
 <LineChart 
     data={yearly_analysis}
     x=start_year
     y=avg_development_days_released
-    title="Average Development Time to First Release by Start Year"
+    title="Average Days Until First Release by Start Year"
     subtitle="Based on pipelines that have actually been released"
     xAxisTitle="Year Pipeline Development Started"
-    yAxisTitle="Average Days to First Release"
+    yAxisTitle="Average Days Until First Release"
     yMin=0
     xFmt="yyyy"
     yFmt="0"
@@ -174,10 +174,10 @@ ORDER BY start_year
     data={yearly_analysis}
     x=start_year
     y={["avg_development_days_released", "avg_development_days_all"]}
-    title="Development Time: Released vs All Pipelines"
+    title="Days Until First Release: Released vs All Pipelines"
     subtitle="Shows how including in-development pipelines affects averages"
     xAxisTitle="Year Pipeline Development Started"
-    yAxisTitle="Average Development Days"
+    yAxisTitle="Average Days Until First Release"
     yMin=0
     xFmt="yyyy"
     yFmt="0"
@@ -194,11 +194,11 @@ ORDER BY start_year
     <Column id=pipelines_started title="Started Total" align=center />
     <Column id=pipelines_released title="Released" align=center />
     <Column id=pipelines_in_development title="In Dev" align=center />
-    <Column id=avg_development_days_released title="Avg Days (Released)" align=center fmt="#,##0" />
-    <Column id=median_development_days_released title="Median Days (Released)" align=center fmt="#,##0" />
+    <Column id=avg_development_days_released title="Avg Days Until First Release" align=center fmt="#,##0" />
+    <Column id=median_development_days_released title="Median Days Until First Release" align=center fmt="#,##0" />
     <Column id=release_rate_percent title="Release Rate" align=center fmt="0.0%" contentType=delta neutralMin=80 neutralMax=100 />
-    <Column id=min_dev_days_released title="Min Days" align=center fmt="#,##0" />
-    <Column id=max_dev_days_released title="Max Days" align=center fmt="#,##0" />
+    <Column id=min_dev_days_released title="Min Days Until Release" align=center fmt="#,##0" />
+    <Column id=max_dev_days_released title="Max Days Until Release" align=center fmt="#,##0" />
     <Column id=time_period title="Period" align=center />
 </DataTable>
 
