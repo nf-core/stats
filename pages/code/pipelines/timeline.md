@@ -122,7 +122,8 @@ ORDER BY avg_days
 ```sql yearly_analysis
 -- Analysis by start year to see trends - IMPROVED VERSION
 SELECT 
-    CAST(start_year AS INTEGER) as start_year,
+    CAST(start_year AS INTEGER) as start_year_int,
+    DATE_TRUNC('year', MAKE_DATE(CAST(start_year AS INTEGER), 1, 1)) as start_year,
     COUNT(*) as pipelines_started,
     COUNT(CASE WHEN status = 'Released' THEN 1 END) as pipelines_released,
     COUNT(CASE WHEN status != 'Released' THEN 1 END) as pipelines_in_development,
