@@ -19,26 +19,29 @@ Each row shows a pipeline's complete lifecycle with visual timeline bars:
 SELECT 
     pipeline_name,
     development_start::DATE as start_date,
-    CASE WHEN status = 'Released' THEN development_end::DATE END as release_date,
+    development_end::DATE as release_date,
     status,
     development_days,
     CASE 
-        WHEN status = 'Released' THEN DATE_DIFF('day', development_end, CURRENT_DATE)
+        WHEN status = 'Released' AND development_end IS NOT NULL 
+        THEN DATE_DIFF('day', development_end, CURRENT_DATE)
         ELSE 0
     END as days_since_release,
     CASE 
-        WHEN status = 'Released' THEN development_days + DATE_DIFF('day', development_end, CURRENT_DATE)
+        WHEN status = 'Released' AND development_end IS NOT NULL 
+        THEN development_days + DATE_DIFF('day', development_end, CURRENT_DATE)
         ELSE development_days
     END as total_days_tracked,
     -- Bar chart values for visualization
     development_days as dev_duration,
     CASE 
-        WHEN status = 'Released' THEN DATE_DIFF('day', development_end, CURRENT_DATE)
+        WHEN status = 'Released' AND development_end IS NOT NULL 
+        THEN DATE_DIFF('day', development_end, CURRENT_DATE)
         ELSE 0
     END as release_duration
 FROM nfcore_db.pipeline_timeline
-WHERE development_start >= '2018-01-01'
-ORDER BY development_start DESC
+WHERE development_start >= '2017-01-01'
+ORDER BY development_start
 ```
 
 <DataTable 
