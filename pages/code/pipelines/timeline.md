@@ -61,11 +61,11 @@ ORDER BY start_year DESC, development_start DESC
     accordionRowColor="#f8fafc"
 >
     <Column id=pipeline_name title="Pipeline" align=left />
-    <Column id=start_date title="Development Started" fmt="mmm dd, yyyy" align=center />
+    <Column id=start_date title="Development Started" fmt="mmm yyyy" align=center />
     <Column id=total_days_tracked title="📊 Total Timeline" contentType=bar barColor="#215EBE" align=center description="Complete timeline from start to today" />
     <Column id=dev_duration title="🔨 Dev Duration" contentType=bar barColor="#A16207" align=center description="Time to first release" />
     <Column id=release_duration title="🚀 Days Since First Release" contentType=bar barColor="#53A451" align=center description="Time since first release" />
-    <Column id=first_release_date title="First Release" fmt="mmm dd, yyyy" align=center />
+    <Column id=first_release_date title="First Release" fmt="mmm yyyy" align=center />
     <Column id=status title="Status" align=center />
 </DataTable>
 
@@ -120,29 +120,84 @@ ORDER BY avg_days
 ## Year-over-Year Analysis
 
 ```sql yearly_analysis
--- Analysis by start year to see trends
+-- Analysis by start year to see trends - IMPROVED VERSION
 SELECT 
-    start_year,
+    CAST(start_year AS INTEGER) as start_year,
     COUNT(*) as pipelines_started,
     COUNT(CASE WHEN status = 'Released' THEN 1 END) as pipelines_released,
-    ROUND(AVG(development_days), 0) as avg_development_days,
-    ROUND(COUNT(CASE WHEN status = 'Released' THEN 1 END) * 100.0 / COUNT(*), 1) as release_rate_percent
+    COUNT(CASE WHEN status != 'Released' THEN 1 END) as pipelines_in_development,
+    -- Only calculate averages for pipelines that have been released to avoid skewing data
+    CAST(ROUND(AVG(CASE WHEN status = 'Released' THEN development_days END), 0) AS INTEGER) as avg_development_days_released,
+    -- Show average for all pipelines (including in-development) for comparison
+    CAST(ROUND(AVG(development_days), 0) AS INTEGER) as avg_development_days_all,
+    -- Calculate median for better central tendency
+    CAST(ROUND(MEDIAN(CASE WHEN status = 'Released' THEN development_days END), 0) AS INTEGER) as median_development_days_released,
+    ROUND(COUNT(CASE WHEN status = 'Released' THEN 1 END) * 100.0 / COUNT(*), 1) as release_rate_percent,
+    -- Add min/max for context
+    MIN(CASE WHEN status = 'Released' THEN development_days END) as min_dev_days_released,
+    MAX(CASE WHEN status = 'Released' THEN development_days END) as max_dev_days_released,
+    -- Filter out incomplete recent years for more accurate trending
+    CASE 
+        WHEN start_year >= 2024 THEN 'Recent (Incomplete)'
+        WHEN start_year >= 2020 THEN 'Recent'  
+        ELSE 'Historical'
+    END as time_period
 FROM nfcore_db.pipeline_timeline
-WHERE start_year >= 2018
+WHERE start_year >= 2018 
+  AND start_year <= EXTRACT(YEAR FROM CURRENT_DATE) -- Don't include future years
 GROUP BY start_year
-ORDER BY start_year DESC
+ORDER BY start_year
 ```
+
+### Development Time Trends
+
+**Note**: Recent years (2024+) show lower average development times because many pipelines are still in development. The chart below shows trends for **released pipelines only** to avoid this bias.
 
 <LineChart 
     data={yearly_analysis}
     x=start_year
-    y=avg_development_days
-    title="Average Development Time by Start Year"
-    xAxisTitle="Year Pipeline Started"
-    yAxisTitle="Average Development Days"
+    y=avg_development_days_released
+    title="Average Development Time to First Release by Start Year"
+    subtitle="Based on pipelines that have actually been released"
+    xAxisTitle="Year Pipeline Development Started"
+    yAxisTitle="Average Days to First Release"
+    yMin=0
+    yFmt="0"
+    colorPalette={["#215EBE", "#53A451", "#A16207"]}
 />
 
-<DataTable data={yearly_analysis} />
+### Comparative Analysis: Released vs All Pipelines
+
+<LineChart 
+    data={yearly_analysis}
+    x=start_year
+    y={["avg_development_days_released", "avg_development_days_all"]}
+    title="Development Time: Released vs All Pipelines"
+    subtitle="Shows how including in-development pipelines affects averages"
+    xAxisTitle="Year Pipeline Development Started"
+    yAxisTitle="Average Development Days"
+    yMin=0
+    yFmt="0"
+    colorPalette={["#215EBE", "#94A3B8"]}
+/>
+
+<DataTable 
+    data={yearly_analysis}
+    title="Year-over-Year Pipeline Development Analysis"
+    compact=true
+    rowShading=true
+>
+    <Column id=start_year title="Year" align=center />
+    <Column id=pipelines_started title="Started Total" align=center />
+    <Column id=pipelines_released title="Released" align=center />
+    <Column id=pipelines_in_development title="In Dev" align=center />
+    <Column id=avg_development_days_released title="Avg Days (Released)" align=center fmt="#,##0" />
+    <Column id=median_development_days_released title="Median Days (Released)" align=center fmt="#,##0" />
+    <Column id=release_rate_percent title="Release Rate" align=center fmt="0.0%" contentType=delta neutralMin=80 neutralMax=100 />
+    <Column id=min_dev_days_released title="Min Days" align=center fmt="#,##0" />
+    <Column id=max_dev_days_released title="Max Days" align=center fmt="#,##0" />
+    <Column id=time_period title="Period" align=center />
+</DataTable>
 
 ## Timeline View (Gantt-style)
 
