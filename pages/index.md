@@ -4,7 +4,6 @@ queries:
   - community/growth_github_members.sql
   - community/growth_slack_users.sql
   - community/growth_gh_contributors.sql
-  - community/growth_twitter.sql
   - code/growth_gh_repos.sql
   - code/growth_gh_prs.sql
   - code/growth_gh_commits.sql
@@ -46,16 +45,10 @@ The numbers below track our growth over the various channels that the nf-core co
   title="GitHub Contributors"
   link="/community/github"
 />
-
-<BigValue
-  data={community_growth_twitter}
-  value=followers
-  title="Twitter Followers"
   sparkline=month
   comparison=growth_rate
   comparisonFmt=pct1
   comparisonTitle="vs. Last Month"
-  link="/community/twitter"
 />
 <!-- TODO Add Bluesky followers -->
 
