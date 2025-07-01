@@ -1,7 +1,7 @@
 ---
-description:
-globs:
-alwaysApply: false
+description: 
+globs: 
+alwaysApply: true
 ---
 # Project Architecture Overview
 
@@ -23,7 +23,7 @@ The collected data is loaded into MotherDuck. The configuration for the destinat
 
 ### 3. Analytics & Presentation Layer (Evidence)
 
-The frontend is built with the [Evidence](https://www.evidence.dev/) framework.
+The frontend is built with the [Evidence](mdc:https:/www.evidence.dev) framework.
 
 - **Configuration:** [evidence.config.yaml](mdc:evidence.config.yaml) defines datasources and theme.
 - **Data Queries:** SQL queries that transform data for visualization are located in the `queries/` directory. For example, see [queries/community/growth_slack_users.sql](mdc:queries/community/growth_slack_users.sql).

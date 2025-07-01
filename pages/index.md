@@ -1,10 +1,9 @@
 ---
 title: Introduction
 queries:
-  - community/growth_github_members.sql
+  - community/growth_gh_members.sql
   - community/growth_slack_users.sql
   - community/growth_gh_contributors.sql
-  - community/growth_twitter.sql
   - code/growth_gh_repos.sql
   - code/growth_gh_prs.sql
   - code/growth_gh_commits.sql
@@ -19,7 +18,7 @@ The numbers below track our growth over the various channels that the nf-core co
 
 
 <BigValue
-  data={community_growth_github_members}
+  data={community_growth_gh_members}
   value=members
   title="GitHub Organisation Members"
   sparkline=month
@@ -42,21 +41,16 @@ The numbers below track our growth over the various channels that the nf-core co
 
 <BigValue
   data={community_growth_gh_contributors}
-  value=members
+  value=contributors
   title="GitHub Contributors"
-  link="/community/github"
-/>
-
-<BigValue
-  data={community_growth_twitter}
-  value=followers
-  title="Twitter Followers"
   sparkline=month
   comparison=growth_rate
   comparisonFmt=pct1
   comparisonTitle="vs. Last Month"
-  link="/community/twitter"
+  link="/community/github"
+  fmt=num0
 />
+
 <!-- TODO Add Bluesky followers -->
 
 ## Code Stats
@@ -66,7 +60,7 @@ Whilst we always prefer quality over quantity, these numbers reflect the work ou
 <BigValue
     data={code_growth_gh_repos}
     value=num_repos
-    title="Repositories"
+    title="Pipeline"
     sparkline=month
     comparison=growth_rate
     comparisonFmt=pct1
@@ -81,12 +75,18 @@ Whilst we always prefer quality over quantity, these numbers reflect the work ou
     comparison=growth_rate
     comparisonFmt=pct1
     comparisonTitle="vs. Last Month"
+    link="/code/prs"
 />
 
 <BigValue
     data={code_growth_gh_commits}
     value=num_commits
     title="Commits"
+    sparkline=month
+    comparison=growth_rate
+    comparisonFmt=pct1
+    comparisonTitle="vs. Last Month"
+    fmt=num0
 />
 
 <BigValue
@@ -97,4 +97,5 @@ Whilst we always prefer quality over quantity, these numbers reflect the work ou
     comparison=growth_rate
     comparisonFmt=pct1
     comparisonTitle="vs. Last Month"
+    fmt=num0
 />

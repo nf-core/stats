@@ -7,8 +7,8 @@ Slack is a real-time messaging tool, with discussion split into channels and gro
 
 ```sql view_days
 select
-    to_timestamp(timestamp) as timestamp
-from slack
+    timestamp
+from slack_users
 group by 1
 ```
 
@@ -37,6 +37,6 @@ order by 3 asc
     subtitle="Per day from {inputs.range_filtering_a_query.start} to {inputs.range_filtering_a_query.end}"
 />
 
-ℹ️Slack considers users to be inactive when they haven't used slack for the previous 14 days.
+ℹ️ Slack considers users to be inactive when they haven't used slack for the previous 14 days.
 
-⚠️Data from before 2019-07-24 fudged by reverse-engineering billing details on the slack admin pages.
+⚠️ Data from before 2019-07-24 fudged by reverse-engineering billing details on the slack admin pages.

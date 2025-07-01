@@ -1,4 +1,4 @@
-USE nfcore_db;
+USE nf_core_stats_bot;
 
 SELECT
     timestamp,
@@ -7,9 +7,9 @@ SELECT
     SUM(clones) AS sum_total_clones,
     SUM(clones_uniques) AS sum_total_clones_uniques,
     MIN(timestamp) AS min_timestamp
-FROM github_traffic_stats
+FROM github.traffic_stats
 INNER JOIN
-    nfcore_pipelines
-    ON github_traffic_stats.pipeline_id = nfcore_pipelines.id
+    github.nfcore_pipelines
+    ON github.traffic_stats.pipeline_name = github.nfcore_pipelines.name
 GROUP BY timestamp
 ORDER BY timestamp ASC;

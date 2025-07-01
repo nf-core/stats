@@ -2,4 +2,4 @@
 name: nfcore_db
 type: motherduck
 options:
-  database: nf_core_stats
+  database: nf_core_stats_bot
