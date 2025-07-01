@@ -33,3 +33,94 @@ Remember:
     <Column id="last_commit_week" title="Last Commit Week" align="right"/>
 </DataTable>
 
+```sql time_range
+SELECT 
+    timestamp
+FROM nfcore_db.community_github_contributors
+WHERE week_commits > 0
+```
+
+<DateRange
+    name="date_range"
+    data={time_range}
+    dates="timestamp"
+    defaultValue="All Time"
+    presetRanges={['Last 7 Days', 'Last Month', 'Last 3 Months', 'Last 6 Months', 'Last Year', 'All Time']}
+/>
+
+```sql top_contributors_commits_filtered
+SELECT 
+    username,
+    CAST(timestamp AS DATE) AS timestamp,
+    week_commits
+FROM nfcore_db.community_github_contributors
+WHERE username IN (SELECT author FROM nfcore_db.gh_contributors ORDER BY total_sum_commits DESC LIMIT 10) 
+AND week_commits > 0
+AND timestamp >= '${inputs.date_range.start}' 
+AND timestamp <= '${inputs.date_range.end}'
+ORDER BY timestamp, username
+```
+
+```sql top_contributors_additions_filtered
+SELECT 
+    username,
+    CAST(timestamp AS DATE) AS timestamp,
+    week_additions
+FROM nfcore_db.community_github_contributors
+WHERE username IN (SELECT author FROM nfcore_db.gh_contributors ORDER BY total_sum_additions DESC LIMIT 10) 
+AND week_additions > 0
+AND timestamp >= '${inputs.date_range.start}' 
+AND timestamp <= '${inputs.date_range.end}'
+ORDER BY timestamp, username
+```
+
+```sql top_contributors_deletions_filtered
+SELECT 
+    username,
+    CAST(timestamp AS DATE) AS timestamp,
+    -1 * week_deletions as week_deletions
+FROM nfcore_db.community_github_contributors
+WHERE username IN (SELECT author FROM nfcore_db.gh_contributors ORDER BY total_sum_deletions DESC LIMIT 10) 
+AND week_deletions > 0
+AND timestamp >= '${inputs.date_range.start}' 
+AND timestamp <= '${inputs.date_range.end}'
+ORDER BY timestamp, username
+```
+
+
+<Tabs>
+    <Tab label="Commits">
+
+<LineChart
+    data={top_contributors_commits_filtered}
+    x="timestamp"
+    y="week_commits"
+    series="username"
+    sort=false
+    yMin=0
+/>
+
+</Tab>
+<Tab label="Additions">
+
+<LineChart
+    data={top_contributors_additions_filtered}
+    x="timestamp"
+    y="week_additions"
+    series="username"
+    sort=false
+/>
+
+</Tab>
+<Tab label="Deletions">
+
+<LineChart
+    data={top_contributors_deletions_filtered}
+    x="timestamp"
+    y="week_deletions"
+    series="username"
+    sort=false
+/>
+
+</Tab>
+</Tabs>
