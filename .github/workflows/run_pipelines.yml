@@ -15,7 +15,6 @@ name: Run All Pipelines
 env:
   GITHUB_TOKEN: ${{ secrets.NF_CORE_BOT_AUTH_TOKEN }}
   SOURCES__SLACK_PIPELINE__SLACK__API_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-  TWITTER_BEARER_TOKEN: ${{ secrets.TWITTER_BEARER_TOKEN }}
   DESTINATION__MOTHERDUCK__CREDENTIALS__DATABASE: "nf_core_stats_bot"
   DESTINATION__MOTHERDUCK__CREDENTIALS__PASSWORD: ${{ secrets.MOTHERDUCK_TOKEN }}
   PYTHONUNBUFFERED: "1"
@@ -45,8 +44,6 @@ jobs:
             uuid: 73f22c65-592a-4368-8fc5-23787c1dc67d
           - pipeline: slack
             uuid: 585d7c4f-abc9-49fa-980f-64d950d6fd2b
-          - pipeline: twitter
-            uuid: efc2b7e6-fe77-4c92-9979-b6ccc07bc714
     defaults:
       run:
         working-directory: pipeline

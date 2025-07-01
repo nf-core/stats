@@ -20,13 +20,9 @@ Database: nf_core_stats
 │   └── Table: issue_stats
 │       └── (issues and PRs details)
 │
-├── Schema: slack
+└── Schema: slack
 │   └── Table: workspace_stats
 │       └── (user counts, activity metrics)
-│
-└── Schema: twitter  # Future expansion
-    └── Table: follower_stats
-        └── (follower counts over time)
 ```
 
 

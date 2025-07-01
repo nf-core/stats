@@ -8,7 +8,6 @@ The nf-core stats page follows a multi-stage data pipeline architecture:
 - Collects data from multiple sources:
   - **GitHub**: Repository traffic stats, contributor statistics, issues/PRs, organization members
   - **Slack**: Workspace statistics (total/active/inactive users)
-  - **Twitter/X**: Follower counts and metrics
 - Implements incremental loading with merge strategies for efficient updates
 
 ### 2. **Storage Layer (MotherDuck)**
