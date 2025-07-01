@@ -1,30 +1,28 @@
 with monthly_counts as (
-    select date_trunc('month', generate_series) as month,
-        count(*) as num_repos
+    select date_trunc('month', gh_created_at) as month,
+        count(*) as new_repos,
     from nfcore_db.all_repos
-        cross join generate_series(
-            date_trunc('month', '2020-01-01'::timestamp),
-            date_trunc('month', current_date),
-            interval '1 month'
-        )
-    where date_added <= generate_series
+    where gh_created_at is not null
     group by 1
 )
 select month,
-    num_repos,
-    lag(num_repos) over (
+    sum(new_repos) over (
         order by month
-    ) as prev_month_num_repos,
+    ) as num_repos,
+    new_repos,
+    lag(new_repos) over (
+        order by month
+    ) as prev_month_new_repos,
     round(
         cast(
             (
-                num_repos / nullif(
-                    lag(num_repos) over (
+                new_repos / nullif(
+                    lag(new_repos) over (
                         order by month
                     ),
                     0
                 ) - 1
-            ) * 100 as numeric
+            )  as numeric
         ),
         1
     ) as growth_rate
