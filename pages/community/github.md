@@ -1,6 +1,8 @@
 ---
 title: GitHub
 sidebar_position: 2
+queries:
+ - code/growth_gh_commits.sql
 ---
 
 ## GitHub organisation members
@@ -53,11 +55,11 @@ select
 to_timestamp(timestamp) as timestamp,
 sum(number_of_commits) over (order by timestamp) as number_of_commits,
 from
-nfcore_issues_stats.gh_commits
+code_growth_gh_commits
 ```
 
 <AreaChart
-    data={commits_over_time}
+    data={code_growth_gh_commits}
     x=timestamp
     y=number_of_commits
 />

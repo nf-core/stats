@@ -1,6 +1,8 @@
 ---
 title: Contributors
 sidebar_position: 4
+queries:
+  - code/contributors_leaderboard.sql
 ---
 
 ## Contributor Leaderboard
@@ -16,4 +18,18 @@ Remember:
 - Some people commit often, others not so much. So it's not a perfect representation of amount of work - just a bit of fun!
 - master branch only, and all of the other caveats..
 
-## We're working on recreating this leaderboard using a more comprehensive set of data. See [this issue](https://github.com/nf-core/stats/issues/13) for more details.
+
+<DataTable 
+    data={code_contributors_leaderboard}
+    search=true
+    wrapTitles=true
+    defaultSort={[{ id: 'total_commits', desc: true }]}
+>
+    <Column id="contributor" title="Contributor" align="left" contentType="html"/>
+    <Column id="total_commits" title="Total Commits" align="right"/>
+    <Column id="total_additions" title="Total Additions" align="right"/>
+    <Column id="total_deletions" title="Total Deletions" align="right"/>
+    <Column id="first_commit_week" title="First Commit Week" align="right"/>
+    <Column id="last_commit_week" title="Last Commit Week" align="right"/>
+</DataTable>
+
