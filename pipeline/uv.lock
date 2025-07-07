@@ -321,7 +321,6 @@ dependencies = [
     { name = "python-dotenv" },
     { name = "requests" },
     { name = "slack-sdk" },
-    { name = "tenacity" },
 ]
 
 [package.metadata]
@@ -330,7 +329,6 @@ requires-dist = [
     { name = "python-dotenv", specifier = "==1.0.0" },
     { name = "requests", specifier = ">=2.31.0" },
     { name = "slack-sdk", specifier = ">=3.33.5" },
-    { name = "tenacity", specifier = ">=9.1.2" },
 ]
 
 [[package]]
