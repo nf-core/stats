@@ -56,7 +56,6 @@ def paginate_slack_api(api_call: Callable, data_key: str, description: str, **kw
             if not response.get("ok"):
                 logger.error(f"Failed to get {description}: {response.get('error', 'Unknown error')}")
                 break
-
             batch_data = response.get(data_key, [])
             all_results.extend(batch_data)
 
@@ -81,40 +80,43 @@ def get_active_users_from_billing_info(client: WebClient, valid_user_ids: set[st
     logger.info("Using team.billableInfo API to determine active users")
 
     try:
-        # Get billable info for all users using pagination
-        # Note: team.billableInfo returns data differently than other APIs
-        all_billable_data = paginate_slack_api(client.team_billableInfo, "billable_info", "billable users")
+        # Get all billing info with pagination
+        all_billing_info = {}
+        cursor = None
 
-        if not all_billable_data:
-            logger.error("No billable info returned from team.billableInfo API")
-            raise ValueError("Failed to get billing information from Slack API")
+        while True:
+            response = client.team_billableInfo(cursor=cursor, limit=SLACK_API_LIMIT)
 
-        active_users = set()
+            if not response.get("ok"):
+                raise ValueError(f"Failed to get billable info: {response.get('error', 'Unknown error')}")
 
-        logger.info(f"Billable info batch: {all_billable_data}")
-        # Process billable info - the API returns a dict with user IDs as keys
-        for billable_info_batch in all_billable_data:
-            if isinstance(billable_info_batch, dict):
-                for user_id, user_billing_info in billable_info_batch.items():
-                    logger.info(f"User ID: {user_id}, Billing Info: {user_billing_info}")
-                    if user_billing_info.get("billing_active", False) and user_id in valid_user_ids:
-                        active_users.add(user_id)
+            billing_info_batch: dict[str, Any] = response.get("billable_info", {})
+            all_billing_info.update(billing_info_batch)
 
-        logger.info(f"Found {len(active_users)} billing-active users from team.billableInfo API")
+            response_metadata: dict[str, Any] = response.get("response_metadata", {})
+            cursor = response_metadata.get("next_cursor")
+            if not cursor:
+                break
+
+        logger.info(f"Retrieved billing info for {len(all_billing_info)} users")
+
+        # Find active users
+        active_users = {
+            user_id
+            for user_id, billing_info in all_billing_info.items()
+            if billing_info.get("billing_active", False) and user_id in valid_user_ids
+        }
+
+        logger.info(f"Found {len(active_users)} billing-active users")
         return active_users
 
     except SlackApiError as e:
-        error_msg = str(e)
-        if "not_allowed_token_type" in error_msg:
+        if "not_allowed_token_type" in str(e):
             logger.error("team.billableInfo requires admin user token (not bot token)")
-            logger.error("Please use a user token with 'admin' scope instead of a bot token")
-            logger.error("Bot tokens are not supported for this API endpoint")
-        elif "missing_scope" in error_msg:
+        elif "missing_scope" in str(e):
             logger.error("team.billableInfo requires 'admin' scope")
-            logger.error("Please ensure your token has admin privileges")
         else:
             logger.error(f"team.billableInfo API error: {e}")
-
         raise
 
 
@@ -128,19 +130,6 @@ def create_user_detail(user: dict[str, Any], active_user_ids: set[str]) -> dict[
         "is_bot": user.get("is_bot", False),
         "is_active": user["id"] in active_user_ids,
     }
-
-
-def validate_user_counts(total_users: int, active_users: int) -> int:
-    """Validate user counts and return safe inactive count"""
-    inactive_users = total_users - active_users
-
-    if inactive_users < 0:
-        logger.warning(f"Negative inactive users detected! This suggests a logic error.")
-        logger.warning(f"Total users: {total_users}, Active users: {active_users}")
-        # Set inactive_users to 0 to avoid negative values
-        inactive_users = max(0, inactive_users)
-
-    return inactive_users
 
 
 def log_pipeline_stats(pipeline, load_info):
@@ -193,44 +182,34 @@ def slack_source(api_token: str = dlt.secrets.value) -> list[Any]:
 def slack_stats_resource(client: WebClient) -> Iterator[dict[str, Any]]:
     """Collect combined Slack statistics in a single table"""
     try:
-        # Get total users (with pagination)
+        # Get all users (excluding deleted ones)
         all_members = paginate_slack_api(client.users_list, "members", "users")
         if not all_members:
             return
 
         active_account_users = [user for user in all_members if not user.get("deleted", False)]
-        total_users = len(active_account_users)
-        logger.info(f"Total users (after filtering deleted): {total_users}")
-
-        # Create a set of all valid user IDs for faster lookup
         valid_user_ids = {user["id"] for user in active_account_users}
-        logger.info(f"Valid user IDs: {len(valid_user_ids)}")
 
-        # Get active users using team.billableInfo API (more efficient than channel iteration)
-        active_channel_users = get_active_users_from_billing_info(client, valid_user_ids)
+        logger.info(f"Total users: {len(active_account_users)}")
 
-        active_users = len(active_channel_users)
-        logger.info(f"Active users (billing-active): {active_users}")
+        # Get billing-active users
+        active_user_ids = get_active_users_from_billing_info(client, valid_user_ids)
+        active_users = len(active_user_ids)
+        inactive_users = len(active_account_users) - active_users
 
-        # Validate and calculate inactive users
-        inactive_users = validate_user_counts(total_users, active_users)
-        logger.info(f"Inactive users: {inactive_users}")
+        logger.info(f"Active users: {active_users}, Inactive users: {inactive_users}")
 
-        # Yield combined stats
+        # Yield stats
         yield {
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "total_users": total_users,
+            "total_users": len(active_account_users),
             "active_users": active_users,
             "inactive_users": inactive_users,
-            # Optionally keep detailed user info as nested data
-            "user_details": [create_user_detail(user, active_channel_users) for user in active_account_users],
+            "user_details": [create_user_detail(user, active_user_ids) for user in active_account_users],
         }
 
-    except SlackApiError as e:
-        logger.error(f"Slack API error: {e}")
-        raise
     except Exception as e:
-        logger.error(f"Unexpected error collecting Slack stats: {e}")
+        logger.error(f"Error collecting Slack stats: {e}")
         raise
 
 
