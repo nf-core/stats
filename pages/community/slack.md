@@ -35,7 +35,9 @@ order by 3 asc
     series=category
     title="nf-core Slack users over time"
     subtitle="Per day from {inputs.range_filtering_a_query.start} to {inputs.range_filtering_a_query.end}"
-/>
+>
+    <ReferenceArea xMin='2024-01-25' xMax='2025-02-04' label="No data"/>
+</AreaChart>
 
 ℹ️ Slack considers users to be inactive when they haven't used slack for the previous 14 days.
 
