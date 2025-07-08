@@ -28,12 +28,25 @@ select * from community_github_members order by 1 desc
 Anybody can fork nf-core repositories and open a pull-request. Here we count how many different people have contributed at least one commit to an nf-core repository, or created or commented on an issue or pull-request.
 
 ```contributors_over_time
+with all_timestamps as (
+  select distinct timestamp
+  from community_github_contributors
+  order by timestamp
+),
+cumulative_contributors as (
+  select 
+    t.timestamp,
+    count(distinct c.username) as number_of_contributors
+  from all_timestamps t
+  left join community_github_contributors c 
+    on c.timestamp <= t.timestamp
+  group by t.timestamp
+)
 select 
-timestamp,
-sum(count(username)) over (order by timestamp) as number_of_contributors,
-from
-community_github_contributors
-group by timestamp
+  timestamp,
+  number_of_contributors
+from cumulative_contributors
+order by timestamp
 ```
 
 <AreaChart
@@ -50,17 +63,10 @@ group by timestamp
 
 <!-- commits, commits and issues, issues area chart -->
 
-```commits_over_time
-select 
-to_timestamp(timestamp) as timestamp,
-sum(number_of_commits) over (order by timestamp) as number_of_commits,
-from
-code_growth_gh_commits
-```
 
 <AreaChart
     data={code_growth_gh_commits}
-    x=timestamp
-    y=number_of_commits
+    x=month
+    y=num_commits
 />
 
