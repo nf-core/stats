@@ -15,10 +15,12 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
-def get_github_headers(api_token: str = dlt.secrets.value):
+def get_github_headers(api_token: str = dlt.secrets["sources.github_pipeline.github.api_token"]):
     """Get GitHub API headers with authentication"""
     if not api_token:
-        raise ValueError("GitHub API token is not configured. Please set SOURCES__GITHUB__API_TOKEN in your secrets.")
+        raise ValueError(
+            "GitHub API token is not configured. Please set SOURCES__GITHUB_PIPELINE__GITHUB__API_TOKEN in your secrets."
+        )
     return {"Authorization": f"token {api_token}", "Accept": "application/vnd.github.v3+json"}
 
 
@@ -384,31 +386,55 @@ def commit_stats(organization: str, headers: dict, repos: list[dict]) -> Iterato
 if __name__ == "__main__":
     logger.info("Starting GitHub data pipeline...")
     pipeline = dlt.pipeline(pipeline_name="github", destination="motherduck", dataset_name="github")
-    load_info = pipeline.run(github_source())
 
-    # Log final summary using DLT's built-in statistics
+    # Get organization and API token
+    organization = "nf-core"
+
+    # Initialize headers and repos once (this will get the token from secrets)
+    headers = get_github_headers()
+    repos_url = f"https://api.github.com/orgs/{organization}/repos"
+    repos = get_paginated_data(repos_url, headers)
+    logger.info(f"Successfully fetched {len(repos)} repositories from GitHub API")
+
+    # Define resources to run (ordered by API call intensity - least to most)
+    resources_to_run = [
+        ("org_members", lambda: org_members(organization, headers)),
+        ("nfcore_pipelines", lambda: pipelines(organization, headers, repos)),
+        ("commit_stats", lambda: commit_stats(organization, headers, repos)),
+        ("traffic_stats", lambda: traffic_stats(organization, headers, repos)),
+        ("issue_stats", lambda: issue_stats(organization, headers, repos)),
+        (
+            "contributor_stats",
+            lambda: contributor_stats(organization, headers, repos),
+        ),
+    ]
+
+    total_rows_processed = 0
+
+    for resource_name, resource_func in resources_to_run:
+        try:
+            logger.info(f"Processing resource: {resource_name}")
+
+            # Run just this resource
+            load_info = pipeline.run(resource_func())
+
+            # Log results for this resource
+            if pipeline.last_trace and pipeline.last_trace.last_normalize_info:
+                row_counts = pipeline.last_trace.last_normalize_info.row_counts
+                resource_rows = sum(row_counts.values())
+                total_rows_processed += resource_rows
+                logger.info(f"✅ {resource_name} completed: {resource_rows} rows processed")
+
+                for table_name, count in row_counts.items():
+                    logger.info(f"  {table_name}: {count} rows")
+            else:
+                logger.info(f"✅ {resource_name} completed (no row count info)")
+
+        except Exception as e:
+            logger.error(f"❌ Failed to process {resource_name}: {e}")
+            logger.info(f"Continuing with next resource...")
+            continue
+
     logger.info("=== PIPELINE COMPLETION SUMMARY ===")
-
-    # Get row counts from the normalize info
-    if pipeline.last_trace and pipeline.last_trace.last_normalize_info:
-        row_counts = pipeline.last_trace.last_normalize_info.row_counts
-        total_rows = sum(row_counts.values())
-        logger.info(f"Total rows processed: {total_rows}")
-
-        for table_name, count in row_counts.items():
-            logger.info(f"  {table_name}: {count} rows")
-    else:
-        logger.info("No row count information available")
-
-    # Log package information from load_info
-    if load_info.load_packages:
-        for package in load_info.load_packages:
-            logger.info(f"Load package {package.load_id}: {package.state}")
-            for job_type, jobs in package.jobs.items():
-                if jobs:
-                    logger.info(f"  {job_type}: {len(jobs)} jobs")
-
-    logger.info("=== DLT LOAD INFO ===")
-    print(load_info)
-
-    logger.info("GitHub data pipeline completed successfully!")
+    logger.info(f"Total rows processed across all resources: {total_rows_processed}")
+    logger.info("GitHub data pipeline completed!")

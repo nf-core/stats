@@ -55,9 +55,6 @@ order by timestamp
     y=number_of_contributors
 />
 
-> Plot truncated to start of 2018 (some pipelines moved to nf-core so have older contributions).
-
-
 
 ### Commits and Issues
 

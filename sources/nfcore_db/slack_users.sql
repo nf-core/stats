@@ -20,6 +20,14 @@ SELECT
 from slack.workspace_stats
 
 -- Add explicit 0 records at the boundary dates for proper chart visualization
+UNION ALL 
+SELECT '2023-04-27'::date as timestamp, 0 as value, 'active_users' as category
+UNION ALL
+SELECT '2023-04-27'::date as timestamp, 0 as value, 'inactive_users' as category
+UNION ALL
+SELECT '2023-11-07'::date as timestamp, 0 as value, 'active_users' as category
+UNION ALL
+SELECT '2023-11-07'::date as timestamp, 0 as value, 'inactive_users' as category
 UNION ALL
 SELECT '2024-01-25'::date as timestamp, 0 as value, 'active_users' as category
 UNION ALL
