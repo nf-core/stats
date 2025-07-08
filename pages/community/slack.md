@@ -9,7 +9,7 @@ Slack is a real-time messaging tool, with discussion split into channels and gro
 select
     timestamp
 from slack_users
-group by 1
+group by 1 order by 1 desc
 ```
 
 <DateRange
@@ -17,15 +17,13 @@ group by 1
     data={view_days}
     dates=timestamp
     defaultValue="All Time"
+    for
 />
 
-<!-- https://github.com/nf-core/website/blob/33acd6a2fab2bf9251e14212ce731ef3232b5969/public_html/stats.php#L714 -->
-
-
 ```users_long_filtered
-select * from nfcore_db.slack_users
-where timestamp between '${inputs.range_filtering_a_query.start}' and '${inputs.range_filtering_a_query.end}'
-order by 3 asc
+select * from slack_users
+where timestamp between '${inputs.range_filtering_a_query.start}' and ('${inputs.range_filtering_a_query.end}'::date + interval '1 day')
+order by 1 desc
 ```
 
 <AreaChart
@@ -36,7 +34,7 @@ order by 3 asc
     title="nf-core Slack users over time"
     subtitle="Per day from {inputs.range_filtering_a_query.start} to {inputs.range_filtering_a_query.end}"
 >
-    <ReferenceArea xMin='2024-01-25' xMax='2025-02-04' label="No data"/>
+    <ReferenceArea xMin='2024-01-25' xMax='2025-07-07' label="Data outage" color="gray"/>
 </AreaChart>
 
 ℹ️ Slack considers users to be inactive when they haven't used slack for the previous 14 days.
