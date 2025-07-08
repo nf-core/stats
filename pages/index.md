@@ -75,7 +75,7 @@ Whilst we always prefer quality over quantity, these numbers reflect the work ou
     comparison=growth_rate
     comparisonFmt=pct1
     comparisonTitle="vs. Last Month"
-    link="/code/prs"
+    link="/code/pull_requests"
 />
 
 <BigValue
