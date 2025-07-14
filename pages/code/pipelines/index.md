@@ -60,8 +60,6 @@ FROM latest_data
 - <Value data={latest_numbers.where(`status = 'In development'`)} column=count/> pipelines in development
 - <Value data={latest_numbers.where(`status = 'Released'`)} column=count/> released pipelines
 
-<!-- TODO Use pull in live data <LastRefreshed prefix="As of"/> -->
-
 ## Pipelines
 
 ```sql pipeline_table
@@ -70,10 +68,6 @@ select
 from nfcore_db.all_repos
 order by stargazers_count desc
 ```
-
-<!-- TODO Add links -->
-
-We're working on using live data for this table, but it's not quite ready yet. Check [this issue](https://github.com/nf-core/stats/issues/9) for updates.
 
 <DataTable
 data={pipeline_table}

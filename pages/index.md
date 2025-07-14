@@ -5,6 +5,7 @@ queries:
   - community/growth_slack_users.sql
   - community/growth_gh_contributors.sql
   - code/growth_gh_repos.sql
+  - code/growth_gh_released_repos.sql
   - code/growth_gh_prs.sql
   - code/growth_gh_commits.sql
   - code/growth_gh_issues.sql
@@ -22,21 +23,17 @@ The numbers below track our growth over the various channels that the nf-core co
   value=members
   title="GitHub Organisation Members"
   sparkline=month
-  comparison=growth_rate
-  comparisonFmt=pct1
-  comparisonTitle="vs. Last Month"
   link="/community/github"
+  minWidth=30%
 />
 
 <BigValue
   data={community_growth_slack_users}
   value=members
-  title="Slack Users"
+  title="ActiveSlack Users"
   sparkline=month
-  comparison=growth_rate
-  comparisonFmt=pct1
-  comparisonTitle="vs. Last Month"
   link='/community/slack'
+  minWidth=30%
 />
 
 <BigValue
@@ -44,11 +41,9 @@ The numbers below track our growth over the various channels that the nf-core co
   value=contributors
   title="GitHub Contributors"
   sparkline=month
-  comparison=growth_rate
-  comparisonFmt=pct1
-  comparisonTitle="vs. Last Month"
   link="/community/github"
   fmt=num0
+  minWidth=30%
 />
 
 <!-- TODO Add Bluesky followers -->
@@ -60,11 +55,24 @@ Whilst we always prefer quality over quantity, these numbers reflect the work ou
 <BigValue
     data={code_growth_gh_repos}
     value=num_repos
-    title="Pipeline"
+    title="Pipelines"
     sparkline=month
-    comparison=growth_rate
-    comparisonFmt=pct1
-    comparisonTitle="vs. Last Month"
+    minWidth=22%
+/>
+<BigValue
+    data={code_growth_gh_released_repos}
+    value=num_repos
+    title="Released Pipelines"
+    sparkline=month
+    minWidth=22%
+/>
+<BigValue
+    data={code_growth_gh_commits}
+    value=num_commits
+    title="Commits"
+    sparkline=month
+    fmt=num0
+    minWidth=22%
 />
 
 <BigValue
@@ -72,30 +80,16 @@ Whilst we always prefer quality over quantity, these numbers reflect the work ou
     value=num_prs
     title="Pull Requests"
     sparkline=month
-    comparison=growth_rate
-    comparisonFmt=pct1
-    comparisonTitle="vs. Last Month"
     link="/code/pull_requests"
+    minWidth=22%
 />
 
-<BigValue
-    data={code_growth_gh_commits}
-    value=num_commits
-    title="Commits"
-    sparkline=month
-    comparison=growth_rate
-    comparisonFmt=pct1
-    comparisonTitle="vs. Last Month"
-    fmt=num0
-/>
 
 <BigValue
     data={code_growth_gh_issues}
     value=num_issues
     title="Issues"
     sparkline=month
-    comparison=growth_rate
-    comparisonFmt=pct1
-    comparisonTitle="vs. Last Month"
     fmt=num0
+    minWidth=22%
 />

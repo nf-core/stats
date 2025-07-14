@@ -173,7 +173,6 @@ Recent years (2024+) show lower average days until first release because many pi
     yMin=0
     xFmt="yyyy"
     yFmt="0"
-    colorPalette={["#215EBE", "#53A451", "#A16207"]}
 />
 
 
