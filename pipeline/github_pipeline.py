@@ -86,7 +86,9 @@ def github_source(organization: str = "nf-core", api_token: str = dlt.secrets.va
         )
 
     return [
-        dlt.resource(traffic_stats(organization, headers, repos), name="traffic_stats"),
+        dlt.resource(
+            traffic_stats(organization, headers, repos, only_active_repos=True, max_repos=30), name="traffic_stats"
+        ),
         dlt.resource(contributor_stats(organization, headers, repos), name="contributor_stats"),
         dlt.resource(issue_stats(organization, headers, repos), name="issue_stats"),
         dlt.resource(org_members(organization, headers), name="org_members"),
@@ -96,10 +98,44 @@ def github_source(organization: str = "nf-core", api_token: str = dlt.secrets.va
 
 
 @dlt.resource(write_disposition="merge", primary_key=["pipeline_name", "timestamp"])
-def traffic_stats(organization: str, headers: dict, repos: list[dict]) -> Iterator[dict]:
-    """Collect traffic stats for repositories"""
-    logger.info(f"Collecting traffic stats for {len(repos)} repositories")
-    for repo in repos:
+def traffic_stats(
+    organization: str, headers: dict, repos: list[dict], only_active_repos: bool = True, max_repos: int | None = 30
+) -> Iterator[dict]:
+    """Collect traffic stats for repositories with optimizations to reduce API burden
+
+    Args:
+        organization: GitHub organization name
+        headers: GitHub API headers
+        repos: List of repository data
+        only_active_repos: Only collect traffic for recently active repos (default True)
+        max_repos: Maximum number of repos to process (default 30, None for all)
+    """
+    # Filter repositories to reduce API calls
+    filtered_repos = repos
+
+    if only_active_repos:
+        # Only get traffic for repos that have been updated in the last 6 months and are not archived
+        six_months_ago = datetime.now() - timedelta(days=180)
+        filtered_repos = [
+            repo
+            for repo in repos
+            if datetime.strptime(repo["updated_at"], "%Y-%m-%dT%H:%M:%SZ") > six_months_ago and not repo["archived"]
+        ]
+        logger.info(f"Filtered to {len(filtered_repos)} active repositories (updated in last 6 months)")
+
+    # Sort by stars/activity to prioritize important repos
+    filtered_repos = sorted(filtered_repos, key=lambda x: x.get("stargazers_count", 0), reverse=True)
+
+    if max_repos:
+        filtered_repos = filtered_repos[:max_repos]
+        logger.info(f"Limited to top {max_repos} repositories by stars")
+
+    logger.info(f"Collecting traffic stats for {len(filtered_repos)} repositories (reduced from {len(repos)})")
+
+    successful_repos = 0
+    failed_repos = 0
+
+    for repo in filtered_repos:
         name = repo["name"]
 
         # Get views and clones
@@ -109,20 +145,33 @@ def traffic_stats(organization: str, headers: dict, repos: list[dict]) -> Iterat
         try:
             views_data = github_request(views_url, headers).json()
             clones_data = github_request(clones_url, headers).json()
+            successful_repos += 1
         except requests.RequestException as e:
             # Traffic data requires push access - skip if not available
             if "403" in str(e) or "Forbidden" in str(e):
                 logger.info(f"Skipping traffic data for {name} (requires push access)")
+            elif "404" in str(e):
+                logger.info(f"Skipping traffic data for {name} (not found)")
             else:
                 logger.warning(f"Failed to get traffic data for {name}: {e}")
+            failed_repos += 1
             continue
 
-        # Combine data by timestamp
-        for view in views_data.get("views", []):
+        # Get views and clones data
+        views_list = views_data.get("views", [])
+        clones_list = clones_data.get("clones", [])
+
+        if not views_list and not clones_list:
+            logger.debug(f"No traffic data available for {name}")
+            continue
+
+        # Create a mapping of clone data by timestamp for efficient lookup
+        clones_by_timestamp = {c["timestamp"]: c for c in clones_list}
+
+        # Process views data and match with clones
+        for view in views_list:
             timestamp = view["timestamp"]
-            clone_data = next(
-                (c for c in clones_data.get("clones", []) if c["timestamp"] == timestamp), {"count": 0, "uniques": 0}
-            )
+            clone_data = clones_by_timestamp.get(timestamp, {"count": 0, "uniques": 0})
 
             yield {
                 "pipeline_name": name,
@@ -132,6 +181,22 @@ def traffic_stats(organization: str, headers: dict, repos: list[dict]) -> Iterat
                 "clones": clone_data["count"],
                 "clones_uniques": clone_data["uniques"],
             }
+
+        # Process clone data that doesn't have corresponding view data
+        for clone in clones_list:
+            timestamp = clone["timestamp"]
+            # Only yield if we haven't already processed this timestamp from views
+            if not any(view["timestamp"] == timestamp for view in views_list):
+                yield {
+                    "pipeline_name": name,
+                    "timestamp": timestamp,
+                    "views": 0,
+                    "views_uniques": 0,
+                    "clones": clone["count"],
+                    "clones_uniques": clone["uniques"],
+                }
+
+    logger.info(f"Traffic stats completed: {successful_repos} successful, {failed_repos} failed/skipped")
 
 
 @dlt.resource(write_disposition="merge", primary_key=["pipeline_name", "author", "week_date"])
@@ -315,6 +380,7 @@ def pipelines(organization: str, headers: dict, repos: list[dict]) -> Iterator[d
     for pipeline_name in pipeline_names.get("pipeline", []):
         pipeline = next((repo for repo in repos if repo["name"] == pipeline_name), None)
         if not pipeline:
+            logger.warning(f"{pipeline_name} is not a pipeline")
             continue
 
         # Get latest release
@@ -343,7 +409,27 @@ def pipelines(organization: str, headers: dict, repos: list[dict]) -> Iterator[d
             "default_branch": pipeline["default_branch"],
             "archived": pipeline["archived"],
             "last_release_date": last_release_date,
+            "category": "pipeline",
         }
+
+    # add all repos that are not pipelines to core_repos
+    for repo in repos:
+        if repo["name"] not in pipeline_names.get("pipeline", []):
+            yield {
+                "name": repo["name"],
+                "description": repo["description"],
+                "gh_created_at": repo["created_at"],
+                "gh_updated_at": repo["updated_at"],
+                "gh_pushed_at": repo["pushed_at"],
+                "stargazers_count": repo["stargazers_count"],
+                "watchers_count": repo["watchers_count"],
+                "forks_count": repo["forks_count"],
+                "open_issues_count": repo["open_issues_count"],
+                "topics": repo["topics"],
+                "default_branch": repo["default_branch"],
+                "archived": repo["archived"],
+                "category": "core",
+            }
 
 
 @dlt.resource(write_disposition="merge", primary_key=["pipeline_name", "timestamp"])
@@ -387,8 +473,13 @@ if __name__ == "__main__":
     logger.info("Starting GitHub data pipeline...")
     pipeline = dlt.pipeline(pipeline_name="github", destination="motherduck", dataset_name="github")
 
-    # Get organization and API token
+    # Configuration
     organization = "nf-core"
+
+    # Traffic stats optimization settings to reduce API burden
+    # This reduces API calls from ~100+ repos to ~30 most important active repos
+    TRAFFIC_ONLY_ACTIVE_REPOS = True  # Only collect traffic for repos updated in last 6 months
+    TRAFFIC_MAX_REPOS = 50  # Limit to top N repos by stars (None for all)
 
     # Initialize headers and repos once (this will get the token from secrets)
     headers = get_github_headers()
@@ -401,7 +492,12 @@ if __name__ == "__main__":
         ("org_members", lambda: org_members(organization, headers)),
         ("nfcore_pipelines", lambda: pipelines(organization, headers, repos)),
         ("commit_stats", lambda: commit_stats(organization, headers, repos)),
-        ("traffic_stats", lambda: traffic_stats(organization, headers, repos)),
+        (
+            "traffic_stats",
+            lambda: traffic_stats(
+                organization, headers, repos, only_active_repos=TRAFFIC_ONLY_ACTIVE_REPOS, max_repos=TRAFFIC_MAX_REPOS
+            ),
+        ),
         ("issue_stats", lambda: issue_stats(organization, headers, repos)),
         (
             "contributor_stats",
