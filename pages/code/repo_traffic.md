@@ -44,38 +44,42 @@ select * from nfcore_db.repo_traffic_leaderboard
 
 ```views_filtered
 SELECT
-    timestamp,
-    sum_total_views AS value,
+    DATE_TRUNC('week', timestamp) as timestamp,
+    SUM(sum_total_views) AS value,
     'total_views' AS category
 from ${code_clone_view_counts}
 where timestamp between '${inputs.range_filtering_a_query.start}' and '${inputs.range_filtering_a_query.end}'
+GROUP BY DATE_TRUNC('week', timestamp)
 
 UNION ALL
 
 SELECT
-    timestamp,
-    sum_total_views_unique AS value,
+    DATE_TRUNC('week', timestamp) as timestamp,
+    SUM(sum_total_views_unique) AS value,
     'total_views_unique' AS category
 from ${code_clone_view_counts}
 where timestamp between '${inputs.range_filtering_a_query.start}' and '${inputs.range_filtering_a_query.end}'
+GROUP BY DATE_TRUNC('week', timestamp)
 ```
 
 ```clones_filtered
 SELECT
-    timestamp,
-    sum_total_clones AS value,
+    DATE_TRUNC('week', timestamp) as timestamp,
+    SUM(sum_total_clones) AS value,
     'total_clones' AS category
 from ${code_clone_view_counts}
 where timestamp between '${inputs.range_filtering_a_query.start}' and '${inputs.range_filtering_a_query.end}'
+GROUP BY DATE_TRUNC('week', timestamp)
 
 UNION ALL
 
 SELECT
-    timestamp,
-    sum_total_clones_unique AS value,
+    DATE_TRUNC('week', timestamp) as timestamp,
+    SUM(sum_total_clones_unique) AS value,
     'total_clones_unique' AS category
 from ${code_clone_view_counts}
 where timestamp between '${inputs.range_filtering_a_query.start}' and '${inputs.range_filtering_a_query.end}'
+GROUP BY DATE_TRUNC('week', timestamp)
 ```
 
 ```traffic_by_day_filtered
@@ -92,7 +96,7 @@ where timestamp between '${inputs.range_filtering_a_query.start}' and '${inputs.
     y=value
     series=category
     title="Views: All nf-core repositories"
-    subtitle="nf-core repository web views per day from {inputs.range_filtering_a_query.start} to {inputs.range_filtering_a_query.end}"
+    subtitle="nf-core repository web views per week from {inputs.range_filtering_a_query.start} to {inputs.range_filtering_a_query.end}"
 >
 <ReferenceArea xMin='2024-01-24' xMax='2025-06-09' label="Data outage" color="gray"/>
 </AreaChart>
@@ -115,7 +119,7 @@ where timestamp between '${inputs.range_filtering_a_query.start}' and '${inputs.
     y=value
     series=category
     title="Clones: All nf-core repositories"
-    subtitle="nf-core repository clones per day from {inputs.range_filtering_a_query.start} to {inputs.range_filtering_a_query.end}"
+    subtitle="nf-core repository clones per week from {inputs.range_filtering_a_query.start} to {inputs.range_filtering_a_query.end}"
 >
 <ReferenceArea xMin='2024-01-24' xMax='2025-06-09' label="Data outage" color="gray"/>
 </AreaChart>

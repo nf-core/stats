@@ -10,10 +10,13 @@ SELECT
 FROM nfcore_db.traffic_stats_raw
 GROUP BY timestamp
 
--- Add explicit 0 records at the boundary dates [24-01-24 until 25-06-10] for proper chart visualization
+-- Add explicit 0 records for the data outage period for proper chart visualization
 UNION ALL
-SELECT '2024-01-25'::timestamp as timestamp, 0 as sum_total_views, 0 as sum_total_views_unique, 0 as sum_total_clones, 0 as sum_total_clones_unique
-UNION ALL
-SELECT '2025-06-09'::timestamp as timestamp, 0 as sum_total_views, 0 as sum_total_views_unique, 0 as sum_total_clones, 0 as sum_total_clones_unique
+SELECT 
+    UNNEST(generate_series('2024-01-25'::timestamp, '2025-06-09'::timestamp, INTERVAL '1 day')) as timestamp,
+    0 as sum_total_views,
+    0 as sum_total_views_unique,
+    0 as sum_total_clones,
+    0 as sum_total_clones_unique
 
 ORDER BY timestamp ASC 
