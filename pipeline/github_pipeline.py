@@ -235,56 +235,8 @@ def contributor_stats(organization: str, headers: dict, repos: list[dict]) -> It
                         "week_additions": week["a"],
                         "week_deletions": week["d"],
                         "week_commits": week["c"],
-                        "week_reviews": 0,
                         "week_approvals": 0,
                     }
-
-        # Get PR review stats
-        prs_url = f"https://api.github.com/repos/{organization}/{name}/pulls?state=all"
-        try:
-            prs = get_paginated_data(prs_url, headers)
-            if not isinstance(prs, list):
-                continue
-        except requests.RequestException as e:
-            logger.warning(f"Failed to get PR data for {name}: {e}")
-            continue
-
-        for pr in prs:
-            reviews_url = f"https://api.github.com/repos/{organization}/{name}/pulls/{pr['number']}/reviews"
-            try:
-                reviews = get_paginated_data(reviews_url, headers)
-                if not isinstance(reviews, list):
-                    continue
-            except requests.RequestException as e:
-                logger.warning(f"Failed to get review data for PR {pr['number']} in {name}: {e}")
-                continue
-
-            for review in reviews:
-                if not (review.get("submitted_at") and review.get("user", {}).get("login")):
-                    continue
-
-                reviewer = review["user"]["login"]
-                review_date = datetime.strptime(review["submitted_at"], "%Y-%m-%dT%H:%M:%SZ")
-                week_start = review_date - timedelta(days=review_date.weekday())
-                week_date = week_start.strftime("%Y-%m-%d")
-                key = (reviewer, week_date)
-
-                if key not in contributor_data:
-                    contributor_data[key] = {
-                        "pipeline_name": name,
-                        "author": reviewer,
-                        "avatar_url": review["user"].get("avatar_url", ""),
-                        "week_date": week_date,
-                        "week_additions": 0,
-                        "week_deletions": 0,
-                        "week_commits": 0,
-                        "week_reviews": 0,
-                        "week_approvals": 0,
-                    }
-
-                contributor_data[key]["week_reviews"] += 1
-                if review.get("state") == "APPROVED":
-                    contributor_data[key]["week_approvals"] += 1
 
         yield from contributor_data.values()
 
