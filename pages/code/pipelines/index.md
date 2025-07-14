@@ -1,6 +1,6 @@
 ---
 title: Pipeline numbers
-sidebar_position: 5
+sidebar_position: 1
 ---
 
 All nf-core pipelines are only considered stable when they have at least one release. Until then, they are classed as "in development".
@@ -11,13 +11,13 @@ All nf-core pipelines are only considered stable when they have at least one rel
 SELECT 
   date,
   in_development as count,
-  'in_development' as status
+  'in development' as status
 FROM nfcore_db.pipeline_numbers
 UNION ALL
 SELECT 
   date,
   released as count,
-  'released' as status  
+  'released' as status
 FROM nfcore_db.pipeline_numbers
 ORDER BY date, status, count
 ```
@@ -27,7 +27,7 @@ data={pipeline_chart_data}
 x=date
 y=count
 series=status
-seriesOrder={['released','in_development']}
+seriesOrder={['released','in development']} 
 title="nf-core pipeline numbers over time"
 yAxisTitle="Number of pipelines"
 />

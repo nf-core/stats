@@ -1,6 +1,6 @@
 ---
 title: Contributors
-sidebar_position: 4
+sidebar_position: 2
 queries:
   - code/contributors_leaderboard.sql
 ---
