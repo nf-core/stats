@@ -1,34 +1,53 @@
 ---
 title: Repository Traffic
 sidebar_position: 10
+queries:
+  - code/clone_view_counts.sql
 ---
 
 Every time a nextflow user pulls an nf-core pipeline, the repository is cloned. Here we can track how much that happens across all nf-core repositories. Please note that these numbers come with some caveats [ see more ].
 
 Additionally, GitHub tracks how many times people view repository web pages on github.com.
 
-```sql view_days
-select
-    timestamp
-from nfcore_db.view_counts
-group by 1
+## Repository Traffic Leaderboard
+
+Here are the nf-core repositories with the highest traffic numbers. This includes both pipeline repositories and core repositories (such as the code for this website).
+
+```sql repo_traffic_leaderboard
+select * from nfcore_db.repo_traffic_leaderboard
 ```
+
+<DataTable 
+    data={repo_traffic_leaderboard}
+    search=true
+    wrapTitles=true
+    defaultSort={[{ id: 'total_views', desc: true }]}
+>
+    <Column id="repository_link" title="Repository" align="left" contentType=link linkLabel=repository />
+    <Column id="total_views" title="Total Views" align="right"/>
+    <Column id="total_views_unique" title="Unique Views" align="right"/>
+    <Column id="total_clones" title="Total Clones" align="right"/>
+    <Column id="total_clones_unique" title="Unique Clones" align="right"/>
+    <Column id="stargazers_count" title="Stars" align="right"/>
+</DataTable>
+
+
+
+## Repository Traffic: All nf-core repositories
 
 <DateRange
     name=range_filtering_a_query
-    data={view_days}
+    data={code_clone_view_counts}
     dates=timestamp
-    defaultValue="Last Year"
+    defaultValue="All Time"
 />
 
-<!-- TODO Git clones: All nf-core repositories  -->
-
-```views_long_filtered
+```views_filtered
 SELECT
     timestamp,
     sum_total_views AS value,
     'total_views' AS category
-from nfcore_db.view_counts
+from ${code_clone_view_counts}
 where timestamp between '${inputs.range_filtering_a_query.start}' and '${inputs.range_filtering_a_query.end}'
 
 UNION ALL
@@ -37,45 +56,90 @@ SELECT
     timestamp,
     sum_total_views_unique AS value,
     'total_views_unique' AS category
-from nfcore_db.view_counts
+from ${code_clone_view_counts}
 where timestamp between '${inputs.range_filtering_a_query.start}' and '${inputs.range_filtering_a_query.end}'
 ```
 
+```clones_filtered
+SELECT
+    timestamp,
+    sum_total_clones AS value,
+    'total_clones' AS category
+from ${code_clone_view_counts}
+where timestamp between '${inputs.range_filtering_a_query.start}' and '${inputs.range_filtering_a_query.end}'
+
+UNION ALL
+
+SELECT
+    timestamp,
+    sum_total_clones_unique AS value,
+    'total_clones_unique' AS category
+from ${code_clone_view_counts}
+where timestamp between '${inputs.range_filtering_a_query.start}' and '${inputs.range_filtering_a_query.end}'
+```
+
+```traffic_by_day_filtered
+select * from ${code_clone_view_counts}
+where timestamp between '${inputs.range_filtering_a_query.start}' and '${inputs.range_filtering_a_query.end}'
+```
+
+<Tabs>
+    <Tab label="Views">
+
 <AreaChart
-    data={views_long_filtered}
+    data={views_filtered}
     x=timestamp
     y=value
     series=category
-    title="Visitors: All nf-core repositories"
+    title="Views: All nf-core repositories"
     subtitle="nf-core repository web views per day from {inputs.range_filtering_a_query.start} to {inputs.range_filtering_a_query.end}"
-/>
-
-## Views per day
-
-<!-- https://github.com/nf-core/website/blob/33acd6a2fab2bf9251e14212ce731ef3232b5969/public_html/stats.php#L1423C29-L1423C42 -->
-
-```views_by_day_filtered
-select * from nfcore_db.view_counts
-where timestamp between '${inputs.range_filtering_a_query.start}' and '${inputs.range_filtering_a_query.end}'
-```
+>
+<ReferenceArea xMin='2024-01-24' xMax='2025-06-09' label="Data outage" color="gray"/>
+</AreaChart>
 
 <CalendarHeatmap
-    data={views_by_day_filtered}
+    data={traffic_by_day_filtered}
     date=timestamp
     value=sum_total_views_unique
-    title="Visitors: All nf-core repositories"
+    title="Views per day"
     subtitle="Unique views per day from {inputs.range_filtering_a_query.start} to {inputs.range_filtering_a_query.end}"
     legend=true
 />
 
+    </Tab>
+    <Tab label="Clones">
+
+<AreaChart
+    data={clones_filtered}
+    x=timestamp
+    y=value
+    series=category
+    title="Clones: All nf-core repositories"
+    subtitle="nf-core repository clones per day from {inputs.range_filtering_a_query.start} to {inputs.range_filtering_a_query.end}"
+>
+<ReferenceArea xMin='2024-01-24' xMax='2025-06-09' label="Data outage" color="gray"/>
+</AreaChart>
+
+<CalendarHeatmap
+    data={traffic_by_day_filtered}
+    date=timestamp
+    value=sum_total_clones_unique
+    title="Clones per day"
+    subtitle="Unique clones per day from {inputs.range_filtering_a_query.start} to {inputs.range_filtering_a_query.end}"
+    legend=true
+/>
+
+    </Tab>
+</Tabs>
+
 ```view_counts_summary
-select * from nfcore_db.view_counts
+select * from ${code_clone_view_counts}
 ```
 
 ```view_counts_summary_top100
 select
 *
-from nfcore_db.view_counts
+from ${code_clone_view_counts}
 order by sum_total_views desc
 limit 100
 ```
