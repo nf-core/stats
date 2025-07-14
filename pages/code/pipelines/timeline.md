@@ -10,9 +10,9 @@ This timeline shows when each nf-core pipeline was in development and when they 
 ## Pipeline Lifecycle Timeline
 
 Each pipeline's lifecycle is visualized with three complementary bar charts:
-- **📊 Total Timeline** (nf-core blue): Complete tracked time from repository creation to today
-- **🔨 Development Period** (amber): Time from initial commit to **first release** 
-- **🚀 Post-Release Period** (nf-core green): Time since **first release** (ongoing development)
+- **📊 Total Timeline**: Complete tracked time from repository creation to today
+- **🔨 Development Period**: Time from initial commit to **first release** 
+- **🚀 Post-Release Period**: Time since **first release** (ongoing development)
 
 ```sql lifecycle_summary
 -- Show complete lifecycle for each pipeline with bar chart data
@@ -20,7 +20,11 @@ Each pipeline's lifecycle is visualized with three complementary bar charts:
 SELECT 
     pipeline_name,
     development_start::DATE as start_date,
-    development_end::DATE as first_release_date,
+    CASE 
+        WHEN status = 'Released' AND development_end IS NOT NULL 
+        THEN STRFTIME(development_end::DATE, '%b %Y')
+        ELSE '—'
+    END as first_release_date,
     status,
     -- Add grouping columns
     EXTRACT(YEAR FROM development_start) as start_year,
@@ -56,16 +60,16 @@ ORDER BY start_year DESC, development_start DESC
     wrapTitles=true
     groupBy=start_year
     groupType=accordion
-    groupsOpen=false
-    subtotals=true
-    accordionRowColor="#f8fafc"
+    groupsOpen=true
+    subtotals=false
+    colorPalette={["#accent", "warning", "primary"]}
 >
-    <Column id=pipeline_name title="Pipeline" align=left />
+    <Column id=pipeline_name title="Pipeline" align=left/>
     <Column id=start_date title="Development Started" fmt="mmm yyyy" align=center />
-    <Column id=total_days_tracked title="📊 Total Timeline" contentType=bar barColor="#215EBE" align=center description="Complete timeline from start to today" />
-    <Column id=dev_duration title="🔨 Dev Duration" contentType=bar barColor="#A16207" align=center description="Time to first release" />
-    <Column id=release_duration title="🚀 Days Since First Release" contentType=bar barColor="#53A451" align=center description="Time since first release" />
-    <Column id=first_release_date title="First Release" fmt="mmm yyyy" align=center />
+    <Column id=total_days_tracked title="📊 Total Timeline in days" contentType=bar backgroundColor="base-300" align=center description="Complete timeline from start to today" />
+    <Column id=dev_duration title="🔨 Dev Duration" contentType=bar labelColor="black"  backgroundColor="base-300" align=center description="Time to first release"  />
+    <Column id=release_duration title="🚀 Days Since First Release" contentType=bar  backgroundColor="base-300" align=center description="Time since first release" />
+    <Column id=first_release_date title="First Release" align=center />
     <Column id=status title="Status" align=center />
 </DataTable>
 
@@ -94,8 +98,8 @@ ORDER BY avg_development_days DESC
 -- Categorize pipelines by development speed
 SELECT 
     CASE 
-        WHEN development_days <= 90 THEN 'Quick (≤3 months)'
-        WHEN development_days <= 365 THEN 'Medium (3-12 months)'
+        WHEN development_days <= 180 THEN 'Quick (≤6 months)'
+        WHEN development_days <= 365 THEN 'Medium (6-12 months)'
         WHEN development_days <= 730 THEN 'Slow (1-2 years)'
         ELSE 'Very Long (>2 years)'
     END as development_speed,
@@ -115,6 +119,7 @@ ORDER BY avg_days
     title="Pipeline Development Speed Distribution"
     xAxisTitle="Development Speed Category"
     yAxisTitle="Number of Pipelines"
+    sort=false
 />
 
 ## Year-over-Year Analysis
@@ -133,7 +138,8 @@ SELECT
     CAST(ROUND(AVG(development_days), 0) AS INTEGER) as avg_development_days_all,
     -- Calculate median for better central tendency
     CAST(ROUND(MEDIAN(CASE WHEN status = 'Released' THEN development_days END), 0) AS INTEGER) as median_development_days_released,
-    ROUND(COUNT(CASE WHEN status = 'Released' THEN 1 END) * 100.0 / COUNT(*), 1) as release_rate_percent,
+    -- Calculate release rate as a percentage of total pipelines
+    ROUND(COUNT(CASE WHEN status = 'Released' THEN 1 END)/ COUNT(*), 1) as release_rate_percent,
     -- Add min/max for context
     MIN(CASE WHEN status = 'Released' THEN development_days END) as min_dev_days_released,
     MAX(CASE WHEN status = 'Released' THEN development_days END) as max_dev_days_released,
@@ -152,7 +158,9 @@ ORDER BY start_year
 
 ### Development Time Trends
 
-**Note**: Recent years (2024+) show lower average days until first release because many pipelines are still in development. The chart below shows trends for **released pipelines only** to avoid this bias.
+<Note>
+Recent years (2024+) show lower average days until first release because many pipelines are still in development. The chart below shows trends for **released pipelines only** to avoid this bias.
+</Note>
 
 <LineChart 
     data={yearly_analysis}
@@ -168,21 +176,6 @@ ORDER BY start_year
     colorPalette={["#215EBE", "#53A451", "#A16207"]}
 />
 
-### Comparative Analysis: Released vs All Pipelines
-
-<LineChart 
-    data={yearly_analysis}
-    x=start_year
-    y={["avg_development_days_released", "avg_development_days_all"]}
-    title="Days Until First Release: Released vs All Pipelines"
-    subtitle="Shows how including in-development pipelines affects averages"
-    xAxisTitle="Year Pipeline Development Started"
-    yAxisTitle="Average Days Until First Release"
-    yMin=0
-    xFmt="yyyy"
-    yFmt="0"
-    colorPalette={["#215EBE", "#94A3B8"]}
-/>
 
 <DataTable 
     data={yearly_analysis}
@@ -196,40 +189,11 @@ ORDER BY start_year
     <Column id=pipelines_in_development title="In Dev" align=center />
     <Column id=avg_development_days_released title="Avg Days Until First Release" align=center fmt="#,##0" />
     <Column id=median_development_days_released title="Median Days Until First Release" align=center fmt="#,##0" />
-    <Column id=release_rate_percent title="Release Rate" align=center fmt="0.0%" contentType=delta neutralMin=80 neutralMax=100 />
-    <Column id=min_dev_days_released title="Min Days Until Release" align=center fmt="#,##0" />
-    <Column id=max_dev_days_released title="Max Days Until Release" align=center fmt="#,##0" />
+    <Column id=release_rate_percent title="Percent Released by now" align=right fmt="0.0%" />
+    <Column id=min_dev_days_released title="Min Days Until Release" align=right fmt="#,##0" />
+    <Column id=max_dev_days_released title="Max Days Until Release" align=right fmt="#,##0" />
     <Column id=time_period title="Period" align=center />
 </DataTable>
-
-## Timeline View (Gantt-style)
-
-```sql timeline_gantt_data
--- Create timeline data showing development periods
-SELECT 
-    pipeline_name,
-    development_start,
-    development_end,
-    status,
-    development_days,
-    -- Create timeline positions for better visualization
-    ROW_NUMBER() OVER (ORDER BY development_start) as timeline_position
-FROM nfcore_db.pipeline_timeline
-WHERE development_start >= '2018-01-01'
-ORDER BY development_start
-```
-
-<ScatterPlot 
-    data={timeline_gantt_data}
-    x=development_start
-    y=timeline_position
-    size=development_days
-    series=status
-    title="Pipeline Development Timeline (Gantt View)"
-    xAxisTitle="Development Start Date"
-    yAxisTitle="Pipeline (by start order)"
-    legend=true
-/>
 
 ## Development Start vs Duration Analysis
 
@@ -256,14 +220,7 @@ WHERE development_start >= '2018-01-01'
     legend=true
 />
 
-## Key Insights
-
-Based on this timeline analysis using **first release dates**, you can see:
-
-1. **Development Speed**: Time from initial commit to first stable release for each pipeline
-2. **Historical Trends**: Whether development times to first release are getting shorter or longer over time
-3. **Release Patterns**: Which pipelines took longest to reach their first release
-4. **Quick vs Slow**: The distribution between quick-fire first releases and long development cycles
-5. **Post-Release Activity**: How many total releases each pipeline has had since their first release
-
-> **Important**: This analysis focuses on **first release** rather than most recent release to better understand the initial development effort required for each pipeline. Pipelines with many total releases indicate active ongoing development after the initial release. 
+<Alert status="warning">
+This analysis focuses on <strong>first release</strong> rather than most recent release to better understand the initial development effort required for each pipeline. 
+Pipelines with many total releases indicate active ongoing development after the initial release. 
+</Alert>
