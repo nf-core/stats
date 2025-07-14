@@ -64,7 +64,8 @@ FROM latest_data
 
 ```sql pipeline_table
 select
-  *
+      'https://nf-co.re/' || name as repository_link,
+      *
 from nfcore_db.all_repos
 order by stargazers_count desc
 ```
@@ -75,6 +76,7 @@ defaultSort={[{ id: 'Stargazers', desc: true }]}
 search=true
 wrapTitles=true
 totalRow=true
+link=repository_link
 />
 
 ---

@@ -7,8 +7,6 @@ When people contribute code to a nf-core repository, we conduct a "Pull request"
 
 ## Pull Requests Over Time
 
-<!-- TODO: Live data https://github.com/nf-core/stats/issues/7 -->
-
 ```sql pull_requests_over_time
 select timestamp, -closed_merged as "Closed / Merged", open as "Open"
 from nfcore_db.issues_and_prs_over_time
@@ -28,8 +26,6 @@ where type = 'pr'
 Pull-requests are reviewed by the nf-core community - they can contain discussion on the code and can be merged and closed. We aim to be prompt with reviews and merging. Note that some PRs can be a simple type and so very fast to merge, others can be major pipeline updates.
 
 The histogram below shows the distribution of response times split between pipeline repositories and core infrastructure repositories. Pipeline repos are those listed in the nf-core pipelines registry, while core repos include tools, website, and other infrastructure. This comparison helps identify if there are different response patterns between the scientific pipelines and the supporting infrastructure.
-
-<!-- TODO: Live data https://github.com/nf-core/stats/issues/7 -->
 
 ```sql pr_response_times
 select *
