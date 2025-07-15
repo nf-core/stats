@@ -21,8 +21,8 @@ Database: nf_core_stats
 │       └── (issues and PRs details)
 │
 └── Schema: slack
-│   └── Table: workspace_stats
-│       └── (user counts, activity metrics)
+    └── Table: workspace_stats
+        └── (user counts, activity metrics)
 ```
 
 
