@@ -13,10 +13,9 @@ name: Run All Pipelines
       - ".github/workflows/run_pipelines.yml"
 
 env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  SOURCES__SLACK_PIPELINE__SLACK__API_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-  TWITTER_BEARER_TOKEN: ${{ secrets.TWITTER_BEARER_TOKEN }}
-  DESTINATION__MOTHERDUCK__CREDENTIALS__DATABASE: ${{ secrets.MOTHERDUCK_DATABASE }}
+  SOURCES__GITHUB_PIPELINE__GITHUB__API_TOKEN: ${{ secrets.GH_TOKEN_STATS_PAGE }}
+  SOURCES__SLACK_PIPELINE__SLACK__API_TOKEN: ${{ secrets.SLACK_USER_TOKEN }}
+  DESTINATION__MOTHERDUCK__CREDENTIALS__DATABASE: "nf_core_stats_bot"
   DESTINATION__MOTHERDUCK__CREDENTIALS__PASSWORD: ${{ secrets.MOTHERDUCK_TOKEN }}
   PYTHONUNBUFFERED: "1"
 
@@ -45,8 +44,6 @@ jobs:
             uuid: 73f22c65-592a-4368-8fc5-23787c1dc67d
           - pipeline: slack
             uuid: 585d7c4f-abc9-49fa-980f-64d950d6fd2b
-          - pipeline: twitter
-            uuid: efc2b7e6-fe77-4c92-9979-b6ccc07bc714
     defaults:
       run:
         working-directory: pipeline
@@ -60,8 +57,8 @@ jobs:
           python-version: "3.10"
           enable-cache: true
           cache-dependency-glob: |
-            pipeline/pyproject.toml
-            pipeline/uv.lock
+            **/pyproject.toml
+            **/uv.lock
 
       - name: Install runitor
         env:
@@ -75,7 +72,7 @@ jobs:
           ./runitor -version
           sudo mv runitor /usr/local/bin/
 
-      - name: Run ${{ matrix.pipeline }} pipeline
+      - name: Get ${{ matrix.pipeline }} stats
         run: |
           runitor -uuid ${{ matrix.uuid }} -- \
               uv run python \
