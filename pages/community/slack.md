@@ -21,7 +21,7 @@ group by 1 order by 1 desc
 />
 
 ```users_long_filtered
-select * from slack_users
+select distinct * from slack_users
 where timestamp between '${inputs.range_filtering_a_query.start}' and ('${inputs.range_filtering_a_query.end}'::date + interval '1 day')
 order by 1 desc
 ```
