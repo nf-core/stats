@@ -6,6 +6,6 @@ select
     prev_month_open as prev_month_num_open_prs,
     growth_rate,
     open_growth_rate
-from ${growth_issues_and_prs}
+from ${code_growth_issues_and_prs}
 where type = 'pr'
 order by month desc
