@@ -25,22 +25,26 @@ WITH aggregated_data AS (
 
 SELECT * FROM aggregated_data
 
--- Add explicit 0 records at the boundary dates for proper chart visualization
-UNION ALL 
-SELECT '2023-04-28'::date as timestamp, 0 as value, 'active_users' as category
+-- Add explicit 0 records for the data outage periods for proper chart visualization
 UNION ALL
-SELECT '2023-04-28'::date as timestamp, 0 as value, 'inactive_users' as category
+SELECT 
+    UNNEST(generate_series('2023-04-28'::timestamp, '2023-11-07'::timestamp, INTERVAL '1 day'))::date as timestamp,
+    0 as value,
+    'active_users' as category
 UNION ALL
-SELECT '2023-11-07'::date as timestamp, 0 as value, 'active_users' as category
+SELECT 
+    UNNEST(generate_series('2023-04-28'::timestamp, '2023-11-07'::timestamp, INTERVAL '1 day'))::date as timestamp,
+    0 as value,
+    'inactive_users' as category
 UNION ALL
-SELECT '2023-11-07'::date as timestamp, 0 as value, 'inactive_users' as category
+SELECT 
+    UNNEST(generate_series('2024-01-25'::timestamp, '2025-07-07'::timestamp, INTERVAL '1 day'))::date as timestamp,
+    0 as value,
+    'active_users' as category
 UNION ALL
-SELECT '2024-01-25'::date as timestamp, 0 as value, 'active_users' as category
-UNION ALL
-SELECT '2024-01-25'::date as timestamp, 0 as value, 'inactive_users' as category
-UNION ALL
-SELECT '2025-07-07'::date as timestamp, 0 as value, 'active_users' as category
-UNION ALL
-SELECT '2025-07-07'::date as timestamp, 0 as value, 'inactive_users' as category
+SELECT 
+    UNNEST(generate_series('2024-01-25'::timestamp, '2025-07-07'::timestamp, INTERVAL '1 day'))::date as timestamp,
+    0 as value,
+    'inactive_users' as category
 
 -- "timestamp","value","category"
