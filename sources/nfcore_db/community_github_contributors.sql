@@ -1,6 +1,6 @@
 USE nf_core_stats_bot;
 
-select distinct
+select
 author as username,
 CAST(week_date as date) as timestamp,
 SUM(week_commits) as week_commits,

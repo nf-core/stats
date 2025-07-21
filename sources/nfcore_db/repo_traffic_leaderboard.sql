@@ -10,5 +10,5 @@ SELECT
     COALESCE(p.stargazers_count, 0) as stargazers_count
 FROM github.traffic_stats t
 LEFT JOIN github.nfcore_pipelines p ON t.pipeline_name = p.name
-GROUP BY t.pipeline_name, p.stargazers_count, p.name
+GROUP BY t.pipeline_name, p.stargazers_count
 ORDER BY total_views DESC
