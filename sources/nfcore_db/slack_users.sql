@@ -1,23 +1,29 @@
 USE nf_core_stats_bot;
 
-SELECT
-    timestamp::date as timestamp,
-    CASE 
-        WHEN timestamp::date BETWEEN '2024-01-25' AND '2025-07-07' THEN 0
-        ELSE active_users 
-    END AS value,
-    'active_users' AS category
-from slack.workspace_stats
-UNION ALL
+WITH aggregated_data AS (
+    SELECT
+        timestamp::date as timestamp,
+        CASE 
+            WHEN timestamp::date BETWEEN '2024-01-25' AND '2025-07-07' THEN 0
+            ELSE MAX(active_users)  -- Take the maximum value for the day
+        END AS value,
+        'active_users' AS category
+    from slack.workspace_stats
+    GROUP BY timestamp::date
+    UNION ALL
 
-SELECT
-    timestamp::date as timestamp,
-    CASE 
-        WHEN timestamp::date BETWEEN '2024-01-25' AND '2025-07-07' THEN 0
-        ELSE inactive_users 
-    END AS value,
-    'inactive_users' AS category
-from slack.workspace_stats
+    SELECT
+        timestamp::date as timestamp,
+        CASE 
+            WHEN timestamp::date BETWEEN '2024-01-25' AND '2025-07-07' THEN 0
+            ELSE MAX(inactive_users)  -- Take the maximum value for the day
+        END AS value,
+        'inactive_users' AS category
+    from slack.workspace_stats
+    GROUP BY timestamp::date
+)
+
+SELECT * FROM aggregated_data
 
 -- Add explicit 0 records at the boundary dates for proper chart visualization
 UNION ALL 
