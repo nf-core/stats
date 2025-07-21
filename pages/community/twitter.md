@@ -3,7 +3,9 @@ title: Twitter
 sidebar_position: 2
 ---
 
-Up until 2025-01-20, we used our [@nf_core](https://twitter.com/nf_core) twitter account to send automated tweets about new pipeline releases and other updates relevant to the community. Follower counts give some indication to the level of interest in the nf-core project.
+Up until 2025-01-20, we used our [@nf_core](https://twitter.com/nf_core) twitter account to send automated tweets about new pipeline releases and other updates relevant to the community. 
+
+Follower counts give some indication to the historical level of interest in the nf-core project.
 
 ```sql view_days
 select
