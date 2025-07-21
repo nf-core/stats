@@ -1,8 +1,13 @@
 with monthly_counts as (
-    select date_trunc('month', last_release_date) as month,
+    select date_trunc('month', 
+        CASE 
+            WHEN last_release_date = 'Not released' THEN NULL
+            ELSE CAST(last_release_date AS DATE)
+        END
+    ) as month,
         count(*) as new_repos
     from nfcore_db.all_repos
-    where last_release_date is not null
+    where last_release_date != 'Not released' AND last_release_date is not null
     group by 1
 )
 select month,

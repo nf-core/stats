@@ -349,7 +349,7 @@ def pipelines(organization: str, headers: dict, repos: list[dict]) -> Iterator[d
 
         yield {
             "name": pipeline["name"],
-            "description": pipeline["description"],
+            "description": pipeline["description"] or "",
             "gh_created_at": pipeline["created_at"],
             "gh_updated_at": pipeline["updated_at"],
             "gh_pushed_at": pipeline["pushed_at"],
@@ -369,7 +369,7 @@ def pipelines(organization: str, headers: dict, repos: list[dict]) -> Iterator[d
         if repo["name"] not in pipeline_names.get("pipeline", []):
             yield {
                 "name": repo["name"],
-                "description": repo["description"],
+                "description": repo["description"] or "",
                 "gh_created_at": repo["created_at"],
                 "gh_updated_at": repo["updated_at"],
                 "gh_pushed_at": repo["pushed_at"],
