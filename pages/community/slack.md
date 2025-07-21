@@ -26,7 +26,7 @@ where timestamp between '${inputs.range_filtering_a_query.start}' and ('${inputs
 order by 1 desc
 ```
 
-<AreaChart
+<LineChart
     data={users_long_filtered}
     x=timestamp
     y=value
@@ -36,7 +36,7 @@ order by 1 desc
 >   
     <ReferenceArea xMin='2023-04-27' xMax='2023-11-07' label="Data outage" color="gray"/>
     <ReferenceArea xMin='2024-01-25' xMax='2025-07-07' label="Data outage" color="gray"/>
-</AreaChart>
+</LineChart>
 
 ℹ️ Slack considers users to be inactive when they haven't used slack for the previous 14 days.
 

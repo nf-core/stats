@@ -13,7 +13,7 @@ from nfcore_db.issues_and_prs_over_time
 where type = 'issue'
 ```
 
-<AreaChart
+<LineChart
   data={issues_over_time}
   x=timestamp
   y={["Closed", "Open"]}

@@ -90,7 +90,7 @@ where timestamp between '${inputs.range_filtering_a_query.start}' and '${inputs.
 <Tabs>
     <Tab label="Views">
 
-<AreaChart
+<LineChart
     data={views_filtered}
     x=timestamp
     y=value
@@ -99,7 +99,7 @@ where timestamp between '${inputs.range_filtering_a_query.start}' and '${inputs.
     subtitle="nf-core repository web views per week from {inputs.range_filtering_a_query.start} to {inputs.range_filtering_a_query.end}"
 >
 <ReferenceArea xMin='2024-01-24' xMax='2025-06-09' label="Data outage" color="gray"/>
-</AreaChart>
+</LineChart>
 
 <CalendarHeatmap
     data={traffic_by_day_filtered}

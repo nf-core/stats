@@ -13,7 +13,7 @@ from nfcore_db.issues_and_prs_over_time
 where type = 'pr'
 ```
 
-<AreaChart
+<LineChart
   data={pull_requests_over_time}
   x=timestamp
   y={["Closed / Merged", "Open"]}
