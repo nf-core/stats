@@ -367,6 +367,7 @@ def pipelines(organization: str, headers: dict, repos: list[dict]) -> Iterator[d
     # add all repos that are not pipelines to core_repos
     for repo in repos:
         if repo["name"] not in pipeline_names.get("pipeline", []):
+            logger.info(f"Adding {repo['name']} to core_repos")
             yield {
                 "name": repo["name"],
                 "description": repo["description"] or "",
