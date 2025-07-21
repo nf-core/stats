@@ -9,7 +9,7 @@ queries:
 
 We value each and every contribution to nf-core, no matter how small. However, that doesn't mean that we can't get competitive!
 
-Here are the latest stats of who has contributed the greatest number of commits. The yellow bars show "core repositories" - repositories that are not pipelines (such as the code for this website!). A list of these repositories can be found below.
+Here are the latest stats of who has contributed the greatest number of commits. The table shows both **pipeline contributions** (commits to nf-core pipeline repositories) and **core repository contributions** (commits to infrastructure repositories like the website, tools, configs, etc.).
 
 Remember:
 
@@ -26,11 +26,12 @@ Remember:
     defaultSort={[{ id: 'total_commits', desc: true }]}
 >
     <Column id="contributor" title="Contributor" align="left" contentType="html"/>
-    <Column id="total_commits" title="Total Commits" align="right"/>
+    <Column id="total_commits" title="Total Commits" align="right" />
     <Column id="total_additions" title="Total Additions" align="right"/>
     <Column id="total_deletions" title="Total Deletions" align="right"/>
     <Column id="first_commit_week" title="First Commit Week" align="right"/>
     <Column id="last_commit_week" title="Last Commit Week" align="right"/>
+    <Column id="core_commits_percentage" title="% of Commit to Core Repos" align="right" contentType="bar" barColor="primary"/>
 </DataTable>
 
 ```sql time_range
@@ -101,7 +102,7 @@ ORDER BY timestamp, username
 />
 
 </Tab>
-<Tab label="Additions">
+    <Tab label="Additions">
 
 <LineChart
     data={top_contributors_additions_filtered}
