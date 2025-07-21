@@ -6,8 +6,9 @@ queries:
   - community/growth_gh_contributors.sql
   - code/growth_gh_repos.sql
   - code/growth_gh_released_repos.sql
-  - code/growth_gh_prs.sql
   - code/growth_gh_commits.sql
+  - code/growth_issues_and_prs.sql
+  - code/growth_gh_prs.sql
   - code/growth_gh_issues.sql
 ---
 
@@ -38,7 +39,7 @@ The numbers below track our growth over the various channels that the nf-core co
 
 <BigValue
   data={community_growth_gh_contributors}
-  value=contributors
+  value=cumulative_contributors
   title="GitHub Contributors"
   sparkline=month
   link="/community/github"
@@ -74,7 +75,6 @@ Whilst we always prefer quality over quantity, these numbers reflect the work ou
     fmt=num0
     minWidth=22%
 />
-
 <BigValue
     data={code_growth_gh_prs}
     value=num_prs
@@ -83,8 +83,6 @@ Whilst we always prefer quality over quantity, these numbers reflect the work ou
     link="/code/pull_requests"
     minWidth=22%
 />
-
-
 <BigValue
     data={code_growth_gh_issues}
     value=num_issues
