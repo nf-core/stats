@@ -58,14 +58,14 @@ Whilst we always prefer quality over quantity, these numbers reflect the work ou
     value=num_repos
     title="Pipelines"
     sparkline=month
-    minWidth=22%
+    minWidth=30%
 />
 <BigValue
     data={code_growth_gh_released_repos}
     value=num_repos
     title="Released Pipelines"
     sparkline=month
-    minWidth=22%
+    minWidth=30%
 />
 <BigValue
     data={code_growth_gh_commits}
@@ -73,7 +73,7 @@ Whilst we always prefer quality over quantity, these numbers reflect the work ou
     title="Commits"
     sparkline=month
     fmt=num0
-    minWidth=22%
+    minWidth=30%
 />
 <BigValue
     data={code_growth_gh_prs}
@@ -81,7 +81,7 @@ Whilst we always prefer quality over quantity, these numbers reflect the work ou
     title="Pull Requests"
     sparkline=month
     link="/code/pull_requests"
-    minWidth=22%
+    minWidth=30%
 />
 <BigValue
     data={code_growth_gh_issues}
@@ -89,5 +89,5 @@ Whilst we always prefer quality over quantity, these numbers reflect the work ou
     title="Issues"
     sparkline=month
     fmt=num0
-    minWidth=22%
+    minWidth=30%
 />
