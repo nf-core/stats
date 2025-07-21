@@ -15,10 +15,10 @@ pipeline_stats AS (
     date,
     -- Count pipelines created by this date
     (SELECT COUNT(*) FROM github.nfcore_pipelines 
-     WHERE date_trunc('week', gh_created_at) <= date AND NOT archived) AS total_created,
+     WHERE date_trunc('week', gh_created_at) <= date AND NOT archived AND category = 'pipeline') AS total_created,
     -- Count pipelines released by this date  
     (SELECT COUNT(*) FROM github.nfcore_pipelines 
-     WHERE date_trunc('week', last_release_date) <= date AND NOT archived AND last_release_date IS NOT NULL) AS total_released
+     WHERE date_trunc('week', last_release_date) <= date AND NOT archived AND last_release_date IS NOT NULL AND category = 'pipeline') AS total_released
   FROM date_series
 )
 

@@ -33,5 +33,5 @@ SELECT
     p.archived
 FROM github.nfcore_pipelines p
 LEFT JOIN pipeline_first_releases pfr ON pfr.repo = p.name
-WHERE NOT p.archived
+WHERE NOT p.archived AND p.category = 'pipeline'
 ORDER BY p.gh_created_at; 
