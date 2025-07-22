@@ -24,15 +24,15 @@ Database: nf_core_stats
 │   └── Table: workspace_stats
 │       └── (user counts, activity metrics)
 │
-└── Schema: twitter  # Future expansion
-    └── Table: follower_stats
-        └── (follower counts over time)
+└── Schema: twitter
+    └── Table: account_stats
+        └── (historical account metrics)
 ```
 
 
 ### Why this structure?
 
-1. **Single Database**: Yes, keep everything in one database (`nf_core_stats`) as it's all related to nf-core statistics.
+1. **Single Database**: Yes, keep everything in one database (`nf_core_stats_bot`) as it's all related to nf-core statistics.
 
 2. **Separate Schemas**: Using different schemas for each data source (GitHub, Slack, etc.) is good practice because:
 

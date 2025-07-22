@@ -7,9 +7,9 @@ Slack is a real-time messaging tool, with discussion split into channels and gro
 
 ```sql view_days
 select
-    to_timestamp(timestamp) as timestamp
-from slack
-group by 1
+    timestamp
+from slack_users
+group by 1 order by 1 desc
 ```
 
 <DateRange
@@ -17,26 +17,27 @@ group by 1
     data={view_days}
     dates=timestamp
     defaultValue="All Time"
+    for
 />
 
-<!-- https://github.com/nf-core/website/blob/33acd6a2fab2bf9251e14212ce731ef3232b5969/public_html/stats.php#L714 -->
-
-
 ```users_long_filtered
-select * from nfcore_db.slack_users
-where timestamp between '${inputs.range_filtering_a_query.start}' and '${inputs.range_filtering_a_query.end}'
-order by 3 asc
+select distinct * from slack_users
+where timestamp between '${inputs.range_filtering_a_query.start}' and ('${inputs.range_filtering_a_query.end}'::date + interval '1 day')
+order by 1 desc
 ```
 
-<AreaChart
+<LineChart
     data={users_long_filtered}
     x=timestamp
     y=value
     series=category
     title="nf-core Slack users over time"
     subtitle="Per day from {inputs.range_filtering_a_query.start} to {inputs.range_filtering_a_query.end}"
-/>
+>   
+    <ReferenceArea xMin='2023-04-27' xMax='2023-11-07' label="Data outage" color="gray"/>
+    <ReferenceArea xMin='2024-01-25' xMax='2025-07-07' label="Data outage" color="gray"/>
+</LineChart>
 
-ℹ️Slack considers users to be inactive when they haven't used slack for the previous 14 days.
+ℹ️ Slack considers users to be inactive when they haven't used slack for the previous 14 days.
 
-⚠️Data from before 2019-07-24 fudged by reverse-engineering billing details on the slack admin pages.
+⚠️ Data from before 2019-07-24 fudged by reverse-engineering billing details on the slack admin pages.

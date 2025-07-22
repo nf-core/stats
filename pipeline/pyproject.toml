@@ -17,6 +17,10 @@ requires-python = ">=3.9"
 slack = "python slack_pipeline.py"
 github = "python github_pipeline.py"
 twitter = "python twitter_pipeline.py"
-# TODO
-# lint = "ruff check ."
-# format = "ruff format ."
+
+[tool.ruff]
+line-length = 120
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["I", "E1", "E4", "E7", "E9", "F", "UP", "N"]
