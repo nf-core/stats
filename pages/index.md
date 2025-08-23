@@ -31,7 +31,7 @@ The numbers below track our growth over the various channels that the nf-core co
 <BigValue
   data={community_growth_slack_users}
   value=members
-  title="ActiveSlack Users"
+  title="Active Slack Users"
   sparkline=month
   link='/community/slack'
   minWidth=30%
@@ -78,7 +78,7 @@ Whilst we always prefer quality over quantity, these numbers reflect the work ou
 <BigValue
     data={code_growth_gh_prs}
     value=num_prs
-    title="Pull Requests"
+    title="Total Pull Requests"
     sparkline=month
     link="/code/pull_requests"
     minWidth=30%
@@ -86,7 +86,7 @@ Whilst we always prefer quality over quantity, these numbers reflect the work ou
 <BigValue
     data={code_growth_gh_issues}
     value=num_issues
-    title="Issues"
+    title="Total Issues"
     sparkline=month
     fmt=num0
     minWidth=30%
