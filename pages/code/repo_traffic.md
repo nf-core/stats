@@ -5,7 +5,7 @@ queries:
   - code/clone_view_counts.sql
 ---
 
-Every time a nextflow user pulls an nf-core pipeline, the repository is cloned. Here we can track how much that happens across all nf-core repositories. Please note that these numbers come with some caveats [ see more ].
+Every time a nextflow user pulls an nf-core pipeline, the repository is cloned. Here we can track how much that happens across all nf-core repositories. Please note that these numbers come with some caveats (GitHub traffic data has a 14-day retention period and may not capture all traffic).
 
 Additionally, GitHub tracks how many times people view repository web pages on github.com.
 
@@ -21,6 +21,7 @@ select * from nfcore_db.repo_traffic_leaderboard
     data={repo_traffic_leaderboard}
     search=true
     wrapTitles=true
+    totalRow=true
     defaultSort={[{ id: 'total_views', desc: true }]}
 >
     <Column id="repository_link" title="Repository" align="left" contentType=link linkLabel=repository />
