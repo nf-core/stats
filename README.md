@@ -1,3 +1,7 @@
+![GitHub Stats Pipeline](https://img.shields.io/endpoint?url=https%3A%2F%2Fhealthchecks.io%2Fb%2F3%2F3d46a581-d043-4ba7-b026-1ba0344fd90d.shields)
+![Slack Stats Pipeline](https://img.shields.io/endpoint?url=https%3A%2F%2Fhealthchecks.io%2Fb%2F3%2F6e2e8ee4-ae42-482d-a1cf-85c923dabb8b.shields)
+![Twitter Stats Pipeline](https://img.shields.io/endpoint?url=https%3A%2F%2Fhealthchecks.io%2Fb%2F3%2Fb661a22a-d804-4327-931a-cea96a26747f.shields)
+
 Argument for why this isn't in nf-core/website
 
 - Evidence is a completely different build system, not using Astro
