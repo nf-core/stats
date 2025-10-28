@@ -1,8 +1,6 @@
-import os
-import time
+import logging
 from collections.abc import Iterator
 from datetime import datetime, timedelta
-import logging
 
 import dlt
 import requests
@@ -24,17 +22,49 @@ def get_github_headers(api_token: str = dlt.secrets["sources.github_pipeline.git
     return {"Authorization": f"token {api_token}", "Accept": "application/vnd.github.v3+json"}
 
 
+def check_rate_limit(headers: dict, min_remaining: int = 100) -> dict:
+    """Check GitHub API rate limit status
+
+    Args:
+        headers: GitHub API headers
+        min_remaining: Minimum requests that should remain
+
+    Returns:
+        dict with 'remaining', 'limit', 'reset' keys
+    """
+    response = requests.get("https://api.github.com/rate_limit", headers=headers, timeout=30)
+    rate_limit = response.json()["resources"]["core"]
+
+    remaining = rate_limit["remaining"]
+    limit = rate_limit["limit"]
+    reset_time = rate_limit["reset"]
+    reset_datetime = datetime.fromtimestamp(reset_time)
+
+    logger.info(f"Rate limit: {remaining}/{limit} remaining (resets at {reset_datetime})")
+
+    if remaining < min_remaining:
+        logger.warning(f"Low rate limit: only {remaining} requests remaining (minimum: {min_remaining})")
+
+    return {"remaining": remaining, "limit": limit, "reset": reset_time}
+
+
 def github_request(url: str, headers: dict) -> requests.Response:
-    """Make GitHub API request with rate limit handling"""
+    """Make GitHub API request with rate limit handling
+
+    Note: This will fail fast on rate limits to let DLT's incremental loading
+    resume on the next run, rather than waiting hours for rate limit reset.
+    """
     response = requests.get(url, headers=headers, timeout=30)
 
-    # Handle rate limiting
+    # Handle rate limiting - fail fast instead of waiting
     if response.status_code == 403 and "rate limit" in response.text.lower():
         reset_time = int(response.headers.get("X-RateLimit-Reset", 0))
-        wait_time = max(reset_time - int(time.time()), 60)
-        logger.info(f"Rate limited. Waiting {wait_time} seconds...")
-        time.sleep(wait_time)
-        response = requests.get(url, headers=headers, timeout=30)
+        reset_datetime = datetime.fromtimestamp(reset_time)
+        logger.error(f"Rate limit exceeded. Resets at {reset_datetime}. Failing fast to resume on next run.")
+        raise requests.HTTPError(
+            f"GitHub API rate limit exceeded. Resets at {reset_datetime}. Pipeline will resume on next scheduled run.",
+            response=response,
+        )
 
     response.raise_for_status()
     return response
@@ -243,8 +273,23 @@ def contributor_stats(organization: str, headers: dict, repos: list[dict]) -> It
 
 @dlt.resource(write_disposition="merge", primary_key=["pipeline_name", "issue_number"])
 def issue_stats(organization: str, headers: dict, repos: list[dict]) -> Iterator[dict]:
-    """Collect issue and PR stats"""
+    """Collect issue and PR stats with incremental comment loading"""
     logger.info(f"Collecting issue and PR stats for {len(repos)} repositories")
+
+    # Get current state to check which issues we've already processed
+    state = dlt.current.source_state()
+    processed_issues = state.setdefault("processed_issues", {})
+
+    # Check rate limit before expensive comment fetching
+    rate_status = check_rate_limit(headers, min_remaining=500)
+    fetch_comments = rate_status["remaining"] > 500
+
+    if not fetch_comments:
+        logger.warning(
+            f"Skipping comment fetching due to low rate limit ({rate_status['remaining']} remaining). "
+            "Will fetch comments on next run."
+        )
+
     for repo in repos:
         name = repo["name"]
         issues_url = f"https://api.github.com/repos/{organization}/{name}/issues?state=all"
@@ -257,9 +302,12 @@ def issue_stats(organization: str, headers: dict, repos: list[dict]) -> Iterator
             logger.warning(f"Failed to get issues for {name}: {e}")
             continue
 
+        repo_processed = processed_issues.setdefault(name, {})
+
         for issue in issues:
             is_pr = "pull_request" in issue
             created_at = datetime.strptime(issue["created_at"], "%Y-%m-%dT%H:%M:%SZ")
+            issue_key = str(issue["number"])
 
             # Calculate close time
             closed_wait = None
@@ -267,11 +315,25 @@ def issue_stats(organization: str, headers: dict, repos: list[dict]) -> Iterator
                 closed_at = datetime.strptime(issue["closed_at"], "%Y-%m-%dT%H:%M:%SZ")
                 closed_wait = (closed_at - created_at).total_seconds()
 
-            # Calculate first response time
-            first_response_time = None
-            first_responder = None
+            # Check if we need to fetch comments for this issue
+            previous_data = repo_processed.get(issue_key, {})
+            previous_comment_count = previous_data.get("num_comments", 0)
+            current_comment_count = issue["comments"]
 
-            if issue["comments"] > 0:
+            # Only fetch comments if:
+            # 1. We have rate limit headroom
+            # 2. Issue has comments
+            # 3. Either new issue OR comment count has changed
+            should_fetch_comments = (
+                fetch_comments
+                and current_comment_count > 0
+                and (issue_key not in repo_processed or current_comment_count != previous_comment_count)
+            )
+
+            first_response_time = previous_data.get("first_response_seconds")
+            first_responder = previous_data.get("first_responder")
+
+            if should_fetch_comments:
                 comments_url = f"https://api.github.com/repos/{organization}/{name}/issues/{issue['number']}/comments"
                 try:
                     comments = get_paginated_data(comments_url, headers)
@@ -287,7 +349,15 @@ def issue_stats(organization: str, headers: dict, repos: list[dict]) -> Iterator
                                 break
                 except requests.RequestException as e:
                     logger.warning(f"Failed to get comments for issue {issue['number']} in {name}: {e}")
+                    # Don't fail the whole pipeline, just skip this issue's comments
                     pass
+
+            # Store this issue in our state
+            repo_processed[issue_key] = {
+                "num_comments": current_comment_count,
+                "first_response_seconds": first_response_time,
+                "first_responder": first_responder,
+            }
 
             yield {
                 "pipeline_name": name,
@@ -436,6 +506,11 @@ if __name__ == "__main__":
 
     # Initialize headers and repos once (this will get the token from secrets)
     headers = get_github_headers()
+
+    # Check initial rate limit
+    logger.info("Checking initial rate limit status...")
+    check_rate_limit(headers)
+
     repos_url = f"https://api.github.com/orgs/{organization}/repos"
     repos = get_paginated_data(repos_url, headers)
     logger.info(f"Successfully fetched {len(repos)} repositories from GitHub API")
@@ -464,6 +539,12 @@ if __name__ == "__main__":
         try:
             logger.info(f"Processing resource: {resource_name}")
 
+            # Check rate limit before processing resource
+            rate_status = check_rate_limit(headers, min_remaining=100)
+            if rate_status["remaining"] < 100:
+                logger.warning(f"Low rate limit before {resource_name}. Stopping pipeline to resume on next run.")
+                break
+
             # Run just this resource
             load_info = pipeline.run(resource_func())
 
@@ -479,9 +560,16 @@ if __name__ == "__main__":
             else:
                 logger.info(f"✅ {resource_name} completed (no row count info)")
 
+        except requests.HTTPError as e:
+            if "rate limit" in str(e).lower():
+                logger.error(f"❌ Rate limit hit during {resource_name}. Stopping pipeline.")
+                break
+            logger.error(f"❌ Failed to process {resource_name}: {e}")
+            logger.info("Continuing with next resource...")
+            continue
         except Exception as e:
             logger.error(f"❌ Failed to process {resource_name}: {e}")
-            logger.info(f"Continuing with next resource...")
+            logger.info("Continuing with next resource...")
             continue
 
     logger.info("=== PIPELINE COMPLETION SUMMARY ===")
