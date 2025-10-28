@@ -1,0 +1,312 @@
+---
+title: "nf-core Pipeline Regulatory Compliance Report"
+subtitle: "Quality Metrics and Development Tracking"
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-location: left
+    theme: cosmo
+    code-fold: true
+    code-tools: true
+    embed-resources: true
+jupyter: python3
+params:
+  pipeline_name: "rnaseq"
+---
+
+```{python}
+#| label: setup
+#| include: false
+
+# Import required libraries
+import json
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from datetime import datetime, timedelta
+from pathlib import Path
+
+# Set visualization style
+plt.rcParams['figure.figsize'] = (10, 6)
+plt.rcParams['font.size'] = 12
+
+# note: In Quarto Python, params are not directly accessible like in R?
+pipeline_name = "rnaseq"
+
+# Load data from JSON file
+with open('data/nfcore_pipelines.json', 'r') as f:
+    pipelines_data = pd.read_json(f, lines=True)
+
+# Convert date columns to datetime
+date_columns = ['gh_created_at', 'gh_updated_at', 'gh_pushed_at', 'last_release_date']
+for col in date_columns:
+    pipelines_data[col] = pd.to_datetime(pipelines_data[col], utc=True)
+
+# Add computed columns
+pipelines_data['has_release'] = pipelines_data['last_release_date'].notna()
+
+# Calculate status
+def calculate_status(row):
+    if row['archived']:
+        return 'Archived'
+    elif not row['has_release']:
+        return 'In Development'
+    else:
+        days_since_release = (datetime.now(tz=row['last_release_date'].tz) - row['last_release_date']).days
+        if days_since_release < 180:
+            return 'Active'
+        elif days_since_release < 365:
+            return 'Maintenance'
+        else:
+            return 'Legacy'
+
+pipelines_data['status'] = pipelines_data.apply(calculate_status, axis=1)
+
+# Filter by pipeline if specified
+if pipeline_name != "all":
+    pipelines_data = pipelines_data[pipelines_data['name'] == pipeline_name]
+
+if pipeline_name != "all" and pipeline_name in pipelines_data['name'].values:
+    pipeline_info = pipelines_data[pipelines_data['name'] == pipeline_name].iloc[0]
+
+# Store for later use
+report_date = datetime.now().strftime("%B %d, %Y")
+```
+
+
+```{python}
+#| echo: false
+#| output: asis
+
+print(f"**Report Period:** Could be based on first release \n")
+print(f"**Pipeline:** {pipeline_name} \n")
+print(f"**Last Release:** {pipeline_info['last_release_date']} \n")
+```
+
+This report provides regulatory-relevant metrics for nf-core pipelines, including:
+
+- Pipeline version control and release history
+- Development activity and maintenance status
+- Community engagement and support responsiveness
+- Quality assurance indicators
+- Change management tracking
+
+# Change Management and Traceability
+
+## Pull Request Activity (dummy data)
+
+```{python}
+#| label: tbl-pr-summary
+#| tbl-cap: "Pull Request Review and Merge Metrics"
+#| output: asis
+
+# Placeholder metrics - would come from actual PR data
+print("""
+| Metric | Value | Notes |
+|--------|-------|-------|
+| Average PR Review Time | 2.5 days | Time to first review + approval |
+| PRs Merged (Last 90 days) | 234 | Includes all repositories |
+| PR Merge Rate | 87% | Merged / Total opened |
+| Average Reviewers per PR | 2.3 | Average review participation |
+| Failed PR Rate | 13% | PRs closed without merge |
+""")
+```
+
+# Community Metrics
+
+## Active Maintenance Indicators
+
+```{python}
+#| label: fig-community-engagement
+#| fig-cap: "Community Engagement Metrics"
+
+# Get metrics for the selected pipeline
+if pipeline_name != "all" and pipeline_name in pipelines_data['name'].values:
+    pipeline_metrics = pipelines_data[pipelines_data['name'] == pipeline_name].iloc[0]
+    
+    # Create data for bar chart
+    metrics = {
+        'GitHub Stars': pipeline_metrics['stargazers_count'],
+        'Forks': pipeline_metrics['forks_count'],
+        'Watchers': pipeline_metrics['watchers_count'],
+        'Open Issues': pipeline_metrics['open_issues_count']
+    }
+    
+    # Create bar plot
+    fig, ax = plt.subplots(figsize=(10, 6))
+    bars = ax.bar(metrics.keys(), metrics.values(), 
+                   color=['#24B064', '#1F77B4', '#FFA500', '#DC143C'],
+                   edgecolor='black', linewidth=1.5)
+    
+    # Add value labels on bars
+    for bar in bars:
+        height = bar.get_height()
+        ax.text(bar.get_x() + bar.get_width()/2., height,
+                f'{int(height)}',
+                ha='center', va='bottom', fontweight='bold', fontsize=12)
+    
+    ax.set_ylabel('Count', fontsize=12)
+    ax.set_title(f'Community Engagement Metrics for {pipeline_name}',
+                 fontsize=14, fontweight='bold')
+    ax.grid(True, axis='y', alpha=0.3)
+    plt.tight_layout()
+    plt.show()
+else:
+    print(f"Note: Set pipeline_name to a specific pipeline to see detailed metrics.")
+    print(f"Available pipelines: {', '.join(pipelines_data['name'].head(10).tolist())}...")
+```
+
+## Pipeline Maintenance
+
+```{python}
+#| label: fig-usage-trends
+#| fig-cap: "Pipeline Activity Over Time"
+
+if pipeline_name != "all" and pipeline_name in pipelines_data['name'].values:
+    # Get the specific pipeline data
+    pipeline_info = pipelines_data[pipelines_data['name'] == pipeline_name].iloc[0]
+    
+    # Create timeline showing key dates
+    fig, ax = plt.subplots(figsize=(12, 6))
+    
+    dates = []
+    labels = []
+    
+    # Add creation date
+    dates.append(pipeline_info['gh_created_at'])
+    labels.append('Created')
+    
+    # Add last release if exists
+    if pd.notna(pipeline_info['last_release_date']):
+        dates.append(pipeline_info['last_release_date'])
+        labels.append('Last Release')
+    
+    # Add last update
+    dates.append(pipeline_info['gh_updated_at'])
+    labels.append('Last Updated')
+    
+    # Create timeline
+    y_pos = [0] * len(dates)
+    colors = ['#24B064', '#1F77B4', '#FFA500'][:len(dates)]
+    
+    ax.scatter(dates, y_pos, s=300, c=colors, alpha=0.6, edgecolors='black', linewidth=2)
+    
+    # Add labels with alternating vertical positions to avoid overlap
+    vertical_offsets = [30, 60, 90][:len(dates)]  # Stagger the labels vertically
+    for i, (date, label, y, color) in enumerate(zip(dates, labels, y_pos, colors)):
+        ax.annotate(f'{label}\n{date.strftime("%Y-%m-%d")}', 
+                   xy=(date, y), xytext=(0, vertical_offsets[i]),
+                   textcoords='offset points', ha='center',
+                   fontsize=9, fontweight='bold',
+                   bbox=dict(boxstyle='round,pad=0.5', facecolor=color, alpha=0.3),
+                   arrowprops=dict(arrowstyle='->', connectionstyle='arc3,rad=0', 
+                                   color='gray', lw=1.5))
+    
+    ax.set_ylim(-0.5, 0.5)
+    ax.set_xlabel('Date', fontsize=12)
+    ax.set_title(f'Timeline for {pipeline_name}\nKey development milestones',
+                 fontsize=14, fontweight='bold')
+    ax.grid(True, alpha=0.3, axis='x')
+    ax.set_yticks([])
+    plt.tight_layout()
+    plt.show()
+else:
+    print(f"Set pipeline_name to a specific pipeline to see timeline.")
+```
+
+**Summary Community Engagement Statistics:**
+
+```{python}
+#| output: asis
+
+if pipeline_name != "all" and pipeline_name in pipelines_data['name'].values:
+    # Calculate days since last activity
+    days_since_update = (datetime.now(tz=pipeline_info['gh_updated_at'].tz) - 
+                        pipeline_info['gh_updated_at']).days
+
+    print(f"""
+- **Pipeline:** {pipeline_info['name']}
+- **Status:** {pipeline_info['status']}
+- **GitHub Stars:** {pipeline_info['stargazers_count']:,}
+- **Forks:** {pipeline_info['forks_count']:,}
+- **Watchers:** {pipeline_info['watchers_count']:,}
+- **Open Issues:** {pipeline_info['open_issues_count']}
+- **Created:** {pipeline_info['gh_created_at'].strftime('%Y-%m-%d')}
+- **Last Release:** {pipeline_info['last_release_date'].strftime('%Y-%m-%d') if pd.notna(pipeline_info['last_release_date']) else 'No release yet'}
+- **Days Since Last Update:** {days_since_update}
+""")
+else:
+    print("Set pipeline_name to a specific pipeline to see detailed statistics.")
+```
+
+---
+
+# Data Sources and Methodology
+
+## Data Collection
+
+This report aggregates data from multiple sources:
+
+- **GitHub API**: Repository metrics, commits, releases, issues, PRs
+- **Pipeline Repositories**: Direct metrics from pipeline codebases
+- ...
+
+## Data Status
+
+```{python}
+#| output: asis
+
+# Calculate data statistics
+latest_update = pipelines_data['gh_updated_at'].max()
+earliest_creation = pipelines_data['gh_created_at'].min()
+data_span = (latest_update - earliest_creation).days / 365.25
+
+print(f"""
+- **Last Update:** {report_date}
+- **Data Span:** {earliest_creation.strftime('%Y-%m-%d')} to {latest_update.strftime('%Y-%m-%d')} ({data_span:.1f} years)
+- **Update Frequency:** Daily (automated pipelines)
+- **Data Source:** JSON export from nf-core stats database
+""")
+```
+
+# Appendix
+
+## Definitions
+
+Not necessarily needed but could be useful.
+
+**Active Pipeline**: Pipeline with at least one release or commit in the last 6 months.
+
+**Maintenance Status**: Pipeline with releases between 6-12 months ago.
+
+**Response Time**: Time from issue/PR creation to first maintainer comment.
+
+**Resolution Time**: Time from issue creation to closure.
+
+**Release Frequency**: Average time between consecutive releases.
+
+## Regulatory Relevance
+
+This report supports regulatory compliance by demonstrating:
+
+1. **Traceability**: Complete version history and change tracking
+2. **Quality Control**: Systematic testing and review processes
+3. **Maintenance**: Active development and bug resolution
+4. **Documentation**: Comprehensive and current documentation
+5. **Support**: Responsive community and maintainer support
+
+## Contact and Questions
+
+For questions about this report or the underlying data:
+
+- **nf-core Website**: https://nf-co.re
+- **GitHub**: https://github.com/nf-core
+- **Slack**: nfcore.slack.com
+
+---
+
+**Report Version:** 1.0.0  
+**Generated by:** nf-core stats repository  
+**License:** MIT
