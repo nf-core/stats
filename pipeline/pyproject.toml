@@ -2,16 +2,14 @@
 name = "nf-core-stats"
 version = "0.1.0"
 description = "DLT pipeline for nf-core stats collection"
-authors = [
-    { name = "nf-core team" }
-]
+authors = [{ name = "nf-core team" }]
 dependencies = [
-    "dlt[cli,duckdb,motherduck]>=1.4.1",
+    "dlt[cli,duckdb,motherduck]>=1.17.1",
     "python-dotenv==1.1.1",
     "requests>=2.31.0",
     "slack-sdk>=3.33.5",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 
 [project.scripts]
 slack = "python slack_pipeline.py"
