@@ -12,11 +12,15 @@ format:
     code-tools: false
     embed-resources: true
 jupyter: python3
-params:
-  pipeline_name: "rnaseq"
 execute:
   echo: false
 ---
+
+```{python}
+#| tags: [parameters]
+pipeline_name = "rnaseq"
+#pipeline_version = 3.0
+```
 
 ```{python}
 #| label: setup
@@ -29,9 +33,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 from pathlib import Path
-
-# note: In Quarto Python, params are not directly accessible like in R?
-pipeline_name = "rnaseq"
+import importlib
+import sys
+from report_helpers import calculate_status, calculate_trust_score
 
 # Load data from JSON file (nested structure)
 with open('data/stats.json', 'r') as f:
@@ -73,25 +77,9 @@ for col in date_columns:
 # Add computed columns
 pipelines_data['has_release'] = pipelines_data['last_release_date'].notna()
 
-# Calculate status
-def calculate_status(row):
-    if row.get('archived', False):
-        return 'Archived'
-    elif not row.get('has_release', False):
-        return 'In Development'
-    else:
-        if pd.notna(row['last_release_date']):
-            days_since_release = (pd.Timestamp.now(tz='UTC') - row['last_release_date']).days
-            if days_since_release < 180:
-                return 'Active'
-            elif days_since_release < 365:
-                return 'Maintenance'
-            else:
-                return 'Legacy'
-        else:
-            return 'In Development'
-
 pipelines_data['status'] = pipelines_data.apply(calculate_status, axis=1)
+
+pipelines_data['trust_score'] = pipelines_data.apply(calculate_trust_score, axis=1)
 
 # Filter by pipeline if specified
 if pipeline_name != "all":
@@ -104,7 +92,6 @@ if pipeline_name != "all" and pipeline_name in pipelines_data['name'].values:
 report_date = datetime.now().strftime("%B %d, %Y")
 ```
 
-
 ```{python}
 #| echo: false
 #| output: asis
@@ -112,8 +99,10 @@ report_date = datetime.now().strftime("%B %d, %Y")
 # Format last release date
 last_release = pipeline_info['last_release_date'].strftime('%B %d, %Y') if pd.notna(pipeline_info['last_release_date']) else 'No release yet'
 
-print(f"""
-| | |
+print(":::: {.columns}\n")
+print("::: {.column width=\"65%\"}\n")
+
+print(f"""| | |
 |:---|:---|
 | **Pipeline** | {pipeline_name} |
 | **Description** | {pipeline_info['description']} |
@@ -122,9 +111,82 @@ print(f"""
 | **Report Generated** | {report_date} |
 """)
 
+print(":::\n")
+print("::: {.column width=\"35%\"}\n")
 ```
 
-::: {.callout-note icon=false}
+```{python}
+#| label: trust-score-gauge
+#| fig-width: 5
+#| fig-height: 4
+
+# Get the trust score
+trust_score = pipeline_info['trust_score']
+
+# Determine color and rating based on score
+if trust_score >= 80:
+    color = '#24B064'
+    rating = 'Excellent'
+elif trust_score >= 60:
+    color = '#FFA500'
+    rating = 'Good'
+elif trust_score >= 40:
+    color = '#FFD700'
+    rating = 'Fair'
+else:
+    color = '#DC143C'
+    rating = 'Needs Improvement'
+
+# Create semi-circular gauge chart
+fig, ax = plt.subplots(figsize=(5, 4), subplot_kw={'projection': 'polar'})
+
+# Set up the gauge (semi-circle from 0 to 180 degrees)
+theta = np.linspace(0, np.pi, 100)
+r = 1
+
+# Background arc (gray)
+ax.plot(theta, [r]*len(theta), color='#E8E8E8', linewidth=20, solid_capstyle='round')
+
+# Score arc (colored)
+score_theta = np.linspace(0, np.pi * (trust_score / 100), 100)
+ax.plot(score_theta, [r]*len(score_theta), color=color, linewidth=20, solid_capstyle='round')
+
+# Add score text in center
+ax.text(np.pi/2, 0.3, f'{trust_score}', 
+        ha='center', va='center', fontsize=32, fontweight='bold', color=color)
+ax.text(np.pi/2, 0.05, rating, 
+        ha='center', va='center', fontsize=12, fontweight='bold', color='#333333')
+
+# Add labels at key points
+ax.text(0.05, r+0.2, '0', ha='left', va='bottom', fontsize=9, color='#666666')
+ax.text(np.pi/4, r+0.15, '25', ha='center', va='bottom', fontsize=9, color='#666666')
+ax.text(np.pi/2, r+0.15, '50', ha='center', va='bottom', fontsize=9, color='#666666')
+ax.text(3*np.pi/4, r+0.15, '75', ha='center', va='bottom', fontsize=9, color='#666666')
+ax.text(np.pi-0.05, r+0.3, '100', ha='right', va='bottom', fontsize=9, color='#666666')
+
+# Style the plot
+ax.set_ylim(0, 1.3)
+ax.set_theta_offset(np.pi)
+ax.set_theta_direction(-1)
+ax.set_xticks([])
+ax.set_yticks([])
+ax.spines['polar'].set_visible(False)
+ax.grid(False)
+ax.set_title('Trust Score', fontsize=14, fontweight='bold', pad=20)
+
+plt.tight_layout()
+plt.show()
+```
+
+```{python}
+#| echo: false
+#| output: asis
+
+print(":::\n")
+print("::::\n")
+```
+
+::: {.callout-tip icon=false}
 ## Report Scope
 
 This report provides regulatory-relevant metrics for nf-core pipelines, including:
@@ -134,6 +196,7 @@ This report provides regulatory-relevant metrics for nf-core pipelines, includin
 - Community engagement and support responsiveness
 - Quality assurance indicators
 - Change management tracking
+
 :::
 
 # Maintenance Metrics
