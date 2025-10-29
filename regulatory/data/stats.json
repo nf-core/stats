@@ -1,0 +1,1614 @@
+{
+  "abotyper": {
+    "pipeline_stats": {
+      "name": "abotyper",
+      "description": "A pipeline for characterising the Human Blood Group and Red Cell Antigens using Oxford Nanopore third-generation sequencing data.",
+      "stargazers_count": 0,
+      "watchers_count": 221,
+      "forks_count": 1,
+      "open_issues_count": 0,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "airrflow": {
+    "pipeline_stats": {
+      "name": "airrflow",
+      "description": "B-cell and T-cell Adaptive Immune Receptor Repertoire (AIRR) sequencing analysis pipeline using the Immcantation framework",
+      "stargazers_count": 64,
+      "watchers_count": 165,
+      "forks_count": 45,
+      "open_issues_count": 30,
+      "archived": false,
+      "last_release_date": "2025-06-09 19:57:04+02:00",
+      "category": "pipeline"
+    }
+  },
+  "ampliseq": {
+    "pipeline_stats": {
+      "name": "ampliseq",
+      "description": "Amplicon sequencing analysis workflow using DADA2 and QIIME2",
+      "stargazers_count": 210,
+      "watchers_count": 165,
+      "forks_count": 141,
+      "open_issues_count": 20,
+      "archived": false,
+      "last_release_date": "2025-05-23 14:19:03+02:00",
+      "category": "pipeline"
+    }
+  },
+  "atacseq": {
+    "pipeline_stats": {
+      "name": "atacseq",
+      "description": "ATAC-seq peak-calling and QC analysis pipeline",
+      "stargazers_count": 206,
+      "watchers_count": 164,
+      "forks_count": 123,
+      "open_issues_count": 42,
+      "archived": false,
+      "last_release_date": "2023-08-08 00:00:22+02:00",
+      "category": "pipeline"
+    }
+  },
+  "bacass": {
+    "pipeline_stats": {
+      "name": "bacass",
+      "description": "Simple bacterial assembly and annotation pipeline",
+      "stargazers_count": 75,
+      "watchers_count": 165,
+      "forks_count": 60,
+      "open_issues_count": 30,
+      "archived": false,
+      "last_release_date": "2024-11-18 15:48:41+01:00",
+      "category": "pipeline"
+    }
+  },
+  "bactmap": {
+    "pipeline_stats": {
+      "name": "bactmap",
+      "description": "A mapping-based pipeline for creating a phylogeny from bacterial whole genome sequences",
+      "stargazers_count": 56,
+      "watchers_count": 156,
+      "forks_count": 51,
+      "open_issues_count": 5,
+      "archived": false,
+      "last_release_date": "2021-06-18 14:11:08+02:00",
+      "category": "pipeline"
+    }
+  },
+  "bamtofastq": {
+    "pipeline_stats": {
+      "name": "bamtofastq",
+      "description": "Converts bam or cram files to fastq format and does quality control.",
+      "stargazers_count": 27,
+      "watchers_count": 170,
+      "forks_count": 18,
+      "open_issues_count": 5,
+      "archived": false,
+      "last_release_date": "2025-06-17 09:53:08+02:00",
+      "category": "pipeline"
+    }
+  },
+  "cageseq": {
+    "pipeline_stats": {
+      "name": "cageseq",
+      "description": "CAGE-sequencing analysis pipeline with trimming, alignment and counting of CAGE tags.",
+      "stargazers_count": 11,
+      "watchers_count": 161,
+      "forks_count": 13,
+      "open_issues_count": 3,
+      "archived": false,
+      "last_release_date": "2021-01-14 08:56:52+01:00",
+      "category": "pipeline"
+    }
+  },
+  "callingcards": {
+    "pipeline_stats": {
+      "name": "callingcards",
+      "description": "A pipeline for processing calling cards data",
+      "stargazers_count": 5,
+      "watchers_count": 170,
+      "forks_count": 4,
+      "open_issues_count": 4,
+      "archived": false,
+      "last_release_date": "2024-05-24 15:20:28+02:00",
+      "category": "pipeline"
+    }
+  },
+  "cellpainting": {
+    "pipeline_stats": {
+      "name": "cellpainting",
+      "description": "",
+      "stargazers_count": 6,
+      "watchers_count": 209,
+      "forks_count": 5,
+      "open_issues_count": 14,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "chipseq": {
+    "pipeline_stats": {
+      "name": "chipseq",
+      "description": "ChIP-seq peak-calling, QC and differential analysis pipeline.",
+      "stargazers_count": 217,
+      "watchers_count": 162,
+      "forks_count": 156,
+      "open_issues_count": 29,
+      "archived": false,
+      "last_release_date": "2024-10-07 17:14:22+02:00",
+      "category": "pipeline"
+    }
+  },
+  "circdna": {
+    "pipeline_stats": {
+      "name": "circdna",
+      "description": "Pipeline for the identification of extrachromosomal circular DNA (ecDNA) from Circle-seq, WGS, and ATAC-seq data that were generated from cancer and other eukaryotic cells.",
+      "stargazers_count": 31,
+      "watchers_count": 170,
+      "forks_count": 14,
+      "open_issues_count": 9,
+      "archived": false,
+      "last_release_date": "2024-02-10 10:02:00+01:00",
+      "category": "pipeline"
+    }
+  },
+  "circrna": {
+    "pipeline_stats": {
+      "name": "circrna",
+      "description": "circRNA quantification, differential expression analysis and miRNA target prediction of RNA-Seq data",
+      "stargazers_count": 57,
+      "watchers_count": 128,
+      "forks_count": 30,
+      "open_issues_count": 18,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "clipseq": {
+    "pipeline_stats": {
+      "name": "clipseq",
+      "description": "CLIP sequencing analysis pipeline for QC, pre-mapping, genome mapping, UMI deduplication, and multiple peak-calling options.",
+      "stargazers_count": 22,
+      "watchers_count": 131,
+      "forks_count": 40,
+      "open_issues_count": 36,
+      "archived": false,
+      "last_release_date": "2021-04-27 12:40:00+02:00",
+      "category": "pipeline"
+    }
+  },
+  "coproid": {
+    "pipeline_stats": {
+      "name": "coproid",
+      "description": "Coprolite host Identification pipeline",
+      "stargazers_count": 12,
+      "watchers_count": 92,
+      "forks_count": 5,
+      "open_issues_count": 0,
+      "archived": false,
+      "last_release_date": "2025-05-22 12:27:06+02:00",
+      "category": "pipeline"
+    }
+  },
+  "createpanelrefs": {
+    "pipeline_stats": {
+      "name": "createpanelrefs",
+      "description": "Generate Panel of Normals, models or other similar references from lots of samples",
+      "stargazers_count": 10,
+      "watchers_count": 169,
+      "forks_count": 10,
+      "open_issues_count": 6,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "createtaxdb": {
+    "pipeline_stats": {
+      "name": "createtaxdb",
+      "description": "Parallelised and automated construction of metagenomic classifier databases of different tools",
+      "stargazers_count": 14,
+      "watchers_count": 178,
+      "forks_count": 9,
+      "open_issues_count": 6,
+      "archived": false,
+      "last_release_date": "2025-06-19 09:45:45+02:00",
+      "category": "pipeline"
+    }
+  },
+  "crisprseq": {
+    "pipeline_stats": {
+      "name": "crisprseq",
+      "description": "A pipeline for the analysis of CRISPR edited data. It allows the evaluation of the quality of gene editing experiments using targeted next generation sequencing (NGS) data (`targeted`) as well as the discovery of important genes from knock-out or activation CRISPR-Cas9 screens using CRISPR pooled DNA (`screening`).",
+      "stargazers_count": 47,
+      "watchers_count": 161,
+      "forks_count": 31,
+      "open_issues_count": 26,
+      "archived": false,
+      "last_release_date": "2024-11-08 15:29:55+01:00",
+      "category": "pipeline"
+    }
+  },
+  "cutandrun": {
+    "pipeline_stats": {
+      "name": "cutandrun",
+      "description": "Analysis pipeline for CUT&RUN and CUT&TAG experiments that includes QC, support for spike-ins, IgG controls, peak calling and downstream analysis.",
+      "stargazers_count": 93,
+      "watchers_count": 172,
+      "forks_count": 56,
+      "open_issues_count": 35,
+      "archived": false,
+      "last_release_date": "2024-02-01 17:38:34+01:00",
+      "category": "pipeline"
+    }
+  },
+  "datasync": {
+    "pipeline_stats": {
+      "name": "datasync",
+      "description": "nf-core/datasync is a system operation pipeline that provides several workflows for handling system operation / automation tasks",
+      "stargazers_count": 9,
+      "watchers_count": 188,
+      "forks_count": 3,
+      "open_issues_count": 3,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "deepmodeloptim": {
+    "pipeline_stats": {
+      "name": "deepmodeloptim",
+      "description": "Stochastic Testing and Input Manipulation for Unbiased Learning Systems",
+      "stargazers_count": 29,
+      "watchers_count": 185,
+      "forks_count": 15,
+      "open_issues_count": 18,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "demo": {
+    "pipeline_stats": {
+      "name": "demo",
+      "description": "nf-core/demo is a simple nf-core style bioinformatics pipeline for workshops and demos.",
+      "stargazers_count": 7,
+      "watchers_count": 192,
+      "forks_count": 12,
+      "open_issues_count": 6,
+      "archived": false,
+      "last_release_date": "2025-06-27 21:51:39+02:00",
+      "category": "pipeline"
+    }
+  },
+  "demultiplex": {
+    "pipeline_stats": {
+      "name": "demultiplex",
+      "description": "Demultiplexing pipeline for sequencing data",
+      "stargazers_count": 47,
+      "watchers_count": 111,
+      "forks_count": 44,
+      "open_issues_count": 22,
+      "archived": false,
+      "last_release_date": "2025-04-24 22:35:10+02:00",
+      "category": "pipeline"
+    }
+  },
+  "denovotranscript": {
+    "pipeline_stats": {
+      "name": "denovotranscript",
+      "description": "A pipeline for de novo transcriptome assembly of paired-end short reads from bulk RNA-seq",
+      "stargazers_count": 17,
+      "watchers_count": 185,
+      "forks_count": 4,
+      "open_issues_count": 4,
+      "archived": false,
+      "last_release_date": "2025-01-30 08:26:03+01:00",
+      "category": "pipeline"
+    }
+  },
+  "detaxizer": {
+    "pipeline_stats": {
+      "name": "detaxizer",
+      "description": "A pipeline to identify (and remove) certain sequences from raw genomic data. Default taxon to identify (and remove) is Homo sapiens. Removal is optional.",
+      "stargazers_count": 20,
+      "watchers_count": 177,
+      "forks_count": 7,
+      "open_issues_count": 8,
+      "archived": false,
+      "last_release_date": "2024-11-08 16:28:07+01:00",
+      "category": "pipeline"
+    }
+  },
+  "diaproteomics": {
+    "pipeline_stats": {
+      "name": "diaproteomics",
+      "description": "Automated quantitative analysis of DIA proteomics mass spectrometry measurements.",
+      "stargazers_count": 19,
+      "watchers_count": 95,
+      "forks_count": 14,
+      "open_issues_count": 6,
+      "archived": false,
+      "last_release_date": "2021-04-29 08:40:55+02:00",
+      "category": "pipeline"
+    }
+  },
+  "differentialabundance": {
+    "pipeline_stats": {
+      "name": "differentialabundance",
+      "description": "Differential abundance analysis for feature/ observation matrices from platforms such as RNA-seq ",
+      "stargazers_count": 79,
+      "watchers_count": 164,
+      "forks_count": 51,
+      "open_issues_count": 68,
+      "archived": false,
+      "last_release_date": "2024-05-08 12:53:38+02:00",
+      "category": "pipeline"
+    }
+  },
+  "diseasemodulediscovery": {
+    "pipeline_stats": {
+      "name": "diseasemodulediscovery",
+      "description": "A pipeline for network-based disease module identification.",
+      "stargazers_count": 5,
+      "watchers_count": 232,
+      "forks_count": 3,
+      "open_issues_count": 31,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "drop": {
+    "pipeline_stats": {
+      "name": "drop",
+      "description": "Pipeline to find aberrant events in RNA-Seq data, useful for diagnosis of rare disorders",
+      "stargazers_count": 5,
+      "watchers_count": 205,
+      "forks_count": 2,
+      "open_issues_count": 3,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "drugresponseeval": {
+    "pipeline_stats": {
+      "name": "drugresponseeval",
+      "description": "Pipeline for testing drug response prediction models in a statistically and biologically sound way.",
+      "stargazers_count": 22,
+      "watchers_count": 183,
+      "forks_count": 4,
+      "open_issues_count": 9,
+      "archived": false,
+      "last_release_date": "2025-07-03 14:43:45+02:00",
+      "category": "pipeline"
+    }
+  },
+  "dualrnaseq": {
+    "pipeline_stats": {
+      "name": "dualrnaseq",
+      "description": "Analysis of Dual RNA-seq data - an experimental method for interrogating host-pathogen interactions through simultaneous RNA-seq.",
+      "stargazers_count": 22,
+      "watchers_count": 133,
+      "forks_count": 36,
+      "open_issues_count": 38,
+      "archived": false,
+      "last_release_date": "2021-02-14 20:46:40+01:00",
+      "category": "pipeline"
+    }
+  },
+  "eager": {
+    "pipeline_stats": {
+      "name": "eager",
+      "description": "A fully reproducible and state-of-the-art ancient DNA analysis pipeline",
+      "stargazers_count": 172,
+      "watchers_count": 175,
+      "forks_count": 84,
+      "open_issues_count": 46,
+      "archived": false,
+      "last_release_date": "2025-03-18 10:25:10+01:00",
+      "category": "pipeline"
+    }
+  },
+  "epitopeprediction": {
+    "pipeline_stats": {
+      "name": "epitopeprediction",
+      "description": "A bioinformatics best-practice analysis pipeline for epitope prediction and annotation",
+      "stargazers_count": 46,
+      "watchers_count": 157,
+      "forks_count": 26,
+      "open_issues_count": 12,
+      "archived": false,
+      "last_release_date": "2025-05-09 07:43:08+02:00",
+      "category": "pipeline"
+    }
+  },
+  "evexplorer": {
+    "pipeline_stats": {
+      "name": "evexplorer",
+      "description": "nf-core/evexplorer is a pipeline for analyzing RNA data from extracellular vesicles, compatible with technologies such as nextflex, comboSeq, and ONT with further support forthcoming. evexplorer handles QC, expressed region detection, library size normalization and Differential RNA Expression (DRE)",
+      "stargazers_count": 1,
+      "watchers_count": 218,
+      "forks_count": 2,
+      "open_issues_count": 0,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "fastqrepair": {
+    "pipeline_stats": {
+      "name": "fastqrepair",
+      "description": "A pipeline that can be used to recover corrupted FASTQ.gz files, drop or fix uncompliant reads, remove unpaired reads, and settles reads that became disordered",
+      "stargazers_count": 5,
+      "watchers_count": 189,
+      "forks_count": 4,
+      "open_issues_count": 1,
+      "archived": false,
+      "last_release_date": "2025-02-03 19:33:35+01:00",
+      "category": "pipeline"
+    }
+  },
+  "fastquorum": {
+    "pipeline_stats": {
+      "name": "fastquorum",
+      "description": "Pipeline to produce consensus reads using unique molecular indexes/barcodes (UMIs)",
+      "stargazers_count": 23,
+      "watchers_count": 173,
+      "forks_count": 16,
+      "open_issues_count": 11,
+      "archived": false,
+      "last_release_date": "2025-04-11 17:28:38+02:00",
+      "category": "pipeline"
+    }
+  },
+  "fetchngs": {
+    "pipeline_stats": {
+      "name": "fetchngs",
+      "description": "Pipeline to fetch metadata and raw FastQ files from public databases",
+      "stargazers_count": 177,
+      "watchers_count": 116,
+      "forks_count": 81,
+      "open_issues_count": 32,
+      "archived": false,
+      "last_release_date": "2024-02-29 17:18:23+01:00",
+      "category": "pipeline"
+    }
+  },
+  "funcscan": {
+    "pipeline_stats": {
+      "name": "funcscan",
+      "description": "(Meta-)genome screening for functional and natural product gene sequences",
+      "stargazers_count": 89,
+      "watchers_count": 114,
+      "forks_count": 27,
+      "open_issues_count": 19,
+      "archived": false,
+      "last_release_date": "2025-03-05 13:58:17+01:00",
+      "category": "pipeline"
+    }
+  },
+  "genomeannotator": {
+    "pipeline_stats": {
+      "name": "genomeannotator",
+      "description": "Pipeline for the identification of (coding) gene structures in draft genomes.",
+      "stargazers_count": 29,
+      "watchers_count": 178,
+      "forks_count": 15,
+      "open_issues_count": 6,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "genomeassembler": {
+    "pipeline_stats": {
+      "name": "genomeassembler",
+      "description": "Assembly and scaffolding of haploid / unphased genomes from long ONT or PacBio HiFi reads",
+      "stargazers_count": 26,
+      "watchers_count": 172,
+      "forks_count": 18,
+      "open_issues_count": 3,
+      "archived": false,
+      "last_release_date": "2025-03-19 09:19:37+01:00",
+      "category": "pipeline"
+    }
+  },
+  "genomeqc": {
+    "pipeline_stats": {
+      "name": "genomeqc",
+      "description": "Compare the quality of multiple genomes, along with their annotations.",
+      "stargazers_count": 14,
+      "watchers_count": 35,
+      "forks_count": 16,
+      "open_issues_count": 50,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "genomeskim": {
+    "pipeline_stats": {
+      "name": "genomeskim",
+      "description": "QC and filtering of genome skims, followed by organelle assembly and/or genome analysis",
+      "stargazers_count": 3,
+      "watchers_count": 175,
+      "forks_count": 4,
+      "open_issues_count": 1,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "gwas": {
+    "pipeline_stats": {
+      "name": "gwas",
+      "description": "UNDER CONSTRUCTION: A pipeline for Genome Wide Association Studies",
+      "stargazers_count": 26,
+      "watchers_count": 177,
+      "forks_count": 24,
+      "open_issues_count": 11,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "hgtseq": {
+    "pipeline_stats": {
+      "name": "hgtseq",
+      "description": "A pipeline to investigate horizontal gene transfer from NGS data",
+      "stargazers_count": 26,
+      "watchers_count": 169,
+      "forks_count": 7,
+      "open_issues_count": 1,
+      "archived": false,
+      "last_release_date": "2023-05-16 14:15:32+02:00",
+      "category": "pipeline"
+    }
+  },
+  "hic": {
+    "pipeline_stats": {
+      "name": "hic",
+      "description": "Analysis of Chromosome Conformation Capture data (Hi-C)",
+      "stargazers_count": 99,
+      "watchers_count": 155,
+      "forks_count": 60,
+      "open_issues_count": 41,
+      "archived": false,
+      "last_release_date": "2023-06-01 15:44:15+02:00",
+      "category": "pipeline"
+    }
+  },
+  "hicar": {
+    "pipeline_stats": {
+      "name": "hicar",
+      "description": "Pipeline for HiCAR data, a robust and sensitive multi-omic co-assay for simultaneous measurement of transcriptome, chromatin accessibility and cis-regulatory chromatin contacts.",
+      "stargazers_count": 11,
+      "watchers_count": 108,
+      "forks_count": 8,
+      "open_issues_count": 5,
+      "archived": false,
+      "last_release_date": "2022-05-03 20:45:18+02:00",
+      "category": "pipeline"
+    }
+  },
+  "hlatyping": {
+    "pipeline_stats": {
+      "name": "hlatyping",
+      "description": "Precision HLA typing from next-generation sequencing data",
+      "stargazers_count": 69,
+      "watchers_count": 168,
+      "forks_count": 32,
+      "open_issues_count": 10,
+      "archived": false,
+      "last_release_date": "2025-04-14 17:11:21+02:00",
+      "category": "pipeline"
+    }
+  },
+  "imcyto": {
+    "pipeline_stats": {
+      "name": "imcyto",
+      "description": "Image Mass Cytometry analysis pipeline",
+      "stargazers_count": 26,
+      "watchers_count": 153,
+      "forks_count": 18,
+      "open_issues_count": 5,
+      "archived": false,
+      "last_release_date": "2020-05-29 14:38:02+02:00",
+      "category": "pipeline"
+    }
+  },
+  "isoseq": {
+    "pipeline_stats": {
+      "name": "isoseq",
+      "description": "Genome annotation with PacBio Iso-Seq. Takes raw subreads as input, generate Full Length Non Chemiric (FLNC) sequences and produce a bed annotation. ",
+      "stargazers_count": 44,
+      "watchers_count": 106,
+      "forks_count": 19,
+      "open_issues_count": 9,
+      "archived": false,
+      "last_release_date": "2024-09-05 18:17:25+02:00",
+      "category": "pipeline"
+    }
+  },
+  "kmermaid": {
+    "pipeline_stats": {
+      "name": "kmermaid",
+      "description": " k-mer similarity analysis pipeline",
+      "stargazers_count": 21,
+      "watchers_count": 154,
+      "forks_count": 13,
+      "open_issues_count": 15,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "lncpipe": {
+    "pipeline_stats": {
+      "name": "lncpipe",
+      "description": "UNDER DEVELOPMENT--- Analysis of long non-coding RNAs from RNA-seq datasets",
+      "stargazers_count": 34,
+      "watchers_count": 15,
+      "forks_count": 25,
+      "open_issues_count": 20,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "lsmquant": {
+    "pipeline_stats": {
+      "name": "lsmquant",
+      "description": "A pipeline for processing and analysis of light-sheet microscopy images.",
+      "stargazers_count": 2,
+      "watchers_count": 195,
+      "forks_count": 1,
+      "open_issues_count": 0,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "mag": {
+    "pipeline_stats": {
+      "name": "mag",
+      "description": "Assembly and binning of metagenomes",
+      "stargazers_count": 241,
+      "watchers_count": 175,
+      "forks_count": 133,
+      "open_issues_count": 62,
+      "archived": false,
+      "last_release_date": "2025-05-22 15:14:16+02:00",
+      "category": "pipeline"
+    }
+  },
+  "magmap": {
+    "pipeline_stats": {
+      "name": "magmap",
+      "description": "Best-practice analysis pipeline for mapping reads to a (large) collections of genomes",
+      "stargazers_count": 6,
+      "watchers_count": 182,
+      "forks_count": 4,
+      "open_issues_count": 8,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "marsseq": {
+    "pipeline_stats": {
+      "name": "marsseq",
+      "description": "MARS-seq v2 pre-processing pipeline with velocity",
+      "stargazers_count": 7,
+      "watchers_count": 174,
+      "forks_count": 5,
+      "open_issues_count": 2,
+      "archived": false,
+      "last_release_date": "2023-07-18 12:55:05+02:00",
+      "category": "pipeline"
+    }
+  },
+  "mcmicro": {
+    "pipeline_stats": {
+      "name": "mcmicro",
+      "description": "An end-to-end processing pipeline that transforms multi-channel whole-slide images into single-cell data.",
+      "stargazers_count": 19,
+      "watchers_count": 167,
+      "forks_count": 20,
+      "open_issues_count": 29,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "meerpipe": {
+    "pipeline_stats": {
+      "name": "meerpipe",
+      "description": "nf-core/meerpipe is a astronomy pipeline that processes MeerKAT pulsar data to produce images and data products for pulsar timing analysis",
+      "stargazers_count": 9,
+      "watchers_count": 188,
+      "forks_count": 6,
+      "open_issues_count": 2,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "metaboigniter": {
+    "pipeline_stats": {
+      "name": "metaboigniter",
+      "description": "Pre-processing of mass spectrometry-based metabolomics data with quantification and identification based on MS1 and MS2 data.",
+      "stargazers_count": 22,
+      "watchers_count": 61,
+      "forks_count": 16,
+      "open_issues_count": 4,
+      "archived": false,
+      "last_release_date": "2024-04-15 16:40:14+02:00",
+      "category": "pipeline"
+    }
+  },
+  "metapep": {
+    "pipeline_stats": {
+      "name": "metapep",
+      "description": "From metagenomes to epitopes and beyond",
+      "stargazers_count": 12,
+      "watchers_count": 84,
+      "forks_count": 7,
+      "open_issues_count": 14,
+      "archived": false,
+      "last_release_date": "2024-11-22 10:20:10+01:00",
+      "category": "pipeline"
+    }
+  },
+  "metatdenovo": {
+    "pipeline_stats": {
+      "name": "metatdenovo",
+      "description": "Assembly and annotation of metatranscriptomic or metagenomic data for prokaryotic, eukaryotic and viruses.",
+      "stargazers_count": 33,
+      "watchers_count": 166,
+      "forks_count": 17,
+      "open_issues_count": 11,
+      "archived": false,
+      "last_release_date": "2025-06-18 07:33:31+02:00",
+      "category": "pipeline"
+    }
+  },
+  "methylarray": {
+    "pipeline_stats": {
+      "name": "methylarray",
+      "description": "Process methylation data from Illumina arrays. Pre-processing, quality checks, confounder check and DMPs (differentially methylated positions) and DMRs (differentially methylated regions). Optionally estimates cell type composition and adjusts data for it.",
+      "stargazers_count": 5,
+      "watchers_count": 183,
+      "forks_count": 4,
+      "open_issues_count": 11,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "methylong": {
+    "pipeline_stats": {
+      "name": "methylong",
+      "description": "Extract methylation calls from long reads (ONT/ PacBio) ",
+      "stargazers_count": 14,
+      "watchers_count": 194,
+      "forks_count": 2,
+      "open_issues_count": 2,
+      "archived": false,
+      "last_release_date": "2025-05-08 17:15:53+02:00",
+      "category": "pipeline"
+    }
+  },
+  "methylseq": {
+    "pipeline_stats": {
+      "name": "methylseq",
+      "description": "Methylation (Bisulfite-Sequencing) analysis pipeline using Bismark or bwa-meth + MethylDackel",
+      "stargazers_count": 168,
+      "watchers_count": 166,
+      "forks_count": 156,
+      "open_issues_count": 23,
+      "archived": false,
+      "last_release_date": "2025-07-04 08:51:51+02:00",
+      "category": "pipeline"
+    }
+  },
+  "mhcquant": {
+    "pipeline_stats": {
+      "name": "mhcquant",
+      "description": "Identify and quantify MHC eluted peptides from mass spectrometry raw data",
+      "stargazers_count": 36,
+      "watchers_count": 105,
+      "forks_count": 29,
+      "open_issues_count": 7,
+      "archived": false,
+      "last_release_date": "2025-05-22 22:10:53+02:00",
+      "category": "pipeline"
+    }
+  },
+  "mitodetect": {
+    "pipeline_stats": {
+      "name": "mitodetect",
+      "description": "A-Z analysis of mitochondrial NGS data",
+      "stargazers_count": 7,
+      "watchers_count": 230,
+      "forks_count": 2,
+      "open_issues_count": 0,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "mnaseseq": {
+    "pipeline_stats": {
+      "name": "mnaseseq",
+      "description": "MNase-seq analysis pipeline using BWA and DANPOS2.",
+      "stargazers_count": 11,
+      "watchers_count": 156,
+      "forks_count": 12,
+      "open_issues_count": 5,
+      "archived": false,
+      "last_release_date": "2022-05-25 17:44:07+02:00",
+      "category": "pipeline"
+    }
+  },
+  "molkart": {
+    "pipeline_stats": {
+      "name": "molkart",
+      "description": "A pipeline for processing Molecular Cartography data from Resolve Bioscience (combinatorial FISH)",
+      "stargazers_count": 12,
+      "watchers_count": 167,
+      "forks_count": 12,
+      "open_issues_count": 8,
+      "archived": false,
+      "last_release_date": "2025-03-06 18:32:19+01:00",
+      "category": "pipeline"
+    }
+  },
+  "multiplesequencealign": {
+    "pipeline_stats": {
+      "name": "multiplesequencealign",
+      "description": "A pipeline to run and systematically evaluate Multiple Sequence Alignment (MSA) methods.",
+      "stargazers_count": 35,
+      "watchers_count": 163,
+      "forks_count": 14,
+      "open_issues_count": 10,
+      "archived": false,
+      "last_release_date": "2025-05-27 21:30:09+02:00",
+      "category": "pipeline"
+    }
+  },
+  "nanoseq": {
+    "pipeline_stats": {
+      "name": "nanoseq",
+      "description": "Nanopore demultiplexing, QC and alignment pipeline",
+      "stargazers_count": 203,
+      "watchers_count": 152,
+      "forks_count": 98,
+      "open_issues_count": 52,
+      "archived": false,
+      "last_release_date": "2023-03-10 12:40:53+01:00",
+      "category": "pipeline"
+    }
+  },
+  "nanostring": {
+    "pipeline_stats": {
+      "name": "nanostring",
+      "description": "An analysis pipeline for Nanostring nCounter expression data.",
+      "stargazers_count": 14,
+      "watchers_count": 172,
+      "forks_count": 12,
+      "open_issues_count": 7,
+      "archived": false,
+      "last_release_date": "2025-01-27 12:40:59+01:00",
+      "category": "pipeline"
+    }
+  },
+  "nascent": {
+    "pipeline_stats": {
+      "name": "nascent",
+      "description": "Nascent Transcription Processing Pipeline",
+      "stargazers_count": 19,
+      "watchers_count": 170,
+      "forks_count": 11,
+      "open_issues_count": 51,
+      "archived": false,
+      "last_release_date": "2025-05-08 02:44:26+02:00",
+      "category": "pipeline"
+    }
+  },
+  "omicsgenetraitassociation": {
+    "pipeline_stats": {
+      "name": "omicsgenetraitassociation",
+      "description": "A nextflow pipeline which integrates multiple omic data streams and performs coordinated analysis",
+      "stargazers_count": 11,
+      "watchers_count": 200,
+      "forks_count": 5,
+      "open_issues_count": 5,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "oncoanalyser": {
+    "pipeline_stats": {
+      "name": "oncoanalyser",
+      "description": "A comprehensive cancer DNA/RNA analysis and reporting pipeline",
+      "stargazers_count": 77,
+      "watchers_count": 182,
+      "forks_count": 21,
+      "open_issues_count": 22,
+      "archived": false,
+      "last_release_date": "2025-06-30 07:57:36+02:00",
+      "category": "pipeline"
+    }
+  },
+  "pacvar": {
+    "pipeline_stats": {
+      "name": "pacvar",
+      "description": "Longread PacBio sequencing processing for WGS and PureTarget",
+      "stargazers_count": 11,
+      "watchers_count": 194,
+      "forks_count": 6,
+      "open_issues_count": 6,
+      "archived": false,
+      "last_release_date": "2025-03-06 22:30:45+01:00",
+      "category": "pipeline"
+    }
+  },
+  "pairgenomealign": {
+    "pipeline_stats": {
+      "name": "pairgenomealign",
+      "description": "Pairwise genome comparison pipeline using the LAST software to align a list of query genomes to a target genome, and plot the results",
+      "stargazers_count": 9,
+      "watchers_count": 178,
+      "forks_count": 5,
+      "open_issues_count": 16,
+      "archived": false,
+      "last_release_date": "2025-07-10 14:58:46+02:00",
+      "category": "pipeline"
+    }
+  },
+  "pangenome": {
+    "pipeline_stats": {
+      "name": "pangenome",
+      "description": "Renders a collection of sequences into a pangenome graph. https://doi.org/10.1093/bioinformatics/btae609.",
+      "stargazers_count": 92,
+      "watchers_count": 80,
+      "forks_count": 20,
+      "open_issues_count": 12,
+      "archived": false,
+      "last_release_date": "2025-02-09 11:51:43+01:00",
+      "category": "pipeline"
+    }
+  },
+  "panoramaseq": {
+    "pipeline_stats": {
+      "name": "panoramaseq",
+      "description": "a pipeline to process sequencing based spatial transccriptomics data from in-situ arrays",
+      "stargazers_count": 0,
+      "watchers_count": 0,
+      "forks_count": 0,
+      "open_issues_count": 0,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "pathogensurveillance": {
+    "pipeline_stats": {
+      "name": "pathogensurveillance",
+      "description": "Surveillance of pathogens using population genomics and sequencing",
+      "stargazers_count": 37,
+      "watchers_count": 180,
+      "forks_count": 7,
+      "open_issues_count": 60,
+      "archived": false,
+      "last_release_date": "2025-06-27 19:50:17+02:00",
+      "category": "pipeline"
+    }
+  },
+  "pgdb": {
+    "pipeline_stats": {
+      "name": "pgdb",
+      "description": "The ProteoGenomics database generation workflow creates different protein databases for ProteoGenomics data analysis.",
+      "stargazers_count": 7,
+      "watchers_count": 2,
+      "forks_count": 8,
+      "open_issues_count": 7,
+      "archived": false,
+      "last_release_date": "2021-04-27 10:11:42+02:00",
+      "category": "pipeline"
+    }
+  },
+  "phageannotator": {
+    "pipeline_stats": {
+      "name": "phageannotator",
+      "description": "Pipeline for identifying, annotation, and quantifying phage sequences in (meta)-genomic sequences.",
+      "stargazers_count": 13,
+      "watchers_count": 168,
+      "forks_count": 9,
+      "open_issues_count": 51,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "phaseimpute": {
+    "pipeline_stats": {
+      "name": "phaseimpute",
+      "description": "A bioinformatics pipeline to phase and impute genetic data",
+      "stargazers_count": 22,
+      "watchers_count": 174,
+      "forks_count": 21,
+      "open_issues_count": 11,
+      "archived": false,
+      "last_release_date": "2024-12-09 10:19:04+01:00",
+      "category": "pipeline"
+    }
+  },
+  "phyloplace": {
+    "pipeline_stats": {
+      "name": "phyloplace",
+      "description": "nf-core/phyloplace is a bioinformatics best-practice analysis pipeline that performs phylogenetic placement with EPA-NG.",
+      "stargazers_count": 10,
+      "watchers_count": 173,
+      "forks_count": 5,
+      "open_issues_count": 3,
+      "archived": false,
+      "last_release_date": "2025-02-21 13:52:52+01:00",
+      "category": "pipeline"
+    }
+  },
+  "pixelator": {
+    "pipeline_stats": {
+      "name": "pixelator",
+      "description": "Pipeline to generate Molecular Pixelation data with Pixelator (Pixelgen Technologies AB)",
+      "stargazers_count": 10,
+      "watchers_count": 167,
+      "forks_count": 6,
+      "open_issues_count": 1,
+      "archived": false,
+      "last_release_date": "2025-06-24 10:10:53+02:00",
+      "category": "pipeline"
+    }
+  },
+  "proteinannotator": {
+    "pipeline_stats": {
+      "name": "proteinannotator",
+      "description": "The best protein annotation pipeline in the world. Protein fasta \u2192 ??? \u2192 Annotations",
+      "stargazers_count": 5,
+      "watchers_count": 209,
+      "forks_count": 6,
+      "open_issues_count": 25,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "proteinfamilies": {
+    "pipeline_stats": {
+      "name": "proteinfamilies",
+      "description": "Generation and update of protein families",
+      "stargazers_count": 14,
+      "watchers_count": 191,
+      "forks_count": 3,
+      "open_issues_count": 4,
+      "archived": false,
+      "last_release_date": "2025-05-20 12:20:36+02:00",
+      "category": "pipeline"
+    }
+  },
+  "proteinfold": {
+    "pipeline_stats": {
+      "name": "proteinfold",
+      "description": "Protein 3D structure prediction pipeline",
+      "stargazers_count": 82,
+      "watchers_count": 173,
+      "forks_count": 58,
+      "open_issues_count": 45,
+      "archived": false,
+      "last_release_date": "2024-07-30 17:15:30+02:00",
+      "category": "pipeline"
+    }
+  },
+  "proteomicslfq": {
+    "pipeline_stats": {
+      "name": "proteomicslfq",
+      "description": "Proteomics label-free quantification (LFQ) analysis pipeline",
+      "stargazers_count": 35,
+      "watchers_count": 155,
+      "forks_count": 21,
+      "open_issues_count": 25,
+      "archived": false,
+      "last_release_date": "2020-10-19 09:55:34+02:00",
+      "category": "pipeline"
+    }
+  },
+  "radseq": {
+    "pipeline_stats": {
+      "name": "radseq",
+      "description": "Variant-calling pipeline for Restriction site-associated DNA sequencing (RADseq).",
+      "stargazers_count": 7,
+      "watchers_count": 176,
+      "forks_count": 6,
+      "open_issues_count": 1,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "rangeland": {
+    "pipeline_stats": {
+      "name": "rangeland",
+      "description": "Pipeline for remotely sensed imagery. The pipeline processes satellite imagery alongside auxiliary data in multiple steps to arrive at a set of trend files related to land-cover changes.",
+      "stargazers_count": 7,
+      "watchers_count": 184,
+      "forks_count": 6,
+      "open_issues_count": 2,
+      "archived": false,
+      "last_release_date": "2025-01-17 14:41:23+01:00",
+      "category": "pipeline"
+    }
+  },
+  "raredisease": {
+    "pipeline_stats": {
+      "name": "raredisease",
+      "description": "Call and score variants from WGS/WES of rare disease patients.",
+      "stargazers_count": 105,
+      "watchers_count": 172,
+      "forks_count": 46,
+      "open_issues_count": 39,
+      "archived": false,
+      "last_release_date": "2025-06-25 12:03:02+02:00",
+      "category": "pipeline"
+    }
+  },
+  "rarevariantburden": {
+    "pipeline_stats": {
+      "name": "rarevariantburden",
+      "description": "Pipeline for performing consistent summary count based rare variant burden test, which is useful when we only have sequenced cases data. For example, we can compare the cases against public summary count data, such as gnomAD.",
+      "stargazers_count": 0,
+      "watchers_count": 1,
+      "forks_count": 2,
+      "open_issues_count": 0,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "readsimulator": {
+    "pipeline_stats": {
+      "name": "readsimulator",
+      "description": "A pipeline to simulate sequencing reads, such as Amplicon, Target Capture, Metagenome, and Whole genome data. ",
+      "stargazers_count": 31,
+      "watchers_count": 177,
+      "forks_count": 8,
+      "open_issues_count": 11,
+      "archived": false,
+      "last_release_date": "2024-04-27 01:37:16+02:00",
+      "category": "pipeline"
+    }
+  },
+  "references": {
+    "pipeline_stats": {
+      "name": "references",
+      "description": "nf-core/references is a bioinformatics pipeline that build references, for multiple use cases",
+      "stargazers_count": 16,
+      "watchers_count": 190,
+      "forks_count": 5,
+      "open_issues_count": 24,
+      "archived": false,
+      "last_release_date": "2024-12-30 11:55:12+01:00",
+      "category": "pipeline"
+    }
+  },
+  "reportho": {
+    "pipeline_stats": {
+      "name": "reportho",
+      "description": "nf-core pipeline for comparative analysis of ortholog predictions",
+      "stargazers_count": 11,
+      "watchers_count": 176,
+      "forks_count": 6,
+      "open_issues_count": 7,
+      "archived": false,
+      "last_release_date": "2024-07-18 14:48:38+02:00",
+      "category": "pipeline"
+    }
+  },
+  "ribomsqc": {
+    "pipeline_stats": {
+      "name": "ribomsqc",
+      "description": "QC pipeline that monitors mass spectrometer performance in ribonucleoside analysis",
+      "stargazers_count": 0,
+      "watchers_count": 2,
+      "forks_count": 2,
+      "open_issues_count": 0,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "riboseq": {
+    "pipeline_stats": {
+      "name": "riboseq",
+      "description": "Pipeline for the analysis of ribosome profiling, or Ribo-seq (also named ribosome footprinting) data.",
+      "stargazers_count": 13,
+      "watchers_count": 172,
+      "forks_count": 11,
+      "open_issues_count": 13,
+      "archived": false,
+      "last_release_date": "2025-02-03 11:06:21+01:00",
+      "category": "pipeline"
+    }
+  },
+  "rnadnavar": {
+    "pipeline_stats": {
+      "name": "rnadnavar",
+      "description": "Pipeline for RNA and DNA integrated analysis for somatic mutation detection",
+      "stargazers_count": 8,
+      "watchers_count": 171,
+      "forks_count": 9,
+      "open_issues_count": 6,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "rnafusion": {
+    "pipeline_stats": {
+      "name": "rnafusion",
+      "description": "RNA-seq analysis pipeline for detection of gene-fusions",
+      "stargazers_count": 160,
+      "watchers_count": 164,
+      "forks_count": 113,
+      "open_issues_count": 37,
+      "archived": false,
+      "last_release_date": "2024-04-10 10:29:46+02:00",
+      "category": "pipeline"
+    }
+  },
+  "rnaseq": {
+    "pipeline_stats": {
+      "name": "rnaseq",
+      "description": "RNA sequencing analysis pipeline using STAR, RSEM, HISAT2 or Salmon with gene/isoform counts and extensive quality control.",
+      "stargazers_count": 1064,
+      "watchers_count": 172,
+      "forks_count": 777,
+      "open_issues_count": 66,
+      "archived": false,
+      "last_release_date": "2025-06-10 13:18:40+02:00",
+      "category": "pipeline"
+    }
+  },
+  "rnasplice": {
+    "pipeline_stats": {
+      "name": "rnasplice",
+      "description": "rnasplice is a bioinformatics pipeline for RNA-seq alternative splicing analysis",
+      "stargazers_count": 54,
+      "watchers_count": 165,
+      "forks_count": 33,
+      "open_issues_count": 16,
+      "archived": false,
+      "last_release_date": "2024-05-09 11:07:10+02:00",
+      "category": "pipeline"
+    }
+  },
+  "rnavar": {
+    "pipeline_stats": {
+      "name": "rnavar",
+      "description": "gatk4 RNA variant calling pipeline",
+      "stargazers_count": 50,
+      "watchers_count": 126,
+      "forks_count": 40,
+      "open_issues_count": 14,
+      "archived": false,
+      "last_release_date": "2025-04-10 11:35:38+02:00",
+      "category": "pipeline"
+    }
+  },
+  "sammyseq": {
+    "pipeline_stats": {
+      "name": "sammyseq",
+      "description": "Pipeline for Sequential Analysis of MacroMolecules accessibilitY sequencing (SAMMY-seq) data, to analyze chromatin state.",
+      "stargazers_count": 4,
+      "watchers_count": 171,
+      "forks_count": 15,
+      "open_issues_count": 7,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "sarek": {
+    "pipeline_stats": {
+      "name": "sarek",
+      "description": "Analysis pipeline to detect germline or somatic variants (pre-processing, variant calling and annotation) from WGS / targeted sequencing",
+      "stargazers_count": 458,
+      "watchers_count": 149,
+      "forks_count": 455,
+      "open_issues_count": 293,
+      "archived": false,
+      "last_release_date": "2025-02-18 09:54:31+01:00",
+      "category": "pipeline"
+    }
+  },
+  "scdownstream": {
+    "pipeline_stats": {
+      "name": "scdownstream",
+      "description": "A single cell transcriptomics pipeline for QC, integration and making the data presentable",
+      "stargazers_count": 69,
+      "watchers_count": 185,
+      "forks_count": 36,
+      "open_issues_count": 34,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "scnanoseq": {
+    "pipeline_stats": {
+      "name": "scnanoseq",
+      "description": "Single-cell/nuclei pipeline for data derived from Oxford Nanopore and 10X Genomics",
+      "stargazers_count": 42,
+      "watchers_count": 47,
+      "forks_count": 14,
+      "open_issues_count": 7,
+      "archived": false,
+      "last_release_date": "2025-06-09 17:52:07+02:00",
+      "category": "pipeline"
+    }
+  },
+  "scrnaseq": {
+    "pipeline_stats": {
+      "name": "scrnaseq",
+      "description": "Single-cell RNA-Seq pipeline for barcode-based protocols such as 10x, DropSeq or SmartSeq, offering a variety of aligners and empty-droplet detection",
+      "stargazers_count": 281,
+      "watchers_count": 151,
+      "forks_count": 191,
+      "open_issues_count": 64,
+      "archived": false,
+      "last_release_date": "2025-03-11 09:05:42+01:00",
+      "category": "pipeline"
+    }
+  },
+  "seqinspector": {
+    "pipeline_stats": {
+      "name": "seqinspector",
+      "description": "QC pipeline to inspect your sequences",
+      "stargazers_count": 14,
+      "watchers_count": 182,
+      "forks_count": 33,
+      "open_issues_count": 37,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "slamseq": {
+    "pipeline_stats": {
+      "name": "slamseq",
+      "description": "SLAMSeq processing and analysis pipeline",
+      "stargazers_count": 9,
+      "watchers_count": 1,
+      "forks_count": 10,
+      "open_issues_count": 10,
+      "archived": false,
+      "last_release_date": "2020-05-14 14:40:04+02:00",
+      "category": "pipeline"
+    }
+  },
+  "smrnaseq": {
+    "pipeline_stats": {
+      "name": "smrnaseq",
+      "description": "A small-RNA sequencing analysis pipeline",
+      "stargazers_count": 87,
+      "watchers_count": 163,
+      "forks_count": 126,
+      "open_issues_count": 15,
+      "archived": false,
+      "last_release_date": "2024-10-14 11:59:05+02:00",
+      "category": "pipeline"
+    }
+  },
+  "sopa": {
+    "pipeline_stats": {
+      "name": "sopa",
+      "description": "Nextflow version of Sopa - spatial omics pipeline and analysis",
+      "stargazers_count": 1,
+      "watchers_count": 2,
+      "forks_count": 1,
+      "open_issues_count": 0,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "spatialvi": {
+    "pipeline_stats": {
+      "name": "spatialvi",
+      "description": "Pipeline for processing spatially-resolved gene counts with spatial coordinates and image data. Designed for 10x Genomics Visium transcriptomics.",
+      "stargazers_count": 65,
+      "watchers_count": 172,
+      "forks_count": 25,
+      "open_issues_count": 6,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "spatialxe": {
+    "pipeline_stats": {
+      "name": "spatialxe",
+      "description": "",
+      "stargazers_count": 19,
+      "watchers_count": 192,
+      "forks_count": 9,
+      "open_issues_count": 25,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "spinningjenny": {
+    "pipeline_stats": {
+      "name": "spinningjenny",
+      "description": "Pipeline for simulating the first industrial revolution using Agent Based Models.",
+      "stargazers_count": 4,
+      "watchers_count": 173,
+      "forks_count": 4,
+      "open_issues_count": 1,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "stableexpression": {
+    "pipeline_stats": {
+      "name": "stableexpression",
+      "description": "Pipeline dedicated to finding the most stable genes among a single or multiple expression dataset(s). It is useful in particular for finding the most suitable RT-qPCR reference genes for a specific species.",
+      "stargazers_count": 4,
+      "watchers_count": 217,
+      "forks_count": 1,
+      "open_issues_count": 0,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "taxprofiler": {
+    "pipeline_stats": {
+      "name": "taxprofiler",
+      "description": "Highly parallelised multi-taxonomic profiling of shotgun short- and long-read metagenomic data",
+      "stargazers_count": 156,
+      "watchers_count": 169,
+      "forks_count": 53,
+      "open_issues_count": 38,
+      "archived": false,
+      "last_release_date": "2025-03-13 09:42:06+01:00",
+      "category": "pipeline"
+    }
+  },
+  "tbanalyzer": {
+    "pipeline_stats": {
+      "name": "tbanalyzer",
+      "description": "An nf-core (meta) pipeline for analysis of different members of Mycobacterium tuberculosis complex.",
+      "stargazers_count": 11,
+      "watchers_count": 182,
+      "forks_count": 3,
+      "open_issues_count": 1,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "tfactivity": {
+    "pipeline_stats": {
+      "name": "tfactivity",
+      "description": "Bioinformatics pipeline that makes use of expression and open chromatin data to identify differentially active transcription factors across conditions.",
+      "stargazers_count": 12,
+      "watchers_count": 179,
+      "forks_count": 5,
+      "open_issues_count": 1,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "troughgraph": {
+    "pipeline_stats": {
+      "name": "troughgraph",
+      "description": "A quantitative assessment of the underlying permafrost landscapes and, per extension, of the level of permafrost thaw in the region",
+      "stargazers_count": 2,
+      "watchers_count": 192,
+      "forks_count": 1,
+      "open_issues_count": 0,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "tumourevo": {
+    "pipeline_stats": {
+      "name": "tumourevo",
+      "description": "Analysis pipleine to model tumour clonal evolution from WGS data (driver annotation, quality control of copy number calls, subclonal and mutational signature deconvolution)",
+      "stargazers_count": 17,
+      "watchers_count": 9,
+      "forks_count": 5,
+      "open_issues_count": 6,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "variantbenchmarking": {
+    "pipeline_stats": {
+      "name": "variantbenchmarking",
+      "description": "Pipeline to evaluate and validate the accuracy of variant calling methods in genomic research",
+      "stargazers_count": 31,
+      "watchers_count": 174,
+      "forks_count": 15,
+      "open_issues_count": 24,
+      "archived": false,
+      "last_release_date": "2025-03-31 23:09:05+02:00",
+      "category": "pipeline"
+    }
+  },
+  "variantcatalogue": {
+    "pipeline_stats": {
+      "name": "variantcatalogue",
+      "description": "Pipeline to generate variant catalogues, a list of variants and their frequencies in a population, from whole genome sequences.",
+      "stargazers_count": 12,
+      "watchers_count": 170,
+      "forks_count": 6,
+      "open_issues_count": 2,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "viralintegration": {
+    "pipeline_stats": {
+      "name": "viralintegration",
+      "description": "Analysis pipeline for the identification of viral integration events in genomes using a chimeric read approach.",
+      "stargazers_count": 17,
+      "watchers_count": 172,
+      "forks_count": 10,
+      "open_issues_count": 20,
+      "archived": false,
+      "last_release_date": "2023-07-19 19:24:36+02:00",
+      "category": "pipeline"
+    }
+  },
+  "viralmetagenome": {
+    "pipeline_stats": {
+      "name": "viralmetagenome",
+      "description": "Detect iSNV and construct whole viral genomes from metagenomic samples ",
+      "stargazers_count": 17,
+      "watchers_count": 2,
+      "forks_count": 3,
+      "open_issues_count": 10,
+      "archived": false,
+      "last_release_date": null,
+      "category": "pipeline"
+    }
+  },
+  "viralrecon": {
+    "pipeline_stats": {
+      "name": "viralrecon",
+      "description": "Assembly and intrahost/low-frequency variant calling for viral samples",
+      "stargazers_count": 138,
+      "watchers_count": 123,
+      "forks_count": 133,
+      "open_issues_count": 31,
+      "archived": false,
+      "last_release_date": "2023-03-23 20:29:45+01:00",
+      "category": "pipeline"
+    }
+  }
+}
