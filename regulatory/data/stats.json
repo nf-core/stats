@@ -10,6 +10,19 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "abotyper",
+      "issue_count": null,
+      "closed_issue_count": null,
+      "median_seconds_to_issue_closed": null,
+      "pr_count": 3,
+      "closed_pr_count": 1,
+      "median_seconds_to_pr_closed": 2932499.0
+    },
+    "contributor_stats": {
+      "pipeline_name": "abotyper",
+      "number_of_contributors": 1
     }
   },
   "airrflow": {
@@ -23,7 +36,17 @@
       "archived": false,
       "last_release_date": "2025-06-09 19:57:04+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "airrflow",
+      "issue_count": 110,
+      "closed_issue_count": 79,
+      "median_seconds_to_issue_closed": 4072163.0,
+      "pr_count": 293,
+      "closed_pr_count": 286,
+      "median_seconds_to_pr_closed": 95824.0
+    },
+    "contributor_stats": null
   },
   "ampliseq": {
     "pipeline_stats": {
@@ -36,6 +59,19 @@
       "archived": false,
       "last_release_date": "2025-05-23 14:19:03+02:00",
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "ampliseq",
+      "issue_count": 387,
+      "closed_issue_count": 367,
+      "median_seconds_to_issue_closed": 1262223.0,
+      "pr_count": 517,
+      "closed_pr_count": 516,
+      "median_seconds_to_pr_closed": 62919.0
+    },
+    "contributor_stats": {
+      "pipeline_name": "ampliseq",
+      "number_of_contributors": 33
     }
   },
   "atacseq": {
@@ -49,6 +85,19 @@
       "archived": false,
       "last_release_date": "2023-08-08 00:00:22+02:00",
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "atacseq",
+      "issue_count": 173,
+      "closed_issue_count": 131,
+      "median_seconds_to_issue_closed": 2217992.0,
+      "pr_count": 248,
+      "closed_pr_count": 245,
+      "median_seconds_to_pr_closed": 54859.0
+    },
+    "contributor_stats": {
+      "pipeline_name": "atacseq",
+      "number_of_contributors": 15
     }
   },
   "bacass": {
@@ -62,6 +111,19 @@
       "archived": false,
       "last_release_date": "2024-11-18 15:48:41+01:00",
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "bacass",
+      "issue_count": 96,
+      "closed_issue_count": 73,
+      "median_seconds_to_issue_closed": 2837940.0,
+      "pr_count": 157,
+      "closed_pr_count": 151,
+      "median_seconds_to_pr_closed": 170371.0
+    },
+    "contributor_stats": {
+      "pipeline_name": "bacass",
+      "number_of_contributors": 16
     }
   },
   "bactmap": {
@@ -75,7 +137,17 @@
       "archived": false,
       "last_release_date": "2021-06-18 14:11:08+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "bactmap",
+      "issue_count": 69,
+      "closed_issue_count": 64,
+      "median_seconds_to_issue_closed": 1012514.0,
+      "pr_count": 81,
+      "closed_pr_count": 80,
+      "median_seconds_to_pr_closed": 77271.0
+    },
+    "contributor_stats": null
   },
   "bamtofastq": {
     "pipeline_stats": {
@@ -88,7 +160,17 @@
       "archived": false,
       "last_release_date": "2025-06-17 09:53:08+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "bamtofastq",
+      "issue_count": 24,
+      "closed_issue_count": 19,
+      "median_seconds_to_issue_closed": 11239303.0,
+      "pr_count": 107,
+      "closed_pr_count": 107,
+      "median_seconds_to_pr_closed": 68697.0
+    },
+    "contributor_stats": null
   },
   "cageseq": {
     "pipeline_stats": {
@@ -101,6 +183,19 @@
       "archived": false,
       "last_release_date": "2021-01-14 08:56:52+01:00",
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "cageseq",
+      "issue_count": 8,
+      "closed_issue_count": 5,
+      "median_seconds_to_issue_closed": 74261.0,
+      "pr_count": 71,
+      "closed_pr_count": 69,
+      "median_seconds_to_pr_closed": 353854.0
+    },
+    "contributor_stats": {
+      "pipeline_name": "cageseq",
+      "number_of_contributors": 6
     }
   },
   "callingcards": {
@@ -114,7 +209,17 @@
       "archived": false,
       "last_release_date": "2024-05-24 15:20:28+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "callingcards",
+      "issue_count": 13,
+      "closed_issue_count": 9,
+      "median_seconds_to_issue_closed": 4304072.0,
+      "pr_count": 31,
+      "closed_pr_count": 30,
+      "median_seconds_to_pr_closed": 1142994.0
+    },
+    "contributor_stats": null
   },
   "cellpainting": {
     "pipeline_stats": {
@@ -127,7 +232,17 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "cellpainting",
+      "issue_count": 17,
+      "closed_issue_count": 3,
+      "median_seconds_to_issue_closed": 959294.0,
+      "pr_count": 11,
+      "closed_pr_count": 8,
+      "median_seconds_to_pr_closed": 84440.5
+    },
+    "contributor_stats": null
   },
   "chipseq": {
     "pipeline_stats": {
@@ -140,6 +255,19 @@
       "archived": false,
       "last_release_date": "2024-10-07 17:14:22+02:00",
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "chipseq",
+      "issue_count": 206,
+      "closed_issue_count": 177,
+      "median_seconds_to_issue_closed": 3424002.0,
+      "pr_count": 267,
+      "closed_pr_count": 260,
+      "median_seconds_to_pr_closed": 60253.5
+    },
+    "contributor_stats": {
+      "pipeline_name": "chipseq",
+      "number_of_contributors": 19
     }
   },
   "circdna": {
@@ -153,7 +281,17 @@
       "archived": false,
       "last_release_date": "2024-02-10 10:02:00+01:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "circdna",
+      "issue_count": 27,
+      "closed_issue_count": 18,
+      "median_seconds_to_issue_closed": 972752.5,
+      "pr_count": 63,
+      "closed_pr_count": 62,
+      "median_seconds_to_pr_closed": 129681.0
+    },
+    "contributor_stats": null
   },
   "circrna": {
     "pipeline_stats": {
@@ -166,7 +304,17 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "circrna",
+      "issue_count": 75,
+      "closed_issue_count": 60,
+      "median_seconds_to_issue_closed": 865608.5,
+      "pr_count": 131,
+      "closed_pr_count": 128,
+      "median_seconds_to_pr_closed": 71897.5
+    },
+    "contributor_stats": null
   },
   "clipseq": {
     "pipeline_stats": {
@@ -179,7 +327,17 @@
       "archived": false,
       "last_release_date": "2021-04-27 12:40:00+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "clipseq",
+      "issue_count": 62,
+      "closed_issue_count": 26,
+      "median_seconds_to_issue_closed": 3057865.0,
+      "pr_count": 106,
+      "closed_pr_count": 96,
+      "median_seconds_to_pr_closed": 78277.5
+    },
+    "contributor_stats": null
   },
   "coproid": {
     "pipeline_stats": {
@@ -192,7 +350,17 @@
       "archived": false,
       "last_release_date": "2025-05-22 12:27:06+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "coproid",
+      "issue_count": 8,
+      "closed_issue_count": 8,
+      "median_seconds_to_issue_closed": 5577250.5,
+      "pr_count": 76,
+      "closed_pr_count": 74,
+      "median_seconds_to_pr_closed": 246158.0
+    },
+    "contributor_stats": null
   },
   "createpanelrefs": {
     "pipeline_stats": {
@@ -205,7 +373,17 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "createpanelrefs",
+      "issue_count": 14,
+      "closed_issue_count": 8,
+      "median_seconds_to_issue_closed": 13529687.0,
+      "pr_count": 44,
+      "closed_pr_count": 43,
+      "median_seconds_to_pr_closed": 185039.0
+    },
+    "contributor_stats": null
   },
   "createtaxdb": {
     "pipeline_stats": {
@@ -218,7 +396,17 @@
       "archived": false,
       "last_release_date": "2025-06-19 09:45:45+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "createtaxdb",
+      "issue_count": 47,
+      "closed_issue_count": 41,
+      "median_seconds_to_issue_closed": 9861088.0,
+      "pr_count": 62,
+      "closed_pr_count": 62,
+      "median_seconds_to_pr_closed": 157337.0
+    },
+    "contributor_stats": null
   },
   "crisprseq": {
     "pipeline_stats": {
@@ -231,7 +419,17 @@
       "archived": false,
       "last_release_date": "2024-11-08 15:29:55+01:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "crisprseq",
+      "issue_count": 63,
+      "closed_issue_count": 37,
+      "median_seconds_to_issue_closed": 8113842.0,
+      "pr_count": 190,
+      "closed_pr_count": 188,
+      "median_seconds_to_pr_closed": 100897.0
+    },
+    "contributor_stats": null
   },
   "cutandrun": {
     "pipeline_stats": {
@@ -244,7 +442,17 @@
       "archived": false,
       "last_release_date": "2024-02-01 17:38:34+01:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "cutandrun",
+      "issue_count": 136,
+      "closed_issue_count": 101,
+      "median_seconds_to_issue_closed": 2894626.0,
+      "pr_count": 154,
+      "closed_pr_count": 144,
+      "median_seconds_to_pr_closed": 76669.5
+    },
+    "contributor_stats": null
   },
   "datasync": {
     "pipeline_stats": {
@@ -257,7 +465,17 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "datasync",
+      "issue_count": 3,
+      "closed_issue_count": null,
+      "median_seconds_to_issue_closed": null,
+      "pr_count": 14,
+      "closed_pr_count": 11,
+      "median_seconds_to_pr_closed": 2683592.0
+    },
+    "contributor_stats": null
   },
   "deepmodeloptim": {
     "pipeline_stats": {
@@ -270,7 +488,17 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "deepmodeloptim",
+      "issue_count": 144,
+      "closed_issue_count": 126,
+      "median_seconds_to_issue_closed": 3852588.0,
+      "pr_count": 109,
+      "closed_pr_count": 108,
+      "median_seconds_to_pr_closed": 3270.5
+    },
+    "contributor_stats": null
   },
   "demo": {
     "pipeline_stats": {
@@ -283,7 +511,17 @@
       "archived": false,
       "last_release_date": "2025-06-27 21:51:39+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "demo",
+      "issue_count": 8,
+      "closed_issue_count": 2,
+      "median_seconds_to_issue_closed": 6534731.0,
+      "pr_count": 35,
+      "closed_pr_count": 34,
+      "median_seconds_to_pr_closed": 79748.5
+    },
+    "contributor_stats": null
   },
   "demultiplex": {
     "pipeline_stats": {
@@ -296,7 +534,17 @@
       "archived": false,
       "last_release_date": "2025-04-24 22:35:10+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "demultiplex",
+      "issue_count": 125,
+      "closed_issue_count": 102,
+      "median_seconds_to_issue_closed": 2289749.5,
+      "pr_count": 209,
+      "closed_pr_count": 206,
+      "median_seconds_to_pr_closed": 79808.0
+    },
+    "contributor_stats": null
   },
   "denovotranscript": {
     "pipeline_stats": {
@@ -309,7 +557,17 @@
       "archived": false,
       "last_release_date": "2025-01-30 08:26:03+01:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "denovotranscript",
+      "issue_count": 10,
+      "closed_issue_count": 6,
+      "median_seconds_to_issue_closed": 6098304.5,
+      "pr_count": 36,
+      "closed_pr_count": 35,
+      "median_seconds_to_pr_closed": 81556.0
+    },
+    "contributor_stats": null
   },
   "detaxizer": {
     "pipeline_stats": {
@@ -322,7 +580,17 @@
       "archived": false,
       "last_release_date": "2024-11-08 16:28:07+01:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "detaxizer",
+      "issue_count": 14,
+      "closed_issue_count": 5,
+      "median_seconds_to_issue_closed": 282718.0,
+      "pr_count": 56,
+      "closed_pr_count": 54,
+      "median_seconds_to_pr_closed": 103542.0
+    },
+    "contributor_stats": null
   },
   "diaproteomics": {
     "pipeline_stats": {
@@ -335,6 +603,19 @@
       "archived": false,
       "last_release_date": "2021-04-29 08:40:55+02:00",
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "diaproteomics",
+      "issue_count": 26,
+      "closed_issue_count": 20,
+      "median_seconds_to_issue_closed": 2242739.5,
+      "pr_count": 139,
+      "closed_pr_count": 137,
+      "median_seconds_to_pr_closed": 12759.0
+    },
+    "contributor_stats": {
+      "pipeline_name": "diaproteomics",
+      "number_of_contributors": 5
     }
   },
   "differentialabundance": {
@@ -348,7 +629,17 @@
       "archived": false,
       "last_release_date": "2024-05-08 12:53:38+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "differentialabundance",
+      "issue_count": 214,
+      "closed_issue_count": 146,
+      "median_seconds_to_issue_closed": 3140243.5,
+      "pr_count": 260,
+      "closed_pr_count": 254,
+      "median_seconds_to_pr_closed": 149270.0
+    },
+    "contributor_stats": null
   },
   "diseasemodulediscovery": {
     "pipeline_stats": {
@@ -361,7 +652,17 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "diseasemodulediscovery",
+      "issue_count": 76,
+      "closed_issue_count": 45,
+      "median_seconds_to_issue_closed": 10716538.0,
+      "pr_count": 71,
+      "closed_pr_count": 68,
+      "median_seconds_to_pr_closed": 144802.5
+    },
+    "contributor_stats": null
   },
   "drop": {
     "pipeline_stats": {
@@ -374,7 +675,17 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "drop",
+      "issue_count": 5,
+      "closed_issue_count": 1,
+      "median_seconds_to_issue_closed": 71810.0,
+      "pr_count": 48,
+      "closed_pr_count": 47,
+      "median_seconds_to_pr_closed": 184052.0
+    },
+    "contributor_stats": null
   },
   "drugresponseeval": {
     "pipeline_stats": {
@@ -387,7 +698,17 @@
       "archived": false,
       "last_release_date": "2025-07-03 14:43:45+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "drugresponseeval",
+      "issue_count": 21,
+      "closed_issue_count": 12,
+      "median_seconds_to_issue_closed": 4967249.5,
+      "pr_count": 34,
+      "closed_pr_count": 34,
+      "median_seconds_to_pr_closed": 83527.5
+    },
+    "contributor_stats": null
   },
   "dualrnaseq": {
     "pipeline_stats": {
@@ -400,7 +721,17 @@
       "archived": false,
       "last_release_date": "2021-02-14 20:46:40+01:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "dualrnaseq",
+      "issue_count": 55,
+      "closed_issue_count": 17,
+      "median_seconds_to_issue_closed": 21728.0,
+      "pr_count": 92,
+      "closed_pr_count": 83,
+      "median_seconds_to_pr_closed": 148594.0
+    },
+    "contributor_stats": null
   },
   "eager": {
     "pipeline_stats": {
@@ -413,6 +744,19 @@
       "archived": false,
       "last_release_date": "2025-03-18 10:25:10+01:00",
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "eager",
+      "issue_count": 458,
+      "closed_issue_count": 412,
+      "median_seconds_to_issue_closed": 1299773.5,
+      "pr_count": 694,
+      "closed_pr_count": 687,
+      "median_seconds_to_pr_closed": 59533.0
+    },
+    "contributor_stats": {
+      "pipeline_name": "eager",
+      "number_of_contributors": 25
     }
   },
   "epitopeprediction": {
@@ -426,6 +770,19 @@
       "archived": false,
       "last_release_date": "2025-05-09 07:43:08+02:00",
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "epitopeprediction",
+      "issue_count": 85,
+      "closed_issue_count": 72,
+      "median_seconds_to_issue_closed": 5328538.5,
+      "pr_count": 210,
+      "closed_pr_count": 209,
+      "median_seconds_to_pr_closed": 231678.0
+    },
+    "contributor_stats": {
+      "pipeline_name": "epitopeprediction",
+      "number_of_contributors": 13
     }
   },
   "evexplorer": {
@@ -439,6 +796,19 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "evexplorer",
+      "issue_count": null,
+      "closed_issue_count": null,
+      "median_seconds_to_issue_closed": null,
+      "pr_count": 5,
+      "closed_pr_count": 5,
+      "median_seconds_to_pr_closed": 610730.0
+    },
+    "contributor_stats": {
+      "pipeline_name": "evexplorer",
+      "number_of_contributors": 2
     }
   },
   "fastqrepair": {
@@ -452,7 +822,17 @@
       "archived": false,
       "last_release_date": "2025-02-03 19:33:35+01:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "fastqrepair",
+      "issue_count": 8,
+      "closed_issue_count": 7,
+      "median_seconds_to_issue_closed": 4740880.0,
+      "pr_count": 14,
+      "closed_pr_count": 12,
+      "median_seconds_to_pr_closed": 105691.0
+    },
+    "contributor_stats": null
   },
   "fastquorum": {
     "pipeline_stats": {
@@ -465,7 +845,17 @@
       "archived": false,
       "last_release_date": "2025-04-11 17:28:38+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "fastquorum",
+      "issue_count": 40,
+      "closed_issue_count": 29,
+      "median_seconds_to_issue_closed": 3880743.0,
+      "pr_count": 91,
+      "closed_pr_count": 90,
+      "median_seconds_to_pr_closed": 255998.5
+    },
+    "contributor_stats": null
   },
   "fetchngs": {
     "pipeline_stats": {
@@ -478,7 +868,17 @@
       "archived": false,
       "last_release_date": "2024-02-29 17:18:23+01:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "fetchngs",
+      "issue_count": 92,
+      "closed_issue_count": 60,
+      "median_seconds_to_issue_closed": 6426119.5,
+      "pr_count": 257,
+      "closed_pr_count": 247,
+      "median_seconds_to_pr_closed": 61128.0
+    },
+    "contributor_stats": null
   },
   "funcscan": {
     "pipeline_stats": {
@@ -491,7 +891,17 @@
       "archived": false,
       "last_release_date": "2025-03-05 13:58:17+01:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "funcscan",
+      "issue_count": 171,
+      "closed_issue_count": 150,
+      "median_seconds_to_issue_closed": 2185960.5,
+      "pr_count": 318,
+      "closed_pr_count": 317,
+      "median_seconds_to_pr_closed": 84210.0
+    },
+    "contributor_stats": null
   },
   "genomeannotator": {
     "pipeline_stats": {
@@ -504,7 +914,17 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "genomeannotator",
+      "issue_count": 9,
+      "closed_issue_count": 3,
+      "median_seconds_to_issue_closed": 26786416.0,
+      "pr_count": 19,
+      "closed_pr_count": 18,
+      "median_seconds_to_pr_closed": 3168132.0
+    },
+    "contributor_stats": null
   },
   "genomeassembler": {
     "pipeline_stats": {
@@ -517,7 +937,17 @@
       "archived": false,
       "last_release_date": "2025-03-19 09:19:37+01:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "genomeassembler",
+      "issue_count": 56,
+      "closed_issue_count": 53,
+      "median_seconds_to_issue_closed": 69618168.0,
+      "pr_count": 118,
+      "closed_pr_count": 117,
+      "median_seconds_to_pr_closed": 62815.0
+    },
+    "contributor_stats": null
   },
   "genomeqc": {
     "pipeline_stats": {
@@ -530,7 +960,17 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "genomeqc",
+      "issue_count": 101,
+      "closed_issue_count": 52,
+      "median_seconds_to_issue_closed": 614946.5,
+      "pr_count": 54,
+      "closed_pr_count": 52,
+      "median_seconds_to_pr_closed": 312186.0
+    },
+    "contributor_stats": null
   },
   "genomeskim": {
     "pipeline_stats": {
@@ -543,7 +983,17 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "genomeskim",
+      "issue_count": 1,
+      "closed_issue_count": null,
+      "median_seconds_to_issue_closed": null,
+      "pr_count": 17,
+      "closed_pr_count": 16,
+      "median_seconds_to_pr_closed": 2782495.0
+    },
+    "contributor_stats": null
   },
   "gwas": {
     "pipeline_stats": {
@@ -556,7 +1006,17 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "gwas",
+      "issue_count": 12,
+      "closed_issue_count": 1,
+      "median_seconds_to_issue_closed": 6745272.0,
+      "pr_count": 58,
+      "closed_pr_count": 55,
+      "median_seconds_to_pr_closed": 946607.0
+    },
+    "contributor_stats": null
   },
   "hgtseq": {
     "pipeline_stats": {
@@ -569,7 +1029,17 @@
       "archived": false,
       "last_release_date": "2023-05-16 14:15:32+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "hgtseq",
+      "issue_count": 4,
+      "closed_issue_count": 3,
+      "median_seconds_to_issue_closed": 10661251.0,
+      "pr_count": 49,
+      "closed_pr_count": 48,
+      "median_seconds_to_pr_closed": 327604.5
+    },
+    "contributor_stats": null
   },
   "hic": {
     "pipeline_stats": {
@@ -582,6 +1052,19 @@
       "archived": false,
       "last_release_date": "2023-06-01 15:44:15+02:00",
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "hic",
+      "issue_count": 108,
+      "closed_issue_count": 67,
+      "median_seconds_to_issue_closed": 6432520.0,
+      "pr_count": 122,
+      "closed_pr_count": 121,
+      "median_seconds_to_pr_closed": 240104.0
+    },
+    "contributor_stats": {
+      "pipeline_name": "hic",
+      "number_of_contributors": 13
     }
   },
   "hicar": {
@@ -595,7 +1078,17 @@
       "archived": false,
       "last_release_date": "2022-05-03 20:45:18+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "hicar",
+      "issue_count": 10,
+      "closed_issue_count": 5,
+      "median_seconds_to_issue_closed": 3903242.0,
+      "pr_count": 111,
+      "closed_pr_count": 107,
+      "median_seconds_to_pr_closed": 68800.0
+    },
+    "contributor_stats": null
   },
   "hlatyping": {
     "pipeline_stats": {
@@ -608,6 +1101,19 @@
       "archived": false,
       "last_release_date": "2025-04-14 17:11:21+02:00",
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "hlatyping",
+      "issue_count": 58,
+      "closed_issue_count": 48,
+      "median_seconds_to_issue_closed": 5825703.5,
+      "pr_count": 138,
+      "closed_pr_count": 137,
+      "median_seconds_to_pr_closed": 88685.0
+    },
+    "contributor_stats": {
+      "pipeline_name": "hlatyping",
+      "number_of_contributors": 11
     }
   },
   "imcyto": {
@@ -621,7 +1127,17 @@
       "archived": false,
       "last_release_date": "2020-05-29 14:38:02+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "imcyto",
+      "issue_count": 8,
+      "closed_issue_count": 3,
+      "median_seconds_to_issue_closed": 1127724.0,
+      "pr_count": 82,
+      "closed_pr_count": 81,
+      "median_seconds_to_pr_closed": 167200.0
+    },
+    "contributor_stats": null
   },
   "isoseq": {
     "pipeline_stats": {
@@ -634,7 +1150,17 @@
       "archived": false,
       "last_release_date": "2024-09-05 18:17:25+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "isoseq",
+      "issue_count": 14,
+      "closed_issue_count": 5,
+      "median_seconds_to_issue_closed": 14525315.0,
+      "pr_count": 39,
+      "closed_pr_count": 38,
+      "median_seconds_to_pr_closed": 861396.5
+    },
+    "contributor_stats": null
   },
   "kmermaid": {
     "pipeline_stats": {
@@ -647,7 +1173,17 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "kmermaid",
+      "issue_count": 33,
+      "closed_issue_count": 18,
+      "median_seconds_to_issue_closed": 14522595.5,
+      "pr_count": 134,
+      "closed_pr_count": 128,
+      "median_seconds_to_pr_closed": 590193.5
+    },
+    "contributor_stats": null
   },
   "lncpipe": {
     "pipeline_stats": {
@@ -660,6 +1196,19 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "lncpipe",
+      "issue_count": 40,
+      "closed_issue_count": 20,
+      "median_seconds_to_issue_closed": 436623.0,
+      "pr_count": 46,
+      "closed_pr_count": 45,
+      "median_seconds_to_pr_closed": 438139.0
+    },
+    "contributor_stats": {
+      "pipeline_name": "lncpipe",
+      "number_of_contributors": 9
     }
   },
   "lsmquant": {
@@ -673,7 +1222,17 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "lsmquant",
+      "issue_count": 3,
+      "closed_issue_count": 3,
+      "median_seconds_to_issue_closed": 15536214.0,
+      "pr_count": 19,
+      "closed_pr_count": 17,
+      "median_seconds_to_pr_closed": 2550.0
+    },
+    "contributor_stats": null
   },
   "mag": {
     "pipeline_stats": {
@@ -686,6 +1245,19 @@
       "archived": false,
       "last_release_date": "2025-05-22 15:14:16+02:00",
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "mag",
+      "issue_count": 343,
+      "closed_issue_count": 280,
+      "median_seconds_to_issue_closed": 2089961.0,
+      "pr_count": 493,
+      "closed_pr_count": 484,
+      "median_seconds_to_pr_closed": 75817.5
+    },
+    "contributor_stats": {
+      "pipeline_name": "mag",
+      "number_of_contributors": 35
     }
   },
   "magmap": {
@@ -699,7 +1271,17 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "magmap",
+      "issue_count": 41,
+      "closed_issue_count": 33,
+      "median_seconds_to_issue_closed": 4193183.0,
+      "pr_count": 76,
+      "closed_pr_count": 74,
+      "median_seconds_to_pr_closed": 75295.0
+    },
+    "contributor_stats": null
   },
   "marsseq": {
     "pipeline_stats": {
@@ -712,7 +1294,17 @@
       "archived": false,
       "last_release_date": "2023-07-18 12:55:05+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "marsseq",
+      "issue_count": 9,
+      "closed_issue_count": 7,
+      "median_seconds_to_issue_closed": 1659647.0,
+      "pr_count": 24,
+      "closed_pr_count": 22,
+      "median_seconds_to_pr_closed": 769940.0
+    },
+    "contributor_stats": null
   },
   "mcmicro": {
     "pipeline_stats": {
@@ -725,7 +1317,17 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "mcmicro",
+      "issue_count": 39,
+      "closed_issue_count": 10,
+      "median_seconds_to_issue_closed": 346181.5,
+      "pr_count": 57,
+      "closed_pr_count": 53,
+      "median_seconds_to_pr_closed": 697562.0
+    },
+    "contributor_stats": null
   },
   "meerpipe": {
     "pipeline_stats": {
@@ -738,7 +1340,17 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "meerpipe",
+      "issue_count": 2,
+      "closed_issue_count": null,
+      "median_seconds_to_issue_closed": null,
+      "pr_count": 15,
+      "closed_pr_count": 13,
+      "median_seconds_to_pr_closed": 697451.0
+    },
+    "contributor_stats": null
   },
   "metaboigniter": {
     "pipeline_stats": {
@@ -751,7 +1363,17 @@
       "archived": false,
       "last_release_date": "2024-04-15 16:40:14+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "metaboigniter",
+      "issue_count": 24,
+      "closed_issue_count": 20,
+      "median_seconds_to_issue_closed": 1909175.0,
+      "pr_count": 87,
+      "closed_pr_count": 86,
+      "median_seconds_to_pr_closed": 150723.5
+    },
+    "contributor_stats": null
   },
   "metapep": {
     "pipeline_stats": {
@@ -764,7 +1386,17 @@
       "archived": false,
       "last_release_date": "2024-11-22 10:20:10+01:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "metapep",
+      "issue_count": 33,
+      "closed_issue_count": 19,
+      "median_seconds_to_issue_closed": 2584588.0,
+      "pr_count": 124,
+      "closed_pr_count": 123,
+      "median_seconds_to_pr_closed": 607921.0
+    },
+    "contributor_stats": null
   },
   "metatdenovo": {
     "pipeline_stats": {
@@ -777,7 +1409,17 @@
       "archived": false,
       "last_release_date": "2025-06-18 07:33:31+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "metatdenovo",
+      "issue_count": 122,
+      "closed_issue_count": 112,
+      "median_seconds_to_issue_closed": 1817306.5,
+      "pr_count": 271,
+      "closed_pr_count": 271,
+      "median_seconds_to_pr_closed": 44331.0
+    },
+    "contributor_stats": null
   },
   "methylarray": {
     "pipeline_stats": {
@@ -790,7 +1432,17 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "methylarray",
+      "issue_count": 19,
+      "closed_issue_count": 8,
+      "median_seconds_to_issue_closed": 1547577.0,
+      "pr_count": 17,
+      "closed_pr_count": 14,
+      "median_seconds_to_pr_closed": 437658.0
+    },
+    "contributor_stats": null
   },
   "methylong": {
     "pipeline_stats": {
@@ -803,7 +1455,17 @@
       "archived": false,
       "last_release_date": "2025-05-08 17:15:53+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "methylong",
+      "issue_count": 2,
+      "closed_issue_count": null,
+      "median_seconds_to_issue_closed": null,
+      "pr_count": 61,
+      "closed_pr_count": 60,
+      "median_seconds_to_pr_closed": 364.5
+    },
+    "contributor_stats": null
   },
   "methylseq": {
     "pipeline_stats": {
@@ -816,6 +1478,19 @@
       "archived": false,
       "last_release_date": "2025-07-04 08:51:51+02:00",
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "methylseq",
+      "issue_count": 173,
+      "closed_issue_count": 149,
+      "median_seconds_to_issue_closed": 3038920.0,
+      "pr_count": 377,
+      "closed_pr_count": 371,
+      "median_seconds_to_pr_closed": 76918.0
+    },
+    "contributor_stats": {
+      "pipeline_name": "methylseq",
+      "number_of_contributors": 33
     }
   },
   "mhcquant": {
@@ -829,6 +1504,19 @@
       "archived": false,
       "last_release_date": "2025-05-22 22:10:53+02:00",
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "mhcquant",
+      "issue_count": 95,
+      "closed_issue_count": 88,
+      "median_seconds_to_issue_closed": 3501585.5,
+      "pr_count": 297,
+      "closed_pr_count": 290,
+      "median_seconds_to_pr_closed": 45856.5
+    },
+    "contributor_stats": {
+      "pipeline_name": "mhcquant",
+      "number_of_contributors": 20
     }
   },
   "mitodetect": {
@@ -842,6 +1530,11 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
+    },
+    "issue_stats": null,
+    "contributor_stats": {
+      "pipeline_name": "mitodetect",
+      "number_of_contributors": 1
     }
   },
   "mnaseseq": {
@@ -855,6 +1548,19 @@
       "archived": false,
       "last_release_date": "2022-05-25 17:44:07+02:00",
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "mnaseseq",
+      "issue_count": 5,
+      "closed_issue_count": null,
+      "median_seconds_to_issue_closed": null,
+      "pr_count": 43,
+      "closed_pr_count": 41,
+      "median_seconds_to_pr_closed": 946689.0
+    },
+    "contributor_stats": {
+      "pipeline_name": "mnaseseq",
+      "number_of_contributors": 2
     }
   },
   "molkart": {
@@ -868,7 +1574,17 @@
       "archived": false,
       "last_release_date": "2025-03-06 18:32:19+01:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "molkart",
+      "issue_count": 47,
+      "closed_issue_count": 39,
+      "median_seconds_to_issue_closed": 1897896.0,
+      "pr_count": 74,
+      "closed_pr_count": 71,
+      "median_seconds_to_pr_closed": 153081.0
+    },
+    "contributor_stats": null
   },
   "multiplesequencealign": {
     "pipeline_stats": {
@@ -881,7 +1597,17 @@
       "archived": false,
       "last_release_date": "2025-05-27 21:30:09+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "multiplesequencealign",
+      "issue_count": 126,
+      "closed_issue_count": 116,
+      "median_seconds_to_issue_closed": 1206105.0,
+      "pr_count": 111,
+      "closed_pr_count": 109,
+      "median_seconds_to_pr_closed": 64986.0
+    },
+    "contributor_stats": null
   },
   "nanoseq": {
     "pipeline_stats": {
@@ -894,7 +1620,17 @@
       "archived": false,
       "last_release_date": "2023-03-10 12:40:53+01:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "nanoseq",
+      "issue_count": 98,
+      "closed_issue_count": 46,
+      "median_seconds_to_issue_closed": 2056286.5,
+      "pr_count": 225,
+      "closed_pr_count": 223,
+      "median_seconds_to_pr_closed": 64006.0
+    },
+    "contributor_stats": null
   },
   "nanostring": {
     "pipeline_stats": {
@@ -907,7 +1643,17 @@
       "archived": false,
       "last_release_date": "2025-01-27 12:40:59+01:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "nanostring",
+      "issue_count": 44,
+      "closed_issue_count": 37,
+      "median_seconds_to_issue_closed": 551975.0,
+      "pr_count": 94,
+      "closed_pr_count": 91,
+      "median_seconds_to_pr_closed": 92277.0
+    },
+    "contributor_stats": null
   },
   "nascent": {
     "pipeline_stats": {
@@ -920,6 +1666,19 @@
       "archived": false,
       "last_release_date": "2025-05-08 02:44:26+02:00",
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "nascent",
+      "issue_count": 81,
+      "closed_issue_count": 29,
+      "median_seconds_to_issue_closed": 7861659.0,
+      "pr_count": 130,
+      "closed_pr_count": 125,
+      "median_seconds_to_pr_closed": 348327.0
+    },
+    "contributor_stats": {
+      "pipeline_name": "nascent",
+      "number_of_contributors": 12
     }
   },
   "omicsgenetraitassociation": {
@@ -933,6 +1692,19 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "omicsgenetraitassociation",
+      "issue_count": 6,
+      "closed_issue_count": 1,
+      "median_seconds_to_issue_closed": 51.0,
+      "pr_count": 10,
+      "closed_pr_count": 9,
+      "median_seconds_to_pr_closed": 74672.0
+    },
+    "contributor_stats": {
+      "pipeline_name": "omicsgenetraitassociation",
+      "number_of_contributors": 3
     }
   },
   "oncoanalyser": {
@@ -946,7 +1718,17 @@
       "archived": false,
       "last_release_date": "2025-06-30 07:57:36+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "oncoanalyser",
+      "issue_count": 80,
+      "closed_issue_count": 56,
+      "median_seconds_to_issue_closed": 960040.0,
+      "pr_count": 145,
+      "closed_pr_count": 141,
+      "median_seconds_to_pr_closed": 29746.0
+    },
+    "contributor_stats": null
   },
   "pacvar": {
     "pipeline_stats": {
@@ -959,7 +1741,17 @@
       "archived": false,
       "last_release_date": "2025-03-06 22:30:45+01:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "pacvar",
+      "issue_count": 8,
+      "closed_issue_count": 2,
+      "median_seconds_to_issue_closed": 83029.0,
+      "pr_count": 26,
+      "closed_pr_count": 24,
+      "median_seconds_to_pr_closed": 220670.0
+    },
+    "contributor_stats": null
   },
   "pairgenomealign": {
     "pipeline_stats": {
@@ -972,7 +1764,17 @@
       "archived": false,
       "last_release_date": "2025-07-10 14:58:46+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "pairgenomealign",
+      "issue_count": 42,
+      "closed_issue_count": 26,
+      "median_seconds_to_issue_closed": 5085541.5,
+      "pr_count": 41,
+      "closed_pr_count": 40,
+      "median_seconds_to_pr_closed": 78335.0
+    },
+    "contributor_stats": null
   },
   "pangenome": {
     "pipeline_stats": {
@@ -985,7 +1787,17 @@
       "archived": false,
       "last_release_date": "2025-02-09 11:51:43+01:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "pangenome",
+      "issue_count": 71,
+      "closed_issue_count": 59,
+      "median_seconds_to_issue_closed": 4775267.0,
+      "pr_count": 178,
+      "closed_pr_count": 175,
+      "median_seconds_to_pr_closed": 5632.0
+    },
+    "contributor_stats": null
   },
   "panoramaseq": {
     "pipeline_stats": {
@@ -998,7 +1810,17 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "panoramaseq",
+      "issue_count": null,
+      "closed_issue_count": null,
+      "median_seconds_to_issue_closed": null,
+      "pr_count": 2,
+      "closed_pr_count": null,
+      "median_seconds_to_pr_closed": null
+    },
+    "contributor_stats": null
   },
   "pathogensurveillance": {
     "pipeline_stats": {
@@ -1011,7 +1833,17 @@
       "archived": false,
       "last_release_date": "2025-06-27 19:50:17+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "pathogensurveillance",
+      "issue_count": 157,
+      "closed_issue_count": 97,
+      "median_seconds_to_issue_closed": 6649726.0,
+      "pr_count": 22,
+      "closed_pr_count": 21,
+      "median_seconds_to_pr_closed": 178186.0
+    },
+    "contributor_stats": null
   },
   "pgdb": {
     "pipeline_stats": {
@@ -1024,7 +1856,17 @@
       "archived": false,
       "last_release_date": "2021-04-27 10:11:42+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "pgdb",
+      "issue_count": 22,
+      "closed_issue_count": 15,
+      "median_seconds_to_issue_closed": 780778.0,
+      "pr_count": 50,
+      "closed_pr_count": 49,
+      "median_seconds_to_pr_closed": 172689.0
+    },
+    "contributor_stats": null
   },
   "phageannotator": {
     "pipeline_stats": {
@@ -1037,7 +1879,17 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "phageannotator",
+      "issue_count": 74,
+      "closed_issue_count": 23,
+      "median_seconds_to_issue_closed": 9519196.0,
+      "pr_count": 46,
+      "closed_pr_count": 42,
+      "median_seconds_to_pr_closed": 579704.5
+    },
+    "contributor_stats": null
   },
   "phaseimpute": {
     "pipeline_stats": {
@@ -1050,7 +1902,17 @@
       "archived": false,
       "last_release_date": "2024-12-09 10:19:04+01:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "phaseimpute",
+      "issue_count": 87,
+      "closed_issue_count": 75,
+      "median_seconds_to_issue_closed": 1122171.0,
+      "pr_count": 118,
+      "closed_pr_count": 116,
+      "median_seconds_to_pr_closed": 158899.0
+    },
+    "contributor_stats": null
   },
   "phyloplace": {
     "pipeline_stats": {
@@ -1063,7 +1925,17 @@
       "archived": false,
       "last_release_date": "2025-02-21 13:52:52+01:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "phyloplace",
+      "issue_count": 6,
+      "closed_issue_count": 3,
+      "median_seconds_to_issue_closed": 7174910.0,
+      "pr_count": 38,
+      "closed_pr_count": 37,
+      "median_seconds_to_pr_closed": 453369.0
+    },
+    "contributor_stats": null
   },
   "pixelator": {
     "pipeline_stats": {
@@ -1076,7 +1948,17 @@
       "archived": false,
       "last_release_date": "2025-06-24 10:10:53+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "pixelator",
+      "issue_count": 25,
+      "closed_issue_count": 24,
+      "median_seconds_to_issue_closed": 334276.0,
+      "pr_count": 118,
+      "closed_pr_count": 116,
+      "median_seconds_to_pr_closed": 69062.5
+    },
+    "contributor_stats": null
   },
   "proteinannotator": {
     "pipeline_stats": {
@@ -1089,6 +1971,19 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "proteinannotator",
+      "issue_count": 28,
+      "closed_issue_count": 3,
+      "median_seconds_to_issue_closed": 184783.0,
+      "pr_count": 27,
+      "closed_pr_count": 19,
+      "median_seconds_to_pr_closed": 7192.0
+    },
+    "contributor_stats": {
+      "pipeline_name": "proteinannotator",
+      "number_of_contributors": 6
     }
   },
   "proteinfamilies": {
@@ -1102,7 +1997,17 @@
       "archived": false,
       "last_release_date": "2025-05-20 12:20:36+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "proteinfamilies",
+      "issue_count": 24,
+      "closed_issue_count": 20,
+      "median_seconds_to_issue_closed": 527495.5,
+      "pr_count": 77,
+      "closed_pr_count": 77,
+      "median_seconds_to_pr_closed": 3169.0
+    },
+    "contributor_stats": null
   },
   "proteinfold": {
     "pipeline_stats": {
@@ -1115,7 +2020,17 @@
       "archived": false,
       "last_release_date": "2024-07-30 17:15:30+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "proteinfold",
+      "issue_count": 141,
+      "closed_issue_count": 96,
+      "median_seconds_to_issue_closed": 2697101.5,
+      "pr_count": 204,
+      "closed_pr_count": 198,
+      "median_seconds_to_pr_closed": 85633.0
+    },
+    "contributor_stats": null
   },
   "proteomicslfq": {
     "pipeline_stats": {
@@ -1128,7 +2043,17 @@
       "archived": false,
       "last_release_date": "2020-10-19 09:55:34+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "proteomicslfq",
+      "issue_count": 72,
+      "closed_issue_count": 47,
+      "median_seconds_to_issue_closed": 1493294.0,
+      "pr_count": 139,
+      "closed_pr_count": 135,
+      "median_seconds_to_pr_closed": 171198.0
+    },
+    "contributor_stats": null
   },
   "radseq": {
     "pipeline_stats": {
@@ -1141,7 +2066,17 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "radseq",
+      "issue_count": 4,
+      "closed_issue_count": 3,
+      "median_seconds_to_issue_closed": 3529217.0,
+      "pr_count": 22,
+      "closed_pr_count": 21,
+      "median_seconds_to_pr_closed": 1901577.0
+    },
+    "contributor_stats": null
   },
   "rangeland": {
     "pipeline_stats": {
@@ -1154,7 +2089,17 @@
       "archived": false,
       "last_release_date": "2025-01-17 14:41:23+01:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "rangeland",
+      "issue_count": 3,
+      "closed_issue_count": 1,
+      "median_seconds_to_issue_closed": 79420.0,
+      "pr_count": 26,
+      "closed_pr_count": 25,
+      "median_seconds_to_pr_closed": 697470.0
+    },
+    "contributor_stats": null
   },
   "raredisease": {
     "pipeline_stats": {
@@ -1167,6 +2112,19 @@
       "archived": false,
       "last_release_date": "2025-06-25 12:03:02+02:00",
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "raredisease",
+      "issue_count": 224,
+      "closed_issue_count": 186,
+      "median_seconds_to_issue_closed": 2301370.5,
+      "pr_count": 485,
+      "closed_pr_count": 482,
+      "median_seconds_to_pr_closed": 95055.5
+    },
+    "contributor_stats": {
+      "pipeline_name": "raredisease",
+      "number_of_contributors": 28
     }
   },
   "rarevariantburden": {
@@ -1180,7 +2138,17 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "rarevariantburden",
+      "issue_count": null,
+      "closed_issue_count": null,
+      "median_seconds_to_issue_closed": null,
+      "pr_count": 2,
+      "closed_pr_count": 1,
+      "median_seconds_to_pr_closed": 11.0
+    },
+    "contributor_stats": null
   },
   "readsimulator": {
     "pipeline_stats": {
@@ -1193,7 +2161,17 @@
       "archived": false,
       "last_release_date": "2024-04-27 01:37:16+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "readsimulator",
+      "issue_count": 14,
+      "closed_issue_count": 3,
+      "median_seconds_to_issue_closed": 4422971.0,
+      "pr_count": 44,
+      "closed_pr_count": 43,
+      "median_seconds_to_pr_closed": 274508.0
+    },
+    "contributor_stats": null
   },
   "references": {
     "pipeline_stats": {
@@ -1206,7 +2184,17 @@
       "archived": false,
       "last_release_date": "2024-12-30 11:55:12+01:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "references",
+      "issue_count": 38,
+      "closed_issue_count": 14,
+      "median_seconds_to_issue_closed": 2739649.5,
+      "pr_count": 85,
+      "closed_pr_count": 84,
+      "median_seconds_to_pr_closed": 11764.5
+    },
+    "contributor_stats": null
   },
   "reportho": {
     "pipeline_stats": {
@@ -1219,7 +2207,17 @@
       "archived": false,
       "last_release_date": "2024-07-18 14:48:38+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "reportho",
+      "issue_count": 30,
+      "closed_issue_count": 23,
+      "median_seconds_to_issue_closed": 432223.0,
+      "pr_count": 68,
+      "closed_pr_count": 67,
+      "median_seconds_to_pr_closed": 75227.0
+    },
+    "contributor_stats": null
   },
   "ribomsqc": {
     "pipeline_stats": {
@@ -1232,7 +2230,17 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "ribomsqc",
+      "issue_count": 2,
+      "closed_issue_count": 2,
+      "median_seconds_to_issue_closed": 393034.5,
+      "pr_count": 21,
+      "closed_pr_count": 20,
+      "median_seconds_to_pr_closed": 10208.0
+    },
+    "contributor_stats": null
   },
   "riboseq": {
     "pipeline_stats": {
@@ -1245,7 +2253,17 @@
       "archived": false,
       "last_release_date": "2025-02-03 11:06:21+01:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "riboseq",
+      "issue_count": 33,
+      "closed_issue_count": 20,
+      "median_seconds_to_issue_closed": 3560224.5,
+      "pr_count": 75,
+      "closed_pr_count": 73,
+      "median_seconds_to_pr_closed": 58848.0
+    },
+    "contributor_stats": null
   },
   "rnadnavar": {
     "pipeline_stats": {
@@ -1258,7 +2276,17 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "rnadnavar",
+      "issue_count": 10,
+      "closed_issue_count": 4,
+      "median_seconds_to_issue_closed": 2435189.5,
+      "pr_count": 44,
+      "closed_pr_count": 39,
+      "median_seconds_to_pr_closed": 605492.0
+    },
+    "contributor_stats": null
   },
   "rnafusion": {
     "pipeline_stats": {
@@ -1271,6 +2299,19 @@
       "archived": false,
       "last_release_date": "2024-04-10 10:29:46+02:00",
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "rnafusion",
+      "issue_count": 361,
+      "closed_issue_count": 329,
+      "median_seconds_to_issue_closed": 1612732.0,
+      "pr_count": 359,
+      "closed_pr_count": 349,
+      "median_seconds_to_pr_closed": 96674.0
+    },
+    "contributor_stats": {
+      "pipeline_name": "rnafusion",
+      "number_of_contributors": 23
     }
   },
   "rnaseq": {
@@ -1284,6 +2325,19 @@
       "archived": false,
       "last_release_date": "2025-06-10 13:18:40+02:00",
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "rnaseq",
+      "issue_count": 736,
+      "closed_issue_count": 668,
+      "median_seconds_to_issue_closed": 2768049.5,
+      "pr_count": 830,
+      "closed_pr_count": 818,
+      "median_seconds_to_pr_closed": 44312.0
+    },
+    "contributor_stats": {
+      "pipeline_name": "rnaseq",
+      "number_of_contributors": 84
     }
   },
   "rnasplice": {
@@ -1297,7 +2351,17 @@
       "archived": false,
       "last_release_date": "2024-05-09 11:07:10+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "rnasplice",
+      "issue_count": 61,
+      "closed_issue_count": 45,
+      "median_seconds_to_issue_closed": 848853.0,
+      "pr_count": 118,
+      "closed_pr_count": 115,
+      "median_seconds_to_pr_closed": 5288.0
+    },
+    "contributor_stats": null
   },
   "rnavar": {
     "pipeline_stats": {
@@ -1310,7 +2374,17 @@
       "archived": false,
       "last_release_date": "2025-04-10 11:35:38+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "rnavar",
+      "issue_count": 74,
+      "closed_issue_count": 61,
+      "median_seconds_to_issue_closed": 21069196.0,
+      "pr_count": 135,
+      "closed_pr_count": 134,
+      "median_seconds_to_pr_closed": 80784.5
+    },
+    "contributor_stats": null
   },
   "sammyseq": {
     "pipeline_stats": {
@@ -1323,6 +2397,19 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "sammyseq",
+      "issue_count": 33,
+      "closed_issue_count": 26,
+      "median_seconds_to_issue_closed": 1104308.5,
+      "pr_count": 44,
+      "closed_pr_count": 43,
+      "median_seconds_to_pr_closed": 76707.0
+    },
+    "contributor_stats": {
+      "pipeline_name": "sammyseq",
+      "number_of_contributors": 11
     }
   },
   "sarek": {
@@ -1336,6 +2423,19 @@
       "archived": false,
       "last_release_date": "2025-02-18 09:54:31+01:00",
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "sarek",
+      "issue_count": 802,
+      "closed_issue_count": 507,
+      "median_seconds_to_issue_closed": 1905523.0,
+      "pr_count": 1112,
+      "closed_pr_count": 1071,
+      "median_seconds_to_pr_closed": 61106.0
+    },
+    "contributor_stats": {
+      "pipeline_name": "sarek",
+      "number_of_contributors": 69
     }
   },
   "scdownstream": {
@@ -1349,6 +2449,19 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "scdownstream",
+      "issue_count": 98,
+      "closed_issue_count": 64,
+      "median_seconds_to_issue_closed": 201227.5,
+      "pr_count": 108,
+      "closed_pr_count": 104,
+      "median_seconds_to_pr_closed": 4311.0
+    },
+    "contributor_stats": {
+      "pipeline_name": "scdownstream",
+      "number_of_contributors": 15
     }
   },
   "scnanoseq": {
@@ -1362,6 +2475,19 @@
       "archived": false,
       "last_release_date": "2025-06-09 17:52:07+02:00",
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "scnanoseq",
+      "issue_count": 37,
+      "closed_issue_count": 29,
+      "median_seconds_to_issue_closed": 3663487.0,
+      "pr_count": 38,
+      "closed_pr_count": 36,
+      "median_seconds_to_pr_closed": 172786.5
+    },
+    "contributor_stats": {
+      "pipeline_name": "scnanoseq",
+      "number_of_contributors": 8
     }
   },
   "scrnaseq": {
@@ -1375,6 +2501,19 @@
       "archived": false,
       "last_release_date": "2025-03-11 09:05:42+01:00",
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "scrnaseq",
+      "issue_count": 209,
+      "closed_issue_count": 142,
+      "median_seconds_to_issue_closed": 4743069.0,
+      "pr_count": 269,
+      "closed_pr_count": 262,
+      "median_seconds_to_pr_closed": 166270.0
+    },
+    "contributor_stats": {
+      "pipeline_name": "scrnaseq",
+      "number_of_contributors": 39
     }
   },
   "seqinspector": {
@@ -1388,6 +2527,19 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "seqinspector",
+      "issue_count": 60,
+      "closed_issue_count": 23,
+      "median_seconds_to_issue_closed": 874080.0,
+      "pr_count": 58,
+      "closed_pr_count": 46,
+      "median_seconds_to_pr_closed": 179763.5
+    },
+    "contributor_stats": {
+      "pipeline_name": "seqinspector",
+      "number_of_contributors": 4
     }
   },
   "slamseq": {
@@ -1401,7 +2553,17 @@
       "archived": false,
       "last_release_date": "2020-05-14 14:40:04+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "slamseq",
+      "issue_count": 14,
+      "closed_issue_count": 4,
+      "median_seconds_to_issue_closed": 4095268.0,
+      "pr_count": 41,
+      "closed_pr_count": 38,
+      "median_seconds_to_pr_closed": 813030.5
+    },
+    "contributor_stats": null
   },
   "smrnaseq": {
     "pipeline_stats": {
@@ -1414,6 +2576,19 @@
       "archived": false,
       "last_release_date": "2024-10-14 11:59:05+02:00",
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "smrnaseq",
+      "issue_count": 229,
+      "closed_issue_count": 213,
+      "median_seconds_to_issue_closed": 1808386.0,
+      "pr_count": 278,
+      "closed_pr_count": 277,
+      "median_seconds_to_pr_closed": 77324.0
+    },
+    "contributor_stats": {
+      "pipeline_name": "smrnaseq",
+      "number_of_contributors": 42
     }
   },
   "sopa": {
@@ -1427,7 +2602,17 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "sopa",
+      "issue_count": null,
+      "closed_issue_count": null,
+      "median_seconds_to_issue_closed": null,
+      "pr_count": 7,
+      "closed_pr_count": 6,
+      "median_seconds_to_pr_closed": 64223.0
+    },
+    "contributor_stats": null
   },
   "spatialvi": {
     "pipeline_stats": {
@@ -1440,7 +2625,17 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "spatialvi",
+      "issue_count": 35,
+      "closed_issue_count": 29,
+      "median_seconds_to_issue_closed": 10570963.0,
+      "pr_count": 82,
+      "closed_pr_count": 80,
+      "median_seconds_to_pr_closed": 350636.5
+    },
+    "contributor_stats": null
   },
   "spatialxe": {
     "pipeline_stats": {
@@ -1453,7 +2648,17 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "spatialxe",
+      "issue_count": 53,
+      "closed_issue_count": 28,
+      "median_seconds_to_issue_closed": 11228821.5,
+      "pr_count": 42,
+      "closed_pr_count": 37,
+      "median_seconds_to_pr_closed": 230409.0
+    },
+    "contributor_stats": null
   },
   "spinningjenny": {
     "pipeline_stats": {
@@ -1466,7 +2671,17 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "spinningjenny",
+      "issue_count": 1,
+      "closed_issue_count": null,
+      "median_seconds_to_issue_closed": null,
+      "pr_count": 21,
+      "closed_pr_count": 19,
+      "median_seconds_to_pr_closed": 2683546.0
+    },
+    "contributor_stats": null
   },
   "stableexpression": {
     "pipeline_stats": {
@@ -1479,7 +2694,17 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "stableexpression",
+      "issue_count": null,
+      "closed_issue_count": null,
+      "median_seconds_to_issue_closed": null,
+      "pr_count": 9,
+      "closed_pr_count": 8,
+      "median_seconds_to_pr_closed": 683636.5
+    },
+    "contributor_stats": null
   },
   "taxprofiler": {
     "pipeline_stats": {
@@ -1492,7 +2717,17 @@
       "archived": false,
       "last_release_date": "2025-03-13 09:42:06+01:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "taxprofiler",
+      "issue_count": 226,
+      "closed_issue_count": 186,
+      "median_seconds_to_issue_closed": 1964855.0,
+      "pr_count": 400,
+      "closed_pr_count": 395,
+      "median_seconds_to_pr_closed": 81898.0
+    },
+    "contributor_stats": null
   },
   "tbanalyzer": {
     "pipeline_stats": {
@@ -1505,7 +2740,17 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "tbanalyzer",
+      "issue_count": 1,
+      "closed_issue_count": null,
+      "median_seconds_to_issue_closed": null,
+      "pr_count": 14,
+      "closed_pr_count": 11,
+      "median_seconds_to_pr_closed": 697625.0
+    },
+    "contributor_stats": null
   },
   "tfactivity": {
     "pipeline_stats": {
@@ -1518,6 +2763,19 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "tfactivity",
+      "issue_count": 10,
+      "closed_issue_count": 9,
+      "median_seconds_to_issue_closed": 3483485.0,
+      "pr_count": 43,
+      "closed_pr_count": 40,
+      "median_seconds_to_pr_closed": 250776.0
+    },
+    "contributor_stats": {
+      "pipeline_name": "tfactivity",
+      "number_of_contributors": 6
     }
   },
   "troughgraph": {
@@ -1531,6 +2789,19 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "troughgraph",
+      "issue_count": null,
+      "closed_issue_count": null,
+      "median_seconds_to_issue_closed": null,
+      "pr_count": 13,
+      "closed_pr_count": 12,
+      "median_seconds_to_pr_closed": 132969.0
+    },
+    "contributor_stats": {
+      "pipeline_name": "troughgraph",
+      "number_of_contributors": 3
     }
   },
   "tumourevo": {
@@ -1544,6 +2815,19 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "tumourevo",
+      "issue_count": 15,
+      "closed_issue_count": 8,
+      "median_seconds_to_issue_closed": 11548611.0,
+      "pr_count": 18,
+      "closed_pr_count": 16,
+      "median_seconds_to_pr_closed": 512.0
+    },
+    "contributor_stats": {
+      "pipeline_name": "tumourevo",
+      "number_of_contributors": 9
     }
   },
   "variantbenchmarking": {
@@ -1557,6 +2841,19 @@
       "archived": false,
       "last_release_date": "2025-03-31 23:09:05+02:00",
       "category": "pipeline"
+    },
+    "issue_stats": {
+      "pipeline_name": "variantbenchmarking",
+      "issue_count": 99,
+      "closed_issue_count": 76,
+      "median_seconds_to_issue_closed": 1852896.5,
+      "pr_count": 108,
+      "closed_pr_count": 106,
+      "median_seconds_to_pr_closed": 68185.5
+    },
+    "contributor_stats": {
+      "pipeline_name": "variantbenchmarking",
+      "number_of_contributors": 8
     }
   },
   "variantcatalogue": {
@@ -1570,7 +2867,17 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "variantcatalogue",
+      "issue_count": 2,
+      "closed_issue_count": null,
+      "median_seconds_to_issue_closed": null,
+      "pr_count": 23,
+      "closed_pr_count": 20,
+      "median_seconds_to_pr_closed": 2292502.5
+    },
+    "contributor_stats": null
   },
   "viralintegration": {
     "pipeline_stats": {
@@ -1583,7 +2890,17 @@
       "archived": false,
       "last_release_date": "2023-07-19 19:24:36+02:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "viralintegration",
+      "issue_count": 46,
+      "closed_issue_count": 26,
+      "median_seconds_to_issue_closed": 4528142.0,
+      "pr_count": 38,
+      "closed_pr_count": 34,
+      "median_seconds_to_pr_closed": 956320.5
+    },
+    "contributor_stats": null
   },
   "viralmetagenome": {
     "pipeline_stats": {
@@ -1596,7 +2913,17 @@
       "archived": false,
       "last_release_date": null,
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "viralmetagenome",
+      "issue_count": 72,
+      "closed_issue_count": 63,
+      "median_seconds_to_issue_closed": 3978794.0,
+      "pr_count": 134,
+      "closed_pr_count": 130,
+      "median_seconds_to_pr_closed": 70768.0
+    },
+    "contributor_stats": null
   },
   "viralrecon": {
     "pipeline_stats": {
@@ -1609,6 +2936,16 @@
       "archived": false,
       "last_release_date": "2023-03-23 20:29:45+01:00",
       "category": "pipeline"
-    }
+    },
+    "issue_stats": {
+      "pipeline_name": "viralrecon",
+      "issue_count": 187,
+      "closed_issue_count": 156,
+      "median_seconds_to_issue_closed": 2313223.5,
+      "pr_count": 317,
+      "closed_pr_count": 305,
+      "median_seconds_to_pr_closed": 53830.0
+    },
+    "contributor_stats": null
   }
 }
