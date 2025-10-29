@@ -14,19 +14,15 @@ Token Requirements:
 - User tokens without admin scope will also cause the pipeline to fail
 """
 
-import logging
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from datetime import datetime
-from typing import Any, Callable
+from typing import Any
 
 import dlt
-from cyclopts import run
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-logger = logging.getLogger(__name__)
+from ._logging import logger
 
 # Configuration constants
 SLACK_API_LIMIT = 1000
@@ -237,7 +233,3 @@ def main(*, destination="motherduck"):
     log_pipeline_stats(pipeline, load_info)
 
     logger.info("Slack data pipeline completed successfully!")
-
-
-if __name__ == "__main__":
-    run(main)
