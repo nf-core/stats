@@ -111,11 +111,22 @@ report_date = datetime.now().strftime("%B %d, %Y")
 #| echo: false
 #| output: asis
 
-print(f"**Report Period:** Could be based on first release \n")
-print(f"**Pipeline:** {pipeline_name} \n")
-print(f"**Description:** {pipeline_info['description']} \n")
-print(f"**Last Release:** {pipeline_info['last_release_date']} \n")
+# Format last release date
+last_release = pipeline_info['last_release_date'].strftime('%B %d, %Y') if pd.notna(pipeline_info['last_release_date']) else 'No release yet'
+
+print(f"""
+| | |
+|:---|:---|
+| **Pipeline** | {pipeline_name} |
+| **Description** | {pipeline_info['description']} |
+| **Last Release** | {last_release} |
+| **Status** | {pipeline_info['status']} |
+| **Report Generated** | {report_date} |
+""")
 ```
+
+::: {.callout-note icon=false}
+## Report Scope
 
 This report provides regulatory-relevant metrics for nf-core pipelines, including:
 
@@ -124,6 +135,7 @@ This report provides regulatory-relevant metrics for nf-core pipelines, includin
 - Community engagement and support responsiveness
 - Quality assurance indicators
 - Change management tracking
+:::
 
 # Maintenance Metrics
 
