@@ -1,6 +1,6 @@
 import logging
 from collections.abc import Iterator
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Literal
 
 import dlt
@@ -67,11 +67,12 @@ def traffic_stats(
 
     if only_active_repos:
         # Only get traffic for repos that have been updated in the last 6 months and are not archived
-        six_months_ago = datetime.now() - timedelta(days=180)
+        six_months_ago = datetime.now(timezone.utc) - timedelta(days=180)
         filtered_repos = [
             repo
             for repo in repos
-            if datetime.strptime(repo["updated_at"], "%Y-%m-%dT%H:%M:%SZ") > six_months_ago and not repo["archived"]
+            if datetime.strptime(repo["updated_at"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc) > six_months_ago
+            and not repo["archived"]
         ]
         logger.info(f"Filtered to {len(filtered_repos)} active repositories (updated in last 6 months)")
 
@@ -175,7 +176,7 @@ def contributor_stats(organization: str, headers: dict, repos: list[dict]) -> It
             avatar_url = contributor["author"]["avatar_url"]
 
             for week in contributor["weeks"]:
-                week_date = datetime.fromtimestamp(week["w"]).strftime("%Y-%m-%d")
+                week_date = datetime.fromtimestamp(week["w"], tz=timezone.utc).strftime("%Y-%m-%d")
                 key = (author, week_date)
 
                 if key not in contributor_data:
@@ -228,13 +229,11 @@ def issue_stats(organization: str, headers: dict, repos: list[dict]) -> Iterator
 
         for issue in issues:
             is_pr = "pull_request" in issue
-            created_at = datetime.strptime(issue["created_at"], "%Y-%m-%dT%H:%M:%SZ")
-            issue_key = str(issue["number"])
-
-            # Calculate close time
+            created_at = datetime.strptime(issue["created_at"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+            issue_key = str(issue["number"])  # Calculate close time
             closed_wait = None
             if issue["closed_at"]:
-                closed_at = datetime.strptime(issue["closed_at"], "%Y-%m-%dT%H:%M:%SZ")
+                closed_at = datetime.strptime(issue["closed_at"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
                 closed_wait = (closed_at - created_at).total_seconds()
 
             # Check if we need to fetch comments for this issue
@@ -265,7 +264,9 @@ def issue_stats(organization: str, headers: dict, repos: list[dict]) -> Iterator
                                 comment.get("user", {}).get("login")
                                 and comment["user"]["login"] != issue["user"]["login"]
                             ):
-                                comment_time = datetime.strptime(comment["created_at"], "%Y-%m-%dT%H:%M:%SZ")
+                                comment_time = datetime.strptime(comment["created_at"], "%Y-%m-%dT%H:%M:%SZ").replace(
+                                    tzinfo=timezone.utc
+                                )
                                 first_response_time = (comment_time - created_at).total_seconds()
                                 first_responder = comment["user"]["login"]
                                 break
@@ -306,7 +307,7 @@ def org_members(organization: str, headers: dict) -> Iterator[dict]:
 
     members = get_paginated_data(members_url, headers)
     logger.info(f"Found {len(members)} members in {organization}")
-    yield {"timestamp": datetime.now().timestamp(), "num_members": len(members)}
+    yield {"timestamp": datetime.now(timezone.utc).timestamp(), "num_members": len(members)}
 
 
 @dlt.resource(write_disposition="merge", primary_key=["name"])
@@ -405,7 +406,7 @@ def commit_stats(organization: str, headers: dict, repos: list[dict]) -> Iterato
             if not commit_date:
                 continue
 
-            commit_time = datetime.strptime(commit_date, "%Y-%m-%dT%H:%M:%SZ")
+            commit_time = datetime.strptime(commit_date, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
             week_start = commit_time - timedelta(days=commit_time.weekday())
             week_timestamp = int(week_start.timestamp())
 

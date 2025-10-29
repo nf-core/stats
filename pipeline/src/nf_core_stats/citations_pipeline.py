@@ -1,5 +1,5 @@
 import itertools
-from datetime import datetime
+from datetime import datetime, timezone
 
 import dlt
 import requests
@@ -15,6 +15,7 @@ def _get_pipeline_names(headers) -> list[str]:
         return github_request(pipeline_names_url, headers).json()["pipeline"]
     except (requests.RequestException, KeyError) as e:
         logger.warning(f"Failed to get pipeline names from nf-core website: {e}")
+        raise
 
 
 def _parse_doi_from_nextflow_config(file_contents) -> str | None:
@@ -71,10 +72,17 @@ def _get_citations_for_pipeline(pipeline_name: str, github_headers: dict):
     sch = SemanticScholar()
     for doi in dois:
         try:
+            # TODO consider using a semantischolar API key for more reliable queries
+            # > Most Semantic Scholar endpoints are available to the public without authentication,
+            # > but they are rate-limited to 1000 requests per second shared among all unauthenticated users.
+            # > Requests may also be further throttled during periods of heavy use.
+            #
+            # When using an API key we get an guaranteed rate limit of one request per second
+            # (https://www.semanticscholar.org/product/api)
             paper = sch.get_paper(doi)
             yield {
                 "pipeline_name": pipeline_name,
-                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
                 "doi": doi,
                 "paper_title": paper.title,
                 "citation_count": paper.citationCount,

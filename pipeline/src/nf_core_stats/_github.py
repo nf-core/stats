@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 import dlt
 import requests
@@ -43,7 +43,7 @@ def check_rate_limit(headers: dict, min_remaining: int = 100) -> dict:
     remaining = rate_limit["remaining"]
     limit = rate_limit["limit"]
     reset_time = rate_limit["reset"]
-    reset_datetime = datetime.fromtimestamp(reset_time)
+    reset_datetime = datetime.fromtimestamp(reset_time, tz=timezone.utc)
 
     logger.info(f"Rate limit: {remaining}/{limit} remaining (resets at {reset_datetime})")
 
@@ -76,7 +76,7 @@ def github_request(url: str, headers: dict) -> requests.Response:
         # Only fail fast if we're truly rate limited (remaining = 0)
         # Other 403s (permissions, etc.) will be handled by raise_for_status
         if remaining is not None and int(remaining) == 0:
-            reset_datetime = datetime.fromtimestamp(int(reset_time)) if reset_time else "unknown"
+            reset_datetime = datetime.fromtimestamp(int(reset_time), tz=timezone.utc) if reset_time else "unknown"
             logger.error(f"Rate limit exhausted. Resets at {reset_datetime}. Failing fast to resume on next run.")
             raise requests.HTTPError(
                 f"GitHub API rate limit exhausted. Resets at {reset_datetime}. Pipeline will resume on next scheduled run.",
@@ -86,7 +86,9 @@ def github_request(url: str, headers: dict) -> requests.Response:
     # DLT client handles 429 automatically with retries, but if it still fails after retries, we should fail fast
     if response.status_code == 429:
         reset_time = response.headers.get("X-RateLimit-Reset", response.headers.get("Retry-After", "0"))
-        reset_datetime = datetime.fromtimestamp(int(reset_time)) if reset_time.isdigit() else reset_time
+        reset_datetime = (
+            datetime.fromtimestamp(int(reset_time), tz=timezone.utc) if reset_time.isdigit() else reset_time
+        )
         logger.error(f"Rate limit hit after retries. Resets at {reset_datetime}. Failing fast.")
         raise requests.HTTPError(
             f"GitHub API rate limit hit after automatic retries. Resets at {reset_datetime}.",

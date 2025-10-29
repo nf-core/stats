@@ -15,7 +15,7 @@ Token Requirements:
 """
 
 from collections.abc import Callable, Iterator
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 import dlt
@@ -171,7 +171,7 @@ def slack_stats_resource(client: WebClient) -> Iterator[dict[str, Any]]:
 
         # Yield stats
         yield {
-            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
             "total_users": len(active_account_users),
             "active_users": active_users,
             "inactive_users": inactive_users,
