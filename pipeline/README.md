@@ -4,11 +4,13 @@ This directory contains a DLT (Data Load Tool) pipeline that replaces the old PH
 
 ## Features
 
-- Collects repository traffic statistics (views and clones)
-- Gathers contributor statistics (commits, additions, deletions)
-- Tracks issue and pull request metrics
-- Uses DuckDB as the destination database
-- Implements incremental loading with merge strategy
+The pipeline will:
+
+1. Collect all statistics from the nf-core organization
+2. Store the data in a DuckDB database
+3. Use merge strategy to handle incremental updates
+4. Automatically handle rate limiting with retries and fail-fast when exhausted
+5. Process resources in order from least to most API-intensive
 
 ## Setup
 
@@ -24,15 +26,22 @@ in the `pipeline` directory.
 ## Configuration
 
 The pipeline relies on the following environment variables for retrieving secrets and
-configuration: 
+configuration. These are "magic" environment variables that are interpreted by `dlt` to 
+set its configuration. You could also use a `secrets.toml` file instead. For more details, 
+refor to the [credentials](https://dlthub.com/docs/general-usage/credentials/setup) page. 
 
 ```bash
 # github token
 # requires `repo`, `public_repo`, and `read:org` permissions
 SOURCES__GITHUB_PIPELINE__GITHUB__API_TOKEN                           
 SOURCES__SLACK_PIPELINE__SLACK__API_TOKEN                             # slack token
+
+# For motherduck destination
 DESTINATION__MOTHERDUCK__CREDENTIALS__DATABASE="nf_core_stats_bot"    # motherduck database name
 DESTINATION__MOTHERDUCK__CREDENTIALS__PASSWORD                        # motherduck token
+
+# Alternatively, use a local duckdb database for development
+DESTINATION__DUCKDB__CREDENTIALS="./nf_core_stats.duckdb"
 ```
 
 `dotenv` can retrieve them from 1password automatically, see `.envrc` for more details. If you 
@@ -50,13 +59,49 @@ uv run github_stats.py
 uv run slack_stats.py
 ```
 
-The pipeline will:
+## Database Structure
 
-1. Collect all statistics from the nf-core organization
-2. Store the data in a DuckDB database
-3. Use merge strategy to handle incremental updates
-4. Automatically handle rate limiting with retries and fail-fast when exhausted
-5. Process resources in order from least to most API-intensive
+### Database Hierarchy
+
+1. **Database**: The highest level container that holds all your data. Think of it as a complete application's worth of data.
+
+2. **Schema**: A logical grouping of tables within a database. Like folders to organize your tables.
+
+3. **Table**: The actual structure that holds your data in rows and columns.
+
+### Recommended Structure
+
+```console
+Database: nf_core_stats
+│
+├── Schema: github
+│   ├── Table: traffic_stats
+│   │   └── (views, clones, timestamps per pipeline)
+│   ├── Table: contributor_stats
+│   │   └── (commits, additions, deletions per author/week)
+│   └── Table: issue_stats
+│       └── (issues and PRs details)
+│
+├── Schema: slack
+│   └── Table: workspace_stats
+│       └── (user counts, activity metrics)
+│
+└── Schema: twitter
+    └── Table: account_stats
+        └── (historical account metrics)
+```
+
+### Why this structure?
+
+1. **Single Database**: Yes, keep everything in one database (`nf_core_stats_bot`) as it's all related to nf-core statistics.
+
+2. **Separate Schemas**: Using different schemas for each data source (GitHub, Slack, etc.) is good practice because:
+   - Provides logical separation of concerns
+   - Makes permissions management easier
+   - Helps avoid naming conflicts
+   - Makes it clear where data comes from
+
+3. **Clear Table Names**: Each table has a specific purpose and the hierarchy makes it obvious where to find data.
 
 ## Data Schema
 
