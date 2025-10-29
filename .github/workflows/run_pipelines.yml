@@ -75,5 +75,4 @@ jobs:
       - name: Get ${{ matrix.pipeline }} stats
         run: |
           runitor -uuid ${{ matrix.uuid }} -- \
-              uv run python \
-              ${{ matrix.pipeline }}_pipeline.py
+              uv run nf_core_stats ${{matrix.pipeline}}

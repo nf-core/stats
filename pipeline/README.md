@@ -52,18 +52,24 @@ are not using `dotenv`, you need to set these env vars manually.
 The data loading pipeline is executed on github actions, triggered by a nightly cronjob. 
 See `.github/workflows/run_pipelines.yml` for more details. 
 
-To manually run the pipeline in development mode, run the pipelines with `uv`
+To manually run the pipeline in development mode, run the pipelines with `uv`. The pipelines
+are organized as subcommands of the `nf_core_stats` binary: 
 
 ```bash
-uv run github_stats.py --destination duckdb
-uv run slack_stats.py --destination duckdb
+uv run nf_core_stats --help
+```
+
+For example, you can run 
+
+```bash
+uv run nf_core_stats github --destination duckdb
 ```
 
 For the `github` pipeline, it is possible to only fetch selected resources for testing purposes via the `--resoures`
 flag. For the full command line interface, run
 
 ```bash
-uv run github_stats.py --help
+uv run nf_core_stats github --help
 ```
 
 ## Database Structure
