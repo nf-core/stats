@@ -3,7 +3,9 @@ title: Twitter
 sidebar_position: 2
 ---
 
-We use our [@nf_core](https://twitter.com/nf_core) twitter account to send automated tweets about new pipeline releases and other updates relevant to the community. Follower counts give some indication to the level of interest in the nf-core project.
+Up until 2025-01-20, we used our [@nf_core](https://twitter.com/nf_core) twitter account to send automated tweets about new pipeline releases and other updates relevant to the community. 
+
+Follower counts give some indication to the historical level of interest in the nf-core project.
 
 ```sql view_days
 select
@@ -22,7 +24,7 @@ group by 1
 ```twitter_followers
 select 
     to_timestamp(timestamp) as date,
-    followers
+    followers_count
 from twitter
 where date between '${inputs.range_filtering_a_query.start}' and '${inputs.range_filtering_a_query.end}'
 ```
@@ -30,7 +32,7 @@ where date between '${inputs.range_filtering_a_query.start}' and '${inputs.range
 <AreaChart
     data={twitter_followers}
     x=date
-    y=followers
+    y=followers_count
     title="nf-core Twitter followers over time"
     subtitle="Per day from {inputs.range_filtering_a_query.start} to {inputs.range_filtering_a_query.end}"
 />

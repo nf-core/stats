@@ -1,22 +1,11 @@
-with monthly_latest as (
-    select distinct on (date_trunc('month', date))
-        date_trunc('month', date) as month,
-        closed + open as num_issues
-    from stats_static.github_issues
-    where date >= '2020-01-01'
-    order by date_trunc('month', date), date desc
-)
 select 
     month,
-    num_issues,
-    lag(num_issues) over (order by month) as prev_month_num_issues,
-    round(
-        cast(
-            (
-                num_issues / nullif(lag(num_issues) over (order by month), 0) - 1
-            ) * 100 as numeric
-        ),
-        1
-    ) as growth_rate
-from monthly_latest
-order by month desc 
+    num_total as num_issues,
+    num_open as num_open_issues,
+    prev_month_total as prev_month_num_issues,
+    prev_month_open as prev_month_num_open_issues,
+    growth_rate,
+    open_growth_rate
+from ${code_growth_issues_and_prs}
+where type = 'issue'
+order by month desc
