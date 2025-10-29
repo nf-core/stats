@@ -429,7 +429,7 @@ def commit_stats(organization: str, headers: dict, repos: list[dict]) -> Iterato
 
 if __name__ == "__main__":
     logger.info("Starting GitHub data pipeline...")
-    pipeline = dlt.pipeline(pipeline_name="github", destination="motherduck", dataset_name=".github")
+    pipeline = dlt.pipeline(pipeline_name="github", destination="motherduck", dataset_name="github")
 
     # Configuration
     organization = "nf-core"
