@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "DLT pipeline for nf-core stats collection"
 authors = [{ name = "nf-core team" }]
 dependencies = [
+    "cyclopts>=4.1.0",
     "dlt[cli,duckdb,motherduck]>=1.17.1",
     "python-dotenv==1.1.1",
     "requests>=2.31.0",

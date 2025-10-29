@@ -20,6 +20,7 @@ from datetime import datetime
 from typing import Any, Callable
 
 import dlt
+from cyclopts import run
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
@@ -213,13 +214,19 @@ def slack_stats_resource(client: WebClient) -> Iterator[dict[str, Any]]:
         raise
 
 
-if __name__ == "__main__":
+def main(*, destination="motherduck"):
+    """
+    Run the slack data ingestion pipeline
+
+    Args:
+        destination: dlt backend. Use 'motherduck' for production. Can use 'duckdb' for local testing
+    """
     logger.info("Starting Slack data pipeline...")
 
     # Initialize the pipeline with MotherDuck destination
     pipeline = dlt.pipeline(
         pipeline_name="slack_stats",
-        destination="motherduck",
+        destination=destination,
         dataset_name="slack",
     )
 
@@ -230,3 +237,7 @@ if __name__ == "__main__":
     log_pipeline_stats(pipeline, load_info)
 
     logger.info("Slack data pipeline completed successfully!")
+
+
+if __name__ == "__main__":
+    run(main)

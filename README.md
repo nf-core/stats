@@ -2,13 +2,21 @@
 ![Slack Stats Pipeline](https://img.shields.io/endpoint?url=https%3A%2F%2Fhealthchecks.io%2Fb%2F3%2F6e2e8ee4-ae42-482d-a1cf-85c923dabb8b.shields)
 ![Twitter Stats Pipeline](https://img.shields.io/endpoint?url=https%3A%2F%2Fhealthchecks.io%2Fb%2F3%2Fb661a22a-d804-4327-931a-cea96a26747f.shields)
 
+
+
+# Data loading pipeline
+
+This project uses [dlt](https://dlthub.com/docs) to load data into a motherduck instance. For more details, see [pipeline/README.md](pipeline/README.md)
+
+# Evidence Template Project
+
+The frontend is developed using [evidence](https://evidence.dev).
+
 Argument for why this isn't in nf-core/website
 
 - Evidence is a completely different build system, not using Astro
   - Just going to wrap it as an iframe
 - There's also the whole data-engineering side. That could live in the nf-core/ops monorepo, but it might be better to just start yet another monorepo.
-
-# Evidence Template Project
 
 ## Using Codespaces
 
@@ -45,8 +53,6 @@ npm run dev
 ```
 
 Check out the docs for [alternative install methods](https://docs.evidence.dev/getting-started/install-evidence) including Docker, Github Codespaces, and alongside dbt.
-
-
 
 ## Learning More
 

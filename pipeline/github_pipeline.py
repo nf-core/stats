@@ -1,6 +1,8 @@
 import logging
 from collections.abc import Iterator
 from datetime import datetime, timedelta
+from typing import Literal
+from cyclopts import run
 
 import dlt
 import requests
@@ -526,17 +528,33 @@ def commit_stats(organization: str, headers: dict, repos: list[dict]) -> Iterato
             }
 
 
-if __name__ == "__main__":
+def main(
+    *,
+    destination: str = "motherduck",
+    resources: list[
+        Literal["org_members", "nfcore_pipelines", "commit_stats", "traffic_stats", "issue_stats", "contributor_stats"]
+    ]
+    | None = None,
+    traffic_only_active_repos: bool = True,
+    traffic_max_repos: int | None = 50,
+):
+    """
+    Run the github data ingestion pipeline
+
+    Args:
+        destination: dlt backend. Use 'motherduck' for production. Can use 'duckdb' for local testing
+        resources: Resources to run. If None, run all resources.
+        traffic_only_active_repos:
+            Only collect traffic for repos updated in last 6 months.
+            Traffic stats optimization settings to reduce API burden.
+            This reduces API calls from ~100+ repos to ~30 most important active repos.
+        traffic_max_repos: Limit to top N repos by stars (None for all)
+    """
     logger.info("Starting GitHub data pipeline...")
-    pipeline = dlt.pipeline(pipeline_name="github", destination="motherduck", dataset_name="github")
+    pipeline = dlt.pipeline(pipeline_name="github", destination=destination, dataset_name="github")
 
     # Configuration
     organization = "nf-core"
-
-    # Traffic stats optimization settings to reduce API burden
-    # This reduces API calls from ~100+ repos to ~30 most important active repos
-    TRAFFIC_ONLY_ACTIVE_REPOS = True  # Only collect traffic for repos updated in last 6 months
-    TRAFFIC_MAX_REPOS = 50  # Limit to top N repos by stars (None for all)
 
     # Initialize headers and repos once (this will get the token from secrets)
     headers = get_github_headers()
@@ -550,14 +568,14 @@ if __name__ == "__main__":
     logger.info(f"Successfully fetched {len(repos)} repositories from GitHub API")
 
     # Define resources to run (ordered by API call intensity - least to most)
-    resources_to_run = [
+    all_resources = [
         ("org_members", lambda: org_members(organization, headers)),
         ("nfcore_pipelines", lambda: pipelines(organization, headers, repos)),
         ("commit_stats", lambda: commit_stats(organization, headers, repos)),
         (
             "traffic_stats",
             lambda: traffic_stats(
-                organization, headers, repos, only_active_repos=TRAFFIC_ONLY_ACTIVE_REPOS, max_repos=TRAFFIC_MAX_REPOS
+                organization, headers, repos, only_active_repos=traffic_only_active_repos, max_repos=traffic_max_repos
             ),
         ),
         ("issue_stats", lambda: issue_stats(organization, headers, repos)),
@@ -566,6 +584,7 @@ if __name__ == "__main__":
             lambda: contributor_stats(organization, headers, repos),
         ),
     ]
+    resources_to_run = all_resources if resources is None else filter(lambda x: x[0] in resources, all_resources)
 
     total_rows_processed = 0
 
@@ -580,7 +599,7 @@ if __name__ == "__main__":
                 break
 
             # Run just this resource
-            load_info = pipeline.run(resource_func())
+            pipeline.run(resource_func())
 
             # Log results for this resource
             if pipeline.last_trace and pipeline.last_trace.last_normalize_info:
@@ -609,3 +628,7 @@ if __name__ == "__main__":
     logger.info("=== PIPELINE COMPLETION SUMMARY ===")
     logger.info(f"Total rows processed across all resources: {total_rows_processed}")
     logger.info("GitHub data pipeline completed!")
+
+
+if __name__ == "__main__":
+    run(main)
