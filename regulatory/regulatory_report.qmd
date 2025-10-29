@@ -35,32 +35,63 @@ plt.rcParams['font.size'] = 12
 # note: In Quarto Python, params are not directly accessible like in R?
 pipeline_name = "rnaseq"
 
-# Load data from JSON file
-with open('data/nfcore_pipelines.json', 'r') as f:
-    pipelines_data = pd.read_json(f, lines=True)
+# Load data from JSON file (nested structure)
+with open('data/stats.json', 'r') as f:
+    stats_data = json.load(f)
+
+# Convert nested structure to flat dataframe
+pipeline_records = []
+for pipeline_key, pipeline_data in stats_data.items():
+    record = {}
+    
+    # Extract pipeline_stats
+    if 'pipeline_stats' in pipeline_data and pipeline_data['pipeline_stats']:
+        record.update(pipeline_data['pipeline_stats'])
+    
+    # Extract issue_stats
+    if 'issue_stats' in pipeline_data and pipeline_data['issue_stats']:
+        issue_stats = pipeline_data['issue_stats']
+        record['issue_count'] = issue_stats.get('issue_count')
+        record['closed_issue_count'] = issue_stats.get('closed_issue_count')
+        record['median_seconds_to_issue_closed'] = issue_stats.get('median_seconds_to_issue_closed')
+        record['pr_count'] = issue_stats.get('pr_count')
+        record['closed_pr_count'] = issue_stats.get('closed_pr_count')
+        record['median_seconds_to_pr_closed'] = issue_stats.get('median_seconds_to_pr_closed')
+    
+    # Extract contributor_stats
+    if 'contributor_stats' in pipeline_data and pipeline_data['contributor_stats']:
+        record['number_of_contributors'] = pipeline_data['contributor_stats'].get('number_of_contributors')
+    
+    pipeline_records.append(record)
+
+pipelines_data = pd.DataFrame(pipeline_records)
 
 # Convert date columns to datetime
-date_columns = ['gh_created_at', 'gh_updated_at', 'gh_pushed_at', 'last_release_date']
+date_columns = ['last_release_date']
 for col in date_columns:
-    pipelines_data[col] = pd.to_datetime(pipelines_data[col], utc=True)
+    if col in pipelines_data.columns:
+        pipelines_data[col] = pd.to_datetime(pipelines_data[col], utc=True, errors='coerce')
 
 # Add computed columns
 pipelines_data['has_release'] = pipelines_data['last_release_date'].notna()
 
 # Calculate status
 def calculate_status(row):
-    if row['archived']:
+    if row.get('archived', False):
         return 'Archived'
-    elif not row['has_release']:
+    elif not row.get('has_release', False):
         return 'In Development'
     else:
-        days_since_release = (datetime.now(tz=row['last_release_date'].tz) - row['last_release_date']).days
-        if days_since_release < 180:
-            return 'Active'
-        elif days_since_release < 365:
-            return 'Maintenance'
+        if pd.notna(row['last_release_date']):
+            days_since_release = (pd.Timestamp.now(tz='UTC') - row['last_release_date']).days
+            if days_since_release < 180:
+                return 'Active'
+            elif days_since_release < 365:
+                return 'Maintenance'
+            else:
+                return 'Legacy'
         else:
-            return 'Legacy'
+            return 'In Development'
 
 pipelines_data['status'] = pipelines_data.apply(calculate_status, axis=1)
 
@@ -82,6 +113,7 @@ report_date = datetime.now().strftime("%B %d, %Y")
 
 print(f"**Report Period:** Could be based on first release \n")
 print(f"**Pipeline:** {pipeline_name} \n")
+print(f"**Description:** {pipeline_info['description']} \n")
 print(f"**Last Release:** {pipeline_info['last_release_date']} \n")
 ```
 
@@ -93,25 +125,117 @@ This report provides regulatory-relevant metrics for nf-core pipelines, includin
 - Quality assurance indicators
 - Change management tracking
 
-# Change Management and Traceability
+# Maintenance Metrics
 
-## Pull Request Activity (dummy data)
+## Issue and PR Resolution Metrics
 
 ```{python}
-#| label: tbl-pr-summary
-#| tbl-cap: "Pull Request Review and Merge Metrics"
+#| label: tbl-issues-summary
+#| tbl-cap: "Issues and PR Resolution Metrics"
 #| output: asis
 
-# Placeholder metrics - would come from actual PR data
-print("""
+# Get issue metrics (handle None values)
+issue_count = pipeline_info.get('issue_count', 'N/A')
+closed_issue_count = pipeline_info.get('closed_issue_count', 'N/A')
+median_issue_close_time = pipeline_info.get('median_seconds_to_issue_closed')
+median_issue_days = f"{median_issue_close_time / 86400:.1f}" if pd.notna(median_issue_close_time) else "N/A"
+
+print(f"""
 | Metric | Value | Notes |
 |--------|-------|-------|
-| Average PR Review Time | 2.5 days | Time to first review + approval |
-| PRs Merged (Last 90 days) | 234 | Includes all repositories |
-| PR Merge Rate | 87% | Merged / Total opened |
-| Average Reviewers per PR | 2.3 | Average review participation |
-| Failed PR Rate | 13% | PRs closed without merge |
+| Issues Count | {issue_count} | Total issues opened |
+| Issues Closed | {closed_issue_count} | Issues that have been closed |
+| Median Time to Issue Closure | {median_issue_days} days | Time from open to close |
 """)
+```
+
+
+
+```{python}
+#| label: tbl-pr-resolution-summary
+#| tbl-cap: "Pull Request Resolution Metrics"
+#| output: asis
+
+# Get PR metrics (handle None values)
+pr_count = pipeline_info.get('pr_count', 'N/A')
+closed_pr_count = pipeline_info.get('closed_pr_count', 'N/A')
+median_pr_close_time = pipeline_info.get('median_seconds_to_pr_closed')
+median_pr_days = f"{median_pr_close_time / 86400:.1f}" if pd.notna(median_pr_close_time) else "N/A"
+
+print(f"""
+| Metric | Value | Notes |
+|--------|-------|-------|
+| Pull Request Count | {pr_count} | Total PRs opened |
+| Pull Requests Closed | {closed_pr_count} | PRs that have been merged/closed |
+| Median Time to PR Closure | {median_pr_days} days | Time from open to close |
+""")
+```
+
+```{python}
+#| label: fig-issue-pr-metrics
+#| fig-cap: "Issue and Pull Request Activity"
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Extract metrics
+issue_count = pipeline_info.get('issue_count', 0)
+closed_issue_count = pipeline_info.get('closed_issue_count', 0)
+pr_count = pipeline_info.get('pr_count', 0)
+closed_pr_count = pipeline_info.get('closed_pr_count', 0)
+
+# Handle None values
+issue_count = issue_count if pd.notna(issue_count) else 0
+closed_issue_count = closed_issue_count if pd.notna(closed_issue_count) else 0
+pr_count = pr_count if pd.notna(pr_count) else 0
+closed_pr_count = closed_pr_count if pd.notna(closed_pr_count) else 0
+
+# Calculate open (unresolved) counts
+open_issues = issue_count - closed_issue_count
+open_prs = pr_count - closed_pr_count
+
+# Create stacked bar chart
+fig, ax = plt.subplots(figsize=(10, 6))
+
+categories = ['Issues', 'Pull Requests']
+closed_values = [closed_issue_count, closed_pr_count]
+open_values = [open_issues, open_prs]
+
+# Create stacked bars
+bars1 = ax.bar(categories, closed_values, label='Closed/Resolved', 
+               color='#24B064', edgecolor='black', linewidth=1.5)
+bars2 = ax.bar(categories, open_values, bottom=closed_values, 
+               label='Open/Unresolved', color='#CCCCCC', 
+               edgecolor='black', linewidth=1.5)
+
+# Add value labels on each segment
+for i, (bar1, bar2) in enumerate(zip(bars1, bars2)):
+    # Label for closed (bottom segment)
+    height1 = bar1.get_height()
+    if height1 > 0:
+        ax.text(bar1.get_x() + bar1.get_width()/2., height1/2,
+                f'{int(height1)}',
+                ha='center', va='center', fontweight='bold', fontsize=12, color='white')
+    
+    # Label for open (top segment)
+    height2 = bar2.get_height()
+    if height2 > 0:
+        ax.text(bar2.get_x() + bar2.get_width()/2., height1 + height2/2,
+                f'{int(height2)}',
+                ha='center', va='center', fontweight='bold', fontsize=12)
+    
+    # Total label on top
+    total = height1 + height2
+    ax.text(bar2.get_x() + bar2.get_width()/2., total,
+            f'Total: {int(total)}',
+            ha='center', va='bottom', fontweight='bold', fontsize=11)
+
+ax.set_ylabel('Count', fontsize=12)
+ax.set_title(f'Issue and PR Activity for {pipeline_name}',
+             fontsize=14, fontweight='bold')
+ax.grid(True, axis='y', alpha=0.3)
+plt.tight_layout()
+plt.show()
 ```
 
 # Community Metrics
@@ -158,87 +282,20 @@ else:
     print(f"Available pipelines: {', '.join(pipelines_data['name'].head(10).tolist())}...")
 ```
 
-## Pipeline Maintenance
-
-```{python}
-#| label: fig-usage-trends
-#| fig-cap: "Pipeline Activity Over Time"
-
-if pipeline_name != "all" and pipeline_name in pipelines_data['name'].values:
-    # Get the specific pipeline data
-    pipeline_info = pipelines_data[pipelines_data['name'] == pipeline_name].iloc[0]
-    
-    # Create timeline showing key dates
-    fig, ax = plt.subplots(figsize=(12, 6))
-    
-    dates = []
-    labels = []
-    
-    # Add creation date
-    dates.append(pipeline_info['gh_created_at'])
-    labels.append('Created')
-    
-    # Add last release if exists
-    if pd.notna(pipeline_info['last_release_date']):
-        dates.append(pipeline_info['last_release_date'])
-        labels.append('Last Release')
-    
-    # Add last update
-    dates.append(pipeline_info['gh_updated_at'])
-    labels.append('Last Updated')
-    
-    # Create timeline
-    y_pos = [0] * len(dates)
-    colors = ['#24B064', '#1F77B4', '#FFA500'][:len(dates)]
-    
-    ax.scatter(dates, y_pos, s=300, c=colors, alpha=0.6, edgecolors='black', linewidth=2)
-    
-    # Add labels with alternating vertical positions to avoid overlap
-    vertical_offsets = [30, 60, 90][:len(dates)]  # Stagger the labels vertically
-    for i, (date, label, y, color) in enumerate(zip(dates, labels, y_pos, colors)):
-        ax.annotate(f'{label}\n{date.strftime("%Y-%m-%d")}', 
-                   xy=(date, y), xytext=(0, vertical_offsets[i]),
-                   textcoords='offset points', ha='center',
-                   fontsize=9, fontweight='bold',
-                   bbox=dict(boxstyle='round,pad=0.5', facecolor=color, alpha=0.3),
-                   arrowprops=dict(arrowstyle='->', connectionstyle='arc3,rad=0', 
-                                   color='gray', lw=1.5))
-    
-    ax.set_ylim(-0.5, 0.5)
-    ax.set_xlabel('Date', fontsize=12)
-    ax.set_title(f'Timeline for {pipeline_name}\nKey development milestones',
-                 fontsize=14, fontweight='bold')
-    ax.grid(True, alpha=0.3, axis='x')
-    ax.set_yticks([])
-    plt.tight_layout()
-    plt.show()
-else:
-    print(f"Set pipeline_name to a specific pipeline to see timeline.")
-```
-
-**Summary Community Engagement Statistics:**
+This is a summary of available community engagement statistics.
 
 ```{python}
 #| output: asis
 
-if pipeline_name != "all" and pipeline_name in pipelines_data['name'].values:
-    # Calculate days since last activity
-    days_since_update = (datetime.now(tz=pipeline_info['gh_updated_at'].tz) - 
-                        pipeline_info['gh_updated_at']).days
-
-    print(f"""
+print(f"""
 - **Pipeline:** {pipeline_info['name']}
 - **Status:** {pipeline_info['status']}
 - **GitHub Stars:** {pipeline_info['stargazers_count']:,}
 - **Forks:** {pipeline_info['forks_count']:,}
 - **Watchers:** {pipeline_info['watchers_count']:,}
 - **Open Issues:** {pipeline_info['open_issues_count']}
-- **Created:** {pipeline_info['gh_created_at'].strftime('%Y-%m-%d')}
 - **Last Release:** {pipeline_info['last_release_date'].strftime('%Y-%m-%d') if pd.notna(pipeline_info['last_release_date']) else 'No release yet'}
-- **Days Since Last Update:** {days_since_update}
 """)
-else:
-    print("Set pipeline_name to a specific pipeline to see detailed statistics.")
 ```
 
 ---
@@ -259,13 +316,9 @@ This report aggregates data from multiple sources:
 #| output: asis
 
 # Calculate data statistics
-latest_update = pipelines_data['gh_updated_at'].max()
-earliest_creation = pipelines_data['gh_created_at'].min()
-data_span = (latest_update - earliest_creation).days / 365.25
+#earliest_creation = pipelines_data['gh_created_at'].min()
 
 print(f"""
-- **Last Update:** {report_date}
-- **Data Span:** {earliest_creation.strftime('%Y-%m-%d')} to {latest_update.strftime('%Y-%m-%d')} ({data_span:.1f} years)
 - **Update Frequency:** Daily (automated pipelines)
 - **Data Source:** JSON export from nf-core stats database
 """)
