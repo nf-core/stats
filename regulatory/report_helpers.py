@@ -1,6 +1,146 @@
 import pandas as pd
 import numpy as np
 
+# Function to create boolean indicator
+def bool_indicator(value, true_icon="🟢", false_icon="🔴"):
+    if pd.isna(value):
+        return "⚠️ N/A"
+    return true_icon if value else false_icon
+
+def parse_stats_db_json(stats_data):
+    """
+    Parse JSON data from stats DB export.
+    Converts the nested structure to a flat DataFrame compatible with the report.
+    
+    Parameters:
+    -----------
+    data : dict
+    
+    Returns:
+    --------
+    pandas.DataFrame
+        Flattened dataframe with all pipeline information
+    """
+    pipeline_records = []
+    for pipeline_key, pipeline_data in stats_data.items():
+        record = {}
+        
+        # Extract pipeline_stats
+        if 'pipeline_stats' in pipeline_data and pipeline_data['pipeline_stats']:
+            record.update(pipeline_data['pipeline_stats'])
+        
+        # Extract issue_stats
+        if 'issue_stats' in pipeline_data and pipeline_data['issue_stats']:
+            issue_stats = pipeline_data['issue_stats']
+            record['issue_count'] = issue_stats.get('issue_count')
+            record['closed_issue_count'] = issue_stats.get('closed_issue_count')
+            record['median_seconds_to_issue_closed'] = issue_stats.get('median_seconds_to_issue_closed')
+            record['pr_count'] = issue_stats.get('pr_count')
+            record['closed_pr_count'] = issue_stats.get('closed_pr_count')
+            record['median_seconds_to_pr_closed'] = issue_stats.get('median_seconds_to_pr_closed')
+        
+        # Extract contributor_stats
+        if 'contributor_stats' in pipeline_data and pipeline_data['contributor_stats']:
+            record['number_of_contributors'] = pipeline_data['contributor_stats'].get('number_of_contributors')
+        
+        pipeline_records.append(record)
+    return pipeline_records
+
+def parse_remote_pipeline_json(data):
+    """
+    Parse JSON data in the pipeline health format
+    Converts the nested structure to a flat DataFrame compatible with the report.
+    
+    Parameters:
+    -----------
+    data : dict
+        JSON data with 'remote_workflows' key containing list of workflows
+    
+    Returns:
+    --------
+    pandas.DataFrame
+        Flattened dataframe with all pipeline information
+    """
+    pipeline_records = []
+    
+    if 'remote_workflows' not in data:
+        raise ValueError("JSON must contain 'remote_workflows' key")
+    
+    for workflow in data['remote_workflows']:
+        record = {
+            # Basic repository info
+            'name': workflow.get('name'),
+            'full_name': workflow.get('full_name'),
+            'archived': workflow.get('archived', False),
+            'private': workflow.get('private', False),
+            
+            # Dates
+            'gh_created_at': workflow.get('created_at'),
+            'updated_at': workflow.get('updated_at'),
+            'pushed_at': workflow.get('pushed_at'),
+            
+            # PR/Issue tracking
+            'open_pr_count': workflow.get('open_pr_count', 0),
+            
+            # URLs
+            'url': workflow.get('url'),
+            'homepage': workflow.get('homepage'),
+            'repository_url': workflow.get('repository_url'),
+            
+            # Technical details
+            'is_DSL2': workflow.get('is_DSL2', False),
+            'has_nf_test': workflow.get('has_nf_test', False),
+            
+            # Release info
+            'commits_to_dev': workflow.get('commits_to_dev', 0),
+            'last_release_is_head': workflow.get('last_release_is_head', False),
+            'released_after_tools': workflow.get('released_after_tools', False),
+        }
+        
+        # Extract contributor count
+        contributors = workflow.get('contributors', [])
+        record['number_of_contributors'] = len(contributors)
+        
+        # Extract latest release info
+        releases = workflow.get('releases', [])
+        if releases:
+            latest_release = releases[0]  # Assuming first is latest
+            record['last_release_tag'] = latest_release.get('tag_name')
+            record['release_sha'] = latest_release.get('tag_sha')
+            record['has_schema'] = latest_release.get('has_schema', False)
+            record['nextflow_version'] = latest_release.get('nextflow_version')
+            record['nf_core_version'] = latest_release.get('nf_core_version')
+            
+            # Count components
+            components = latest_release.get('components', {})
+            record['modules_count'] = len(components.get('modules', []))
+            record['subworkflows_count'] = len(components.get('subworkflows', []))
+            record['doc_files_count'] = len(latest_release.get('doc_files', []))
+        else:
+            record['last_release_date'] = None
+            record['last_release_tag'] = None
+            record['has_schema'] = False
+            record['modules_count'] = 0
+            record['subworkflows_count'] = 0
+            record['doc_files_count'] = 0
+        
+        # Extract security properties
+        security = workflow.get('security_and_analysis', {})
+        if security:
+            record['secret_scanning_enabled'] = security.get('secret_scanning', {}).get('status') == 'enabled'
+            record['secret_scanning_push_protection_enabled'] = security.get('secret_scanning_push_protection', {}).get('status') == 'enabled'
+            record['dependabot_security_updates_enabled'] = security.get('dependabot_security_updates', {}).get('status') == 'enabled'
+            record['secret_scanning_validity_checks_enabled'] = security.get('secret_scanning_validity_checks', {}).get('status') == 'enabled'
+        else:
+            record['secret_scanning_enabled'] = None
+            record['secret_scanning_push_protection_enabled'] = None
+            record['dependabot_security_updates_enabled'] = None
+            record['secret_scanning_validity_checks_enabled'] = None
+        
+        pipeline_records.append(record)
+    
+    return pd.DataFrame(pipeline_records)
+
 # Calculate pipeline status
 def calculate_status(row):
     if row.get('archived', False):

@@ -19,7 +19,7 @@ execute:
 ```{python}
 #| tags: [parameters]
 pipeline_name = "rnaseq"
-#pipeline_version = 3.0
+#pipeline_version = 3.0 might be needed at some point
 ```
 
 ```{python}
@@ -31,62 +31,69 @@ import json
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from datetime import datetime, timedelta
-from pathlib import Path
-import importlib
-import sys
-from report_helpers import calculate_status, calculate_trust_score
+from datetime import datetime
+import requests
+from report_helpers import bool_indicator, parse_stats_db_json, parse_remote_pipeline_json, calculate_status, calculate_trust_score
 
-# Load data from JSON file (nested structure)
+
+pipeline_health_url = "https://nf-co.re/pipelines.json"
+
+# Retrieve pipeline health information from website
+response = requests.get(pipeline_health_url, timeout=30, verify=True)
+response.raise_for_status()
+health_data = response.json()
+    
+# Load local JSON dump of stats duckDB
 with open('data/stats.json', 'r') as f:
     stats_data = json.load(f)
 
-# Convert nested structure to flat dataframe
-pipeline_records = []
-for pipeline_key, pipeline_data in stats_data.items():
-    record = {}
-    
-    # Extract pipeline_stats
-    if 'pipeline_stats' in pipeline_data and pipeline_data['pipeline_stats']:
-        record.update(pipeline_data['pipeline_stats'])
-    
-    # Extract issue_stats
-    if 'issue_stats' in pipeline_data and pipeline_data['issue_stats']:
-        issue_stats = pipeline_data['issue_stats']
-        record['issue_count'] = issue_stats.get('issue_count')
-        record['closed_issue_count'] = issue_stats.get('closed_issue_count')
-        record['median_seconds_to_issue_closed'] = issue_stats.get('median_seconds_to_issue_closed')
-        record['pr_count'] = issue_stats.get('pr_count')
-        record['closed_pr_count'] = issue_stats.get('closed_pr_count')
-        record['median_seconds_to_pr_closed'] = issue_stats.get('median_seconds_to_pr_closed')
-    
-    # Extract contributor_stats
-    if 'contributor_stats' in pipeline_data and pipeline_data['contributor_stats']:
-        record['number_of_contributors'] = pipeline_data['contributor_stats'].get('number_of_contributors')
-    
-    pipeline_records.append(record)
+# Parse both data sources
+pipeline_health_records = parse_remote_pipeline_json(health_data)
+pipeline_records = parse_stats_db_json(stats_data)
 
+# Convert to DataFrames
+pipeline_health_df = pd.DataFrame(pipeline_health_records)
 pipelines_data = pd.DataFrame(pipeline_records)
 
-# Convert date columns to datetime
+# Filter by pipeline name before merging
+pipelines_data = pipelines_data[pipelines_data['name'] == pipeline_name]
+pipeline_health_df = pipeline_health_df[pipeline_health_df['name'] == pipeline_name]
+
+# Merge the filtered DataFrames on pipeline name
+pipelines_data = pd.merge(
+    pipelines_data, 
+    pipeline_health_df, 
+    on='name', 
+    how='outer',
+    suffixes=('', '_health')
+)
+
+# For overlapping columns, prefer the original stats data unless it's null
+for col in pipeline_health_df.columns:
+    if col != 'name':
+        health_col = f'{col}_health'
+        if health_col in pipelines_data.columns:
+            pipelines_data[col] = pipelines_data[col].fillna(pipelines_data[health_col])
+            pipelines_data.drop(columns=[health_col], inplace=True)
+
+# Convert date columns to datetime BEFORE getting pipeline_info
 date_columns = ['last_release_date']
 for col in date_columns:
     if col in pipelines_data.columns:
         pipelines_data[col] = pd.to_datetime(pipelines_data[col], utc=True, errors='coerce')
 
+# Get pipeline info after merge and date conversion
+if len(pipelines_data) > 0:
+    pipeline_info = pipelines_data.iloc[0]
+
 # Add computed columns
 pipelines_data['has_release'] = pipelines_data['last_release_date'].notna()
-
 pipelines_data['status'] = pipelines_data.apply(calculate_status, axis=1)
-
 pipelines_data['trust_score'] = pipelines_data.apply(calculate_trust_score, axis=1)
 
-# Filter by pipeline if specified
-if pipeline_name != "all":
-    pipelines_data = pipelines_data[pipelines_data['name'] == pipeline_name]
-
-if pipeline_name != "all" and pipeline_name in pipelines_data['name'].values:
-    pipeline_info = pipelines_data[pipelines_data['name'] == pipeline_name].iloc[0]
+# Update pipeline_info with computed values
+if len(pipelines_data) > 0:
+    pipeline_info = pipelines_data.iloc[0]
 
 # Store for later use
 report_date = datetime.now().strftime("%B %d, %Y")
@@ -99,12 +106,18 @@ report_date = datetime.now().strftime("%B %d, %Y")
 # Format last release date
 last_release = pipeline_info['last_release_date'].strftime('%B %d, %Y') if pd.notna(pipeline_info['last_release_date']) else 'No release yet'
 
+# Get boolean metrics with indicators
+is_dsl2 = bool_indicator(pipeline_info.get('is_DSL2'))
+has_nf_test = bool_indicator(pipeline_info.get('has_nf_test'))
+has_schema = bool_indicator(pipeline_info.get('has_schema'))
+
 print(":::: {.columns}\n")
 print("::: {.column width=\"65%\"}\n")
 
 print(f"""| | |
 |:---|:---|
-| **Pipeline** | {pipeline_name} |
+| **Pipeline** | {pipeline_info['full_name']} |
+| **Tag** | {pipeline_info['last_release_tag']} ({pipeline_info['release_sha'][:7]}) |
 | **Description** | {pipeline_info['description']} |
 | **Last Release** | {last_release} |
 | **Status** | {pipeline_info['status']} |
@@ -198,6 +211,37 @@ This report provides regulatory-relevant metrics for nf-core pipelines, includin
 - Change management tracking
 
 :::
+
+## Technical Quality Indicators
+
+```{python}
+#| echo: false
+#| output: asis
+
+# Get security indicators
+secret_scanning = bool_indicator(pipeline_info.get('secret_scanning_enabled'))
+push_protection = bool_indicator(pipeline_info.get('secret_scanning_push_protection_enabled'))
+dependabot = bool_indicator(pipeline_info.get('dependabot_security_updates_enabled'))
+validity_checks = bool_indicator(pipeline_info.get('secret_scanning_validity_checks_enabled'))
+
+print(f"""
+| Quality Metric | Status |
+|:---------------|:------:|
+| **DSL2 Pipeline** | {is_dsl2} |
+| **nf-test Implemented** | {has_nf_test} |
+| **Parameter Schema** | {has_schema} |
+| **Modules** | {int(pipeline_info.get('modules_count', 0))} |
+| **Subworkflows** | {int(pipeline_info.get('subworkflows_count', 0))} |
+
+| Security Feature | Status |
+|:-----------------|:------:|
+| **Secret Scanning** | {secret_scanning} |
+| **Push Protection** | {push_protection} |
+| **Dependabot Updates** | {dependabot} |
+| **Validity Checks** | {validity_checks} |
+""")
+```
+
 
 # Maintenance Metrics
 
@@ -410,9 +454,6 @@ Information about data currency and update frequency:
 ```{python}
 #| output: asis
 
-# Calculate data statistics
-#earliest_creation = pipelines_data['gh_created_at'].min()
-
 print(f"""
 - **Update Frequency:** Daily (automated pipelines)
 - **Data Source:** JSON export from nf-core stats database
@@ -427,28 +468,10 @@ print(f"""
 Key terms and metrics used throughout this report:
 
 **Active Pipeline**: Pipeline with at least one release or commit in the last 6 months.
-
 **Maintenance Status**: Pipeline with releases between 6-12 months ago.
-
 **Response Time**: Time from issue/PR creation to first maintainer comment.
-
 **Resolution Time**: Time from issue creation to closure.
-
 **Release Frequency**: Average time between consecutive releases.
-:::
-
-::: {.callout-important icon=false}
-## Regulatory Relevance
-
-This section explains how the metrics in this report support regulatory compliance requirements:
-
-This report supports regulatory compliance by demonstrating:
-
-1. **Traceability**: Complete version history and change tracking
-2. **Quality Control**: Systematic testing and review processes
-3. **Maintenance**: Active development and bug resolution
-4. **Documentation**: Comprehensive and current documentation
-5. **Support**: Responsive community and maintainer support
 :::
 
 ::: {.callout-note icon=false}
