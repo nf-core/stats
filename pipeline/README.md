@@ -65,7 +65,7 @@ For example, you can run
 uv run nf_core_stats github --destination duckdb
 ```
 
-For the `github` pipeline, it is possible to only fetch selected resources for testing purposes via the `--resoures`
+For the `github` pipeline, it is possible to only fetch selected resources for testing purposes via the `--resources`
 flag. For the full command line interface, run
 
 ```bash

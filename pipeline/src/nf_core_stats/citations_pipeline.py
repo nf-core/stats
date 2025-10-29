@@ -1,9 +1,9 @@
+import itertools
 from datetime import datetime
 
 import dlt
 import requests
 from semanticscholar import SemanticScholar, SemanticScholarException
-import itertools
 
 from ._github import get_file_contents, get_github_headers, github_request
 from ._logging import log_pipeline_stats, logger
