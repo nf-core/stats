@@ -3,8 +3,10 @@ name: Run All Pipelines
   schedule:
     - cron: "0 0 * * *" # Run daily at midnight
   workflow_dispatch: # Allow manual triggers
-  # TODO: Run on dev dbs on pull request
-  #   pull_request:
+  pull_request:
+    paths:
+      - "pipeline/**"
+      - ".github/workflows/run_pipelines.yml"
   push:
     branches:
       - main
@@ -17,6 +19,8 @@ env:
   SOURCES__SLACK_PIPELINE__SLACK__API_TOKEN: ${{ secrets.SLACK_USER_TOKEN }}
   DESTINATION__MOTHERDUCK__CREDENTIALS__DATABASE: "nf_core_stats_bot"
   DESTINATION__MOTHERDUCK__CREDENTIALS__PASSWORD: ${{ secrets.MOTHERDUCK_TOKEN }}
+  # For pull requests, use local DuckDB instead of MotherDuck
+  DESTINATION__DUCKDB__CREDENTIALS: ${{ github.event_name == 'pull_request' && './nf_core_stats.duckdb' || '' }}
   PYTHONUNBUFFERED: "1"
 
 jobs:
@@ -77,4 +81,12 @@ jobs:
       - name: Get ${{ matrix.pipeline }} stats
         run: |
           runitor -uuid ${{ matrix.uuid }} -- \
-              uv run nf_core_stats ${{matrix.pipeline}}
+              uv run nf_core_stats ${{ matrix.pipeline }} ${{ github.event_name == 'pull_request' && '--destination duckdb' || '' }}
+
+      - name: Upload DuckDB artifacts
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: duckdb-${{ matrix.pipeline }}
+          path: pipeline/nf_core_stats.duckdb
+          retention-days: 7
