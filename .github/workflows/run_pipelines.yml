@@ -43,6 +43,7 @@ jobs:
     if: needs.maybe_skip.outputs.should_skip != 'true'
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         include:
           - pipeline: github
