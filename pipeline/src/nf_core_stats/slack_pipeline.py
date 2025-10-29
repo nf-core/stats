@@ -19,9 +19,9 @@ from datetime import datetime
 from typing import Any
 
 import dlt
-from cyclopts import run
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
+
 from ._logging import logger
 
 # Configuration constants
