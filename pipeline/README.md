@@ -55,8 +55,15 @@ See `.github/workflows/run_pipelines.yml` for more details.
 To manually run the pipeline in development mode, run the pipelines with `uv`
 
 ```bash
-uv run github_stats.py
-uv run slack_stats.py
+uv run github_stats.py --destination duckdb
+uv run slack_stats.py --destination duckdb
+```
+
+For the `github` pipeline, it is possible to only fetch selected resources for testing purposes via the `--resoures`
+flag. For the full command line interface, run
+
+```bash
+uv run github_stats.py --help
 ```
 
 ## Database Structure
