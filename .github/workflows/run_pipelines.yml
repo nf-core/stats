@@ -44,6 +44,8 @@ jobs:
             uuid: 73f22c65-592a-4368-8fc5-23787c1dc67d
           - pipeline: slack
             uuid: 585d7c4f-abc9-49fa-980f-64d950d6fd2b
+          - pipeline: citations
+            uuid: 40694d0-50ed-4bb7-919d-463d3555b23f
     defaults:
       run:
         working-directory: pipeline

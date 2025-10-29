@@ -1,80 +1,102 @@
-import logging
-from collections.abc import Iterator
-from datetime import datetime, timedelta
-from typing import Literal
-from cyclopts import run
+from datetime import datetime
 
 import dlt
 import requests
-from dlt.sources.helpers.requests import Client
-from dotenv import load_dotenv
+from semanticscholar import SemanticScholar, SemanticScholarException
+import itertools
 
-load_dotenv()
+from ._github import get_file_contents, get_github_headers, github_request
+from ._logging import log_pipeline_stats, logger
 
 
-
-def _get_pipeline_names():
+def _get_pipeline_names(headers) -> list[str]:
     pipeline_names_url = "https://raw.githubusercontent.com/nf-core/website/main/public/pipeline_names.json"
     try:
-        pipeline_names = github_request(pipeline_names_url, headers).json()
-    except requests.RequestException as e:
+        return github_request(pipeline_names_url, headers).json()["pipeline"]
+    except (requests.RequestException, KeyError) as e:
         logger.warning(f"Failed to get pipeline names from nf-core website: {e}")
+
+
+def _parse_doi_from_nextflow_config(file_contents) -> str | None:
+    """Parse DOI from nextflow.config manifest section
+
+    Extracts the DOI value from the manifest.doi field, removing any URL prefix.
+    The DOI pattern typically looks like: 10.XXXX/...
+
+    Args:
+        file_contents: The contents of the nextflow.config file as a string
+
+    Returns:
+        The DOI string (e.g., '10.1371/journal.pcbi.1012265') or None if not found
+    """
+    import re
+
+    # First, extract the manifest section
+    # Match from 'manifest {' to the closing '}'
+    manifest_pattern = r"manifest\s*\{([^}]*(?:\{[^}]*\}[^}]*)*)\}"
+    manifest_match = re.search(manifest_pattern, file_contents, re.DOTALL)
+
+    if not manifest_match:
+        return None
+
+    manifest_content = manifest_match.group(1)
+
+    # Now look for the doi field within the manifest section
+    # Match: doi = 'https://doi.org/10.1371/journal.pcbi.1012265'
+    # or:    doi = '10.1371/journal.pcbi.1012265'
+    doi_pattern = r"doi\s*=\s*['\"](?:https?://doi\.org/)?([0-9]+\.[0-9]+/[^'\"]+)['\"]"
+
+    doi_match = re.search(doi_pattern, manifest_content)
+    if doi_match:
+        return doi_match.group(1)
+
+    return None
+
+
+def _get_citations_for_pipeline(pipeline_name: str, github_headers: dict):
+    try:
+        nextflow_config = get_file_contents("nf-core", pipeline_name, "nextflow.config", github_headers)
+    except (requests.HTTPError, ValueError) as e:
+        logger.error(f"Failed to get nextflow.config for {pipeline_name}: {e}")
         return
+
+    # multiple dois might be separated by commata
+    doi_str = _parse_doi_from_nextflow_config(nextflow_config)
+    if doi_str is None:
+        logger.info(f"No doi found in `nextflow.config` for {pipeline_name}")
+        return
+
+    dois = [x.strip() for x in doi_str.split(",")]
+
+    sch = SemanticScholar()
+    for doi in dois:
+        try:
+            paper = sch.get_paper(doi)
+            yield {
+                "pipeline_name": pipeline_name,
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "doi": doi,
+                "paper_title": paper.title,
+                "citation_count": paper.citationCount,
+                "influencial_paper_citation_count": paper.influentialCitationCount,
+            }
+        except SemanticScholarException.ObjectNotFoundException:
+            logger.warning(f"DOI not found: {doi}")
+
 
 @dlt.source(name="semanticscholar")
 def semanticscholar_source():
+    github_headers = get_github_headers()
+    pipelines = _get_pipeline_names(github_headers)
 
+    return [dlt.resource(pipeline_citations(pipelines, github_headers), name="pipeline_citations")]
 
 
 @dlt.resource(write_disposition="merge", primary_key=["pipeline_name", "doi", "timestamp"])
-def pipeline_citations(pipelines):
-    from semanticscholar import SemanticScholar
-
-    # Initialize client
-    sch = SemanticScholar()
-
-    # Get a paper by its DOI or Semantic Scholar ID
-    paper_id = "10.1101/2021.08.29.458094"
-
-    paper = sch.get_paper(paper_id)
-
-    # Print paper information
-    print("Title:", paper.title)
-    print("Citation Count:", paper["citationCount"])
-    print("Influential Paper Citation Count:", paper["influentialCitationCount"])
-    yield {
-        "pipeline_name": pipeline["name"],
-        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "doi": doi
-    }
-    pass
-
-
-def log_pipeline_stats(pipeline, load_info):
-    """Log pipeline completion statistics (similar to GitHub pipeline)"""
-    logger.info("=== PIPELINE COMPLETION SUMMARY ===")
-
-    # Get row counts from the normalize info
-    if pipeline.last_trace and pipeline.last_trace.last_normalize_info:
-        row_counts = pipeline.last_trace.last_normalize_info.row_counts
-        total_rows = sum(row_counts.values())
-        logger.info(f"Total rows processed: {total_rows}")
-
-        for table_name, count in row_counts.items():
-            logger.info(f"  {table_name}: {count} rows")
-    else:
-        logger.info("No row count information available")
-
-    # Log package information from load_info
-    if load_info.load_packages:
-        for package in load_info.load_packages:
-            logger.info(f"Load package {package.load_id}: {package.state}")
-            for job_type, jobs in package.jobs.items():
-                if jobs:
-                    logger.info(f"  {job_type}: {len(jobs)} jobs")
-
-    logger.info("=== DLT LOAD INFO ===")
-    print(load_info)
+def pipeline_citations(pipelines: list[str], github_headers: dict):
+    yield from itertools.chain.from_iterable(
+        _get_citations_for_pipeline(pipeline, github_headers) for pipeline in pipelines
+    )
 
 
 def main(*, destination="motherduck"):
@@ -100,7 +122,3 @@ def main(*, destination="motherduck"):
     log_pipeline_stats(pipeline, load_info)
 
     logger.info("Citation stats data pipeline completed successfully!")
-
-
-if __name__ == "__main__":
-    run(main)
