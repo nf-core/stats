@@ -17,7 +17,7 @@ http_client = Client(
 )
 
 
-def get_github_headers(api_token: str = dlt.secrets["sources.github_pipeline.github.api_token"]):
+def get_github_headers(api_token: str = dlt.secrets["sources.github_pipeline.github.api_token"]) -> dict:
     """Get GitHub API headers with authentication"""
     if not api_token:
         raise ValueError(
@@ -116,3 +116,48 @@ def get_paginated_data(url: str, headers: dict):
         url = response.links.get("next", {}).get("url")
 
     return all_results
+
+
+def get_file_contents(owner: str, repo: str, path: str, headers: dict, ref: str | None = None) -> str:
+    """Get the contents of a file from a GitHub repository
+
+    Args:
+        owner: Repository owner (e.g., 'nf-core')
+        repo: Repository name (e.g., 'rnaseq')
+        path: Path to the file in the repository (e.g., 'nextflow.config')
+        headers: GitHub API headers
+        ref: Git reference (branch, tag, or commit SHA). If None, uses the repository's default branch
+
+    Returns:
+        The decoded file contents as a string
+
+    Raises:
+        requests.HTTPError: If the file is not found or other API errors
+    """
+    import base64
+
+    # If no ref specified, get the repository's default branch
+    if ref is None:
+        repo_url = f"https://api.github.com/repos/{owner}/{repo}"
+        repo_response = http_client.get(repo_url, headers=headers)
+        repo_response.raise_for_status()
+        ref = repo_response.json()["default_branch"]
+        logger.debug(f"Using default branch '{ref}' for {owner}/{repo}")
+
+    # Remove leading slash if present
+    path = path.lstrip("/")
+
+    url = f"https://api.github.com/repos/{owner}/{repo}/contents/{path}"
+    params = {"ref": ref}
+
+    response = http_client.get(url, headers=headers, params=params)
+    response.raise_for_status()
+
+    data = response.json()
+
+    # GitHub returns base64-encoded content
+    if "content" in data:
+        content = base64.b64decode(data["content"]).decode("utf-8")
+        return content
+    else:
+        raise ValueError(f"No content found in response for {owner}/{repo}/{path}")

@@ -22,7 +22,7 @@ import dlt
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
-from ._logging import logger
+from ._logging import log_pipeline_stats, logger
 
 # Configuration constants
 SLACK_API_LIMIT = 1000
@@ -127,33 +127,6 @@ def create_user_detail(user: dict[str, Any], active_user_ids: set[str]) -> dict[
         "is_bot": user.get("is_bot", False),
         "is_active": user["id"] in active_user_ids,
     }
-
-
-def log_pipeline_stats(pipeline, load_info):
-    """Log pipeline completion statistics (similar to GitHub pipeline)"""
-    logger.info("=== PIPELINE COMPLETION SUMMARY ===")
-
-    # Get row counts from the normalize info
-    if pipeline.last_trace and pipeline.last_trace.last_normalize_info:
-        row_counts = pipeline.last_trace.last_normalize_info.row_counts
-        total_rows = sum(row_counts.values())
-        logger.info(f"Total rows processed: {total_rows}")
-
-        for table_name, count in row_counts.items():
-            logger.info(f"  {table_name}: {count} rows")
-    else:
-        logger.info("No row count information available")
-
-    # Log package information from load_info
-    if load_info.load_packages:
-        for package in load_info.load_packages:
-            logger.info(f"Load package {package.load_id}: {package.state}")
-            for job_type, jobs in package.jobs.items():
-                if jobs:
-                    logger.info(f"  {job_type}: {len(jobs)} jobs")
-
-    logger.info("=== DLT LOAD INFO ===")
-    print(load_info)
 
 
 @dlt.source(name="slack")
