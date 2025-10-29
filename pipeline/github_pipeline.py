@@ -442,16 +442,20 @@ def pipelines(organization: str, headers: dict, repos: list[dict]) -> Iterator[d
             continue
 
         # Get latest release
-        release_url = f"https://api.github.com/repos/{organization}/{pipeline_name}/releases/latest"
+        release_url = f"https://api.github.com/repos/{organization}/{pipeline_name}/releases"
         try:
-            release = github_request(release_url, headers).json()
-            last_release_date = release.get("published_at")
-        except requests.RequestException as e:
-            if "404" in str(e) or "Not Found" in str(e):
-                logger.info(f"No releases found for {pipeline_name} (this is expected for new repositories)")
+            releases = get_paginated_data(release_url, headers)
+            number_of_releases = len(releases)
+            if number_of_releases:
+                # releases are sorted by date, starting with the most recent one
+                last_release_date = releases[0].get("published_at")
             else:
-                logger.warning(f"Failed to get latest release for {pipeline_name}: {e}")
+                logger.info(f"No releases found for {pipeline_name} (this is expected for new repositories)")
+                last_release_date = None
+        except requests.RequestException as e:
+            logger.warning(f"Failed to get latest release for {pipeline_name}: {e}")
             last_release_date = None
+            number_of_releases = None
 
         yield {
             "name": pipeline["name"],
@@ -467,6 +471,7 @@ def pipelines(organization: str, headers: dict, repos: list[dict]) -> Iterator[d
             "default_branch": pipeline["default_branch"],
             "archived": pipeline["archived"],
             "last_release_date": last_release_date,
+            "number_of_releases": number_of_releases,
             "category": "pipeline",
         }
 
