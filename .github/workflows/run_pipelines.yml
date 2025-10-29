@@ -17,8 +17,9 @@ name: Run All Pipelines
 env:
   SOURCES__GITHUB_PIPELINE__GITHUB__API_TOKEN: ${{ secrets.GH_TOKEN_STATS_PAGE }}
   SOURCES__SLACK_PIPELINE__SLACK__API_TOKEN: ${{ secrets.SLACK_USER_TOKEN }}
-  DESTINATION__MOTHERDUCK__CREDENTIALS__DATABASE: "nf_core_stats_bot"
-  DESTINATION__MOTHERDUCK__CREDENTIALS__PASSWORD: ${{ secrets.MOTHERDUCK_TOKEN }}
+  # Do not include motherduck tokens in case of a PR event, to avoid accidentically pushing to the prod database
+  DESTINATION__MOTHERDUCK__CREDENTIALS__DATABASE: ${{ github.event_name != 'pull_request' && 'nf_core_stats_bot' || '' }}
+  DESTINATION__MOTHERDUCK__CREDENTIALS__PASSWORD: ${{ github.event_name != 'pull_request' && secrets.MOTHERDUCK_TOKEN || '' }}
   # For pull requests, use local DuckDB instead of MotherDuck
   DESTINATION__DUCKDB__CREDENTIALS: ${{ github.event_name == 'pull_request' && './nf_core_stats.duckdb' || '' }}
   PYTHONUNBUFFERED: "1"
