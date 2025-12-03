@@ -38,14 +38,15 @@ def github_source(organization: str = "nf-core", api_token: str = dlt.secrets.va
         )
 
     return [
-        dlt.resource(
-            traffic_stats(organization, headers, repos, only_active_repos=True, max_repos=30), name="traffic_stats"
-        ),
-        dlt.resource(contributor_stats(organization, headers, repos), name="contributor_stats"),
-        dlt.resource(issue_stats(organization, headers, repos), name="issue_stats"),
-        dlt.resource(org_members(organization, headers), name="org_members"),
-        dlt.resource(commit_stats(organization, headers, repos), name="commit_stats"),
-        dlt.resource(pipelines(organization, headers, repos), name="nfcore_pipelines"),
+        # dlt.resource(
+        #     traffic_stats(organization, headers, repos, only_active_repos=True, max_repos=30), name="traffic_stats"
+        # ),
+        # dlt.resource(contributor_stats(organization, headers, repos), name="contributor_stats"),
+        # dlt.resource(issue_stats(organization, headers, repos), name="issue_stats"),
+        # dlt.resource(org_members(organization, headers), name="org_members"),
+        # dlt.resource(commit_stats(organization, headers, repos), name="commit_stats"),
+        # dlt.resource(pipelines(organization, headers, repos), name="nfcore_pipelines"),
+        dlt.resource(modules_container_conversion(headers), name="modules_container_conversion"),
     ]
 
 
@@ -419,11 +420,152 @@ def commit_stats(organization: str, headers: dict, repos: list[dict]) -> Iterato
             }
 
 
+@dlt.resource(write_disposition="append", primary_key=["timestamp"])
+def modules_container_conversion(headers: dict) -> Iterator[dict]:
+    """Track nf-core/modules containing 'linux_amd64' in meta.yml files, to track new container syntax.    """
+    logger.info("Scanning nf-core/modules for linux_amd64 usage in meta.yml")
+
+    try:
+        # Use GitHub Tree API to get all files (only 1 API call)
+        tree_url = "https://api.github.com/repos/nf-core/modules/git/trees/master?recursive=1"
+        logger.info("Fetching repository tree from GitHub API")
+        response = github_request(tree_url, headers)
+        tree_data = response.json()
+
+        # Filter to only meta.yml files in modules/nf-core/ directory
+        meta_yml_files = [
+            item for item in tree_data.get("tree", [])
+            if item.get("path", "").startswith("modules/nf-core/")
+            and item.get("path", "").endswith("meta.yml")
+            and item.get("type") == "blob"
+        ]
+
+        total_modules = len(meta_yml_files)
+        logger.info(f"Found {total_modules} meta.yml files in modules/nf-core/")
+
+        # Now search for "linux_amd64" pattern in these specific files using Code Search
+        # This is much more efficient than searching all yml files
+        logger.info("Searching for linux_amd64 pattern in meta.yml files")
+        container_query = 'repo:nf-core/modules "linux_amd64" extension:yml path:modules/nf-core'
+        search_url = f"https://api.github.com/search/code?q={requests.utils.quote(container_query)}&per_page=100"
+
+        container_results = []
+        url = search_url
+        while url:
+            response = github_request(url, headers)
+            data = response.json()
+            items = data.get("items", [])
+            container_results.extend(items)
+
+            if "next" in response.links:
+                url = response.links["next"]["url"]
+            else:
+                url = None
+
+        # Filter to only meta.yml files
+        filtered_container = [
+            r for r in container_results
+            if r.get("path", "").endswith("meta.yml")
+        ]
+        total_with_pattern = len(filtered_container)
+
+        logger.info(f"Total meta.yml files with linux_amd64: {total_with_pattern}/{total_modules}")
+
+        # Search for "topics:" with "versions:" pattern in meta.yml files
+        logger.info("Searching for topics: versions: pattern in meta.yml files")
+        topics_query = 'repo:nf-core/modules "topics:" "versions:" extension:yml path:modules/nf-core'
+        topics_search_url = f"https://api.github.com/search/code?q={requests.utils.quote(topics_query)}&per_page=100"
+
+        topics_results = []
+        url = topics_search_url
+        while url:
+            response = github_request(url, headers)
+            data = response.json()
+            items = data.get("items", [])
+            topics_results.extend(items)
+
+            if "next" in response.links:
+                url = response.links["next"]["url"]
+            else:
+                url = None
+
+        # Filter to only meta.yml files
+        filtered_topics = [
+            r for r in topics_results
+            if r.get("path", "").endswith("meta.yml")
+        ]
+        total_with_topics_version = len(filtered_topics)
+
+        logger.info(f"Total meta.yml files with topics: versions: {total_with_topics_version}/{total_modules}")
+
+        # Search for "community.wave.seqera.io/library/" pattern in main.nf files
+        logger.info("Searching for community.wave.seqera.io/library/ pattern in main.nf files")
+        wave_query = 'repo:nf-core/modules "community.wave.seqera.io/library/" path:modules/nf-core'
+        wave_search_url = f"https://api.github.com/search/code?q={requests.utils.quote(wave_query)}&per_page=100"
+
+        wave_results = []
+        url = wave_search_url
+        while url:
+            response = github_request(url, headers)
+            data = response.json()
+            items = data.get("items", [])
+            wave_results.extend(items)
+
+            if "next" in response.links:
+                url = response.links["next"]["url"]
+            else:
+                url = None
+
+        # Filter to only main.nf files
+        filtered_wave = [
+            r for r in wave_results
+            if r.get("path", "").endswith("main.nf")
+        ]
+        total_with_wave = len(filtered_wave)
+
+        logger.info(f"Total modules in repository: {total_modules}")
+        logger.info(f"Total main.nf files with community.wave.seqera.io/library/: {total_with_wave}/{total_modules}")
+
+    except Exception as e:
+        logger.error(f"Failed to count modules: {e}")
+        raise
+
+    # Calculate stats
+    modules_without_pattern = total_modules - total_with_pattern if total_modules else None
+    modules_without_topics_version = total_modules - total_with_topics_version if total_modules else None
+    modules_without_wave = total_modules - total_with_wave if total_modules else None
+
+    result = {
+        "timestamp": datetime.now().isoformat(),
+        "total_modules": total_modules,
+        "modules_new_container_syntax": total_with_pattern,
+        "modules_old_container_syntax": modules_without_pattern,
+        "modules_with_topics_version": total_with_topics_version,
+        "modules_without_topics_version": modules_without_topics_version,
+        "modules_with_wave_containers": total_with_wave,
+        "modules_without_wave_containers": modules_without_wave,
+    }
+
+    logger.info(
+        f"modules container conversion: {total_with_pattern}/{total_modules} modules use linux_amd64. \n modules container conversion: data collected"
+    )
+
+    yield result
+
+
 def main(
     *,
     destination: str = "motherduck",
     resources: list[
-        Literal["org_members", "nfcore_pipelines", "commit_stats", "traffic_stats", "issue_stats", "contributor_stats"]
+        Literal[
+            "org_members",
+            "nfcore_pipelines",
+            "commit_stats",
+            "traffic_stats",
+            "issue_stats",
+            "contributor_stats",
+            "modules_container_conversion",
+        ]
     ]
     | None = None,
     traffic_only_active_repos: bool = True,
@@ -461,6 +603,7 @@ def main(
     # Define resources to run (ordered by API call intensity - least to most)
     all_resources = [
         ("org_members", lambda: org_members(organization, headers)),
+        ("modules_container_conversion", lambda: modules_container_conversion(headers)),
         ("nfcore_pipelines", lambda: pipelines(organization, headers, repos)),
         ("commit_stats", lambda: commit_stats(organization, headers, repos)),
         (
