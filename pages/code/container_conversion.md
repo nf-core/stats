@@ -60,7 +60,7 @@ order by timestamp
 ## New Container Syntax Adoption Over Time
 
 <Tabs>
-    <Tab label="Percentage" defaultTab>
+    <Tab label="Percentage">
         <AreaChart
             data={modules_stats}
             x=timestamp
@@ -84,7 +84,7 @@ order by timestamp
 ## Version Topics Adoption Over Time
 
 <Tabs>
-    <Tab label="Percentage" defaultTab>
+    <Tab label="Percentage">
         <AreaChart
             data={modules_stats}
             x=timestamp
@@ -108,7 +108,7 @@ order by timestamp
 ## Wave Containers Adoption Over Time
 
 <Tabs>
-    <Tab label="Percentage" defaultTab>
+    <Tab label="Percentage">
         <AreaChart
             data={modules_stats}
             x=timestamp
@@ -158,7 +158,7 @@ order by timestamp desc
     search=false
     defaultSort={[{ id: 'timestamp', desc: true }]}
 >
-    <Column id=timestamp title="Date" contentType=colorscale scaleColor=blue />
+    <Column id=timestamp title="Date" contentType=colorscale colorScale=info />
     <Column id=modules_converted title="With new Syntax" />
     <Column id=modules_with_old_pattern title="With old Syntax" />
     <Column id=modules_with_topics_version title="With Version Topics" />
