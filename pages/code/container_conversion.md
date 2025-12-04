@@ -1,174 +1,105 @@
 ---
-title: Modules container conversion
+title: Modules Updates
 sidebar_position: 9
 ---
 
-# nf-core/modules linux_amd64 Usage
+# nf-core/modules Update Tracking
 
-This page tracks the usage of the new con
+This page tracks the adoption of various module metadata and configuration updates across the nf-core/modules repository.
 
-```sql modules_latest
+```sql modules_stats
 select
     timestamp,
     total_modules,
-    modules_with_old_pattern,
     modules_converted,
+    modules_with_old_pattern,
     modules_with_topics_version,
     modules_without_topics_version,
     modules_with_wave_containers,
     modules_without_wave_containers,
-    conversion_percentage
-from nfcore_db.modules_container_conversion
-order by timestamp desc
-limit 1
-```
-
-```sql modules_over_time
-select
-    timestamp,
-    modules_converted as "Modules with linux_amd64",
-    modules_with_old_pattern as "Modules without linux_amd64"
-from nfcore_db.modules_container_conversion
-order by timestamp
-```
-
-```sql modules_over_time_pct
-select
-    timestamp,
-    round(modules_converted * 100.0 / nullif(total_modules, 0), 2) as "Modules with linux_amd64",
-    round(modules_with_old_pattern * 100.0 / nullif(total_modules, 0), 2) as "Modules without linux_amd64"
-from nfcore_db.modules_container_conversion
-order by timestamp
-```
-
-```sql topics_over_time
-select
-    timestamp,
-    modules_with_topics_version as "Modules with topics: versions:",
-    modules_without_topics_version as "Modules without topics: versions:"
-from nfcore_db.modules_container_conversion
-order by timestamp
-```
-
-```sql topics_over_time_pct
-select
-    timestamp,
-    round(modules_with_topics_version * 100.0 / total_modules, 2) as "Modules with topics: versions:",
-    round(modules_without_topics_version * 100.0 / total_modules, 2) as "Modules without topics: versions:"
-from nfcore_db.modules_container_conversion
-order by timestamp
-```
-
-```sql wave_over_time
-select
-    timestamp,
-    modules_with_wave_containers as "Modules with Wave containers",
-    modules_without_wave_containers as "Modules without Wave containers"
-from nfcore_db.modules_container_conversion
-order by timestamp
-```
-
-```sql wave_over_time_pct
-select
-    timestamp,
-    round(modules_with_wave_containers * 100.0 / total_modules, 2) as "Modules with Wave containers",
-    round(modules_without_wave_containers * 100.0 / total_modules, 2) as "Modules without Wave containers"
+    -- Percentage calculations
+    modules_converted / nullif(total_modules, 0)::float as modules_converted_pct,
+    modules_with_old_pattern / nullif(total_modules, 0)::float as modules_with_old_pattern_pct,
+    modules_with_topics_version / nullif(total_modules, 0)::float as modules_with_topics_version_pct,
+    modules_without_topics_version / nullif(total_modules, 0)::float as modules_without_topics_version_pct,
+    modules_with_wave_containers / nullif(total_modules, 0)::float as modules_with_wave_containers_pct,
+    modules_without_wave_containers / nullif(total_modules, 0)::float as modules_without_wave_containers_pct
 from nfcore_db.modules_container_conversion
 order by timestamp
 ```
 
 ## Current Status
-
 <BigValue
-    data={modules_latest}
-    value=conversion_percentage
-    title="Usage Percentage"
-    fmt=pct1
-/>
-
-<BigValue
-    data={modules_latest}
-    value=modules_converted
-    title="Modules Using linux_amd64"
-/>
-
-<BigValue
-    data={modules_latest}
-    value=modules_with_old_pattern
-    title="Modules Without linux_amd64"
-/>
-
-<BigValue
-    data={modules_latest}
+    data={modules_stats}
     value=total_modules
-    title="Total Modules"
-/>
+    title="Total number of modules"
+    sparkline=timestamp
+    />
+<BigValue
+    data={modules_stats}
+    value=modules_converted
+    title="New Container Syntax"
+    sparkline=timestamp
+    />
+
 
 <BigValue
-    data={modules_latest}
+    data={modules_stats}
     value=modules_with_topics_version
-    title="Modules with topics: versions:"
-/>
+    title="Modules with Version Topics"
+    sparkline=timestamp
+    />
 
 <BigValue
-    data={modules_latest}
-    value=modules_without_topics_version
-    title="Modules without topics: versions:"
-/>
-
-<BigValue
-    data={modules_latest}
+    data={modules_stats}
     value=modules_with_wave_containers
     title="Modules with Wave containers"
-/>
+    sparkline=timestamp
+    />
 
-<BigValue
-    data={modules_latest}
-    value=modules_without_wave_containers
-    title="Modules without Wave containers"
-/>
-
-## linux_amd64 Usage Over Time
+## New Container Syntax Adoption Over Time
 
 <Tabs>
     <Tab label="Percentage" defaultTab>
         <AreaChart
-            data={modules_over_time_pct}
+            data={modules_stats}
             x=timestamp
-            y={["Modules with linux_amd64", "Modules without linux_amd64"]}
-            title="Module linux_amd64 Usage Timeline (%)"
-            yAxisTitle="Percentage (%)"
+            y={['modules_converted_pct', 'modules_with_old_pattern_pct']}
+            title="New Container Syntax Adoption Timeline (%)"
+            yFmt="pct"
+            yMax={1}
         />
     </Tab>
     <Tab label="Total Numbers">
         <AreaChart
-            data={modules_over_time}
+            data={modules_stats}
             x=timestamp
-            y={["Modules with linux_amd64", "Modules without linux_amd64"]}
-            title="Module linux_amd64 Usage Timeline"
+            y={['modules_converted', 'modules_with_old_pattern']}
+            title="New Container Syntax Adoption Timeline"
             yAxisTitle="Number of Modules"
         />
     </Tab>
 </Tabs>
 
-## topics: versions: Adoption Over Time
+## Version Topics Adoption Over Time
 
 <Tabs>
     <Tab label="Percentage" defaultTab>
         <AreaChart
-            data={topics_over_time_pct}
+            data={modules_stats}
             x=timestamp
-            y={["Modules with topics: versions:", "Modules without topics: versions:"]}
-            title="topics: versions: Field Adoption Timeline (%)"
-            yAxisTitle="Percentage (%)"
+            y={['modules_with_topics_version_pct', 'modules_without_topics_version_pct']}
+            title="Version Topics Adoption Timeline (%)"
+            yFmt="pct"
+            yMax={1}
         />
     </Tab>
     <Tab label="Total Numbers">
         <AreaChart
-            data={topics_over_time}
+            data={modules_stats}
             x=timestamp
-            y={["Modules with topics: versions:", "Modules without topics: versions:"]}
-            title="topics: versions: Field Adoption Timeline"
+            y={['modules_with_topics_version', 'modules_without_topics_version']}
+            title="Version Topics Adoption Timeline"
             yAxisTitle="Number of Modules"
         />
     </Tab>
@@ -179,19 +110,20 @@ order by timestamp
 <Tabs>
     <Tab label="Percentage" defaultTab>
         <AreaChart
-            data={wave_over_time_pct}
+            data={modules_stats}
             x=timestamp
-            y={["Modules with Wave containers", "Modules without Wave containers"]}
-            title="Wave Containers (community.wave.seqera.io) Adoption Timeline (%)"
-            yAxisTitle="Percentage (%)"
+            y={['modules_with_wave_containers_pct', 'modules_without_wave_containers_pct']}
+            title="Wave Containers Adoption Timeline (%)"
+            yFmt="pct"
+            yMax={1}
         />
     </Tab>
     <Tab label="Total Numbers">
         <AreaChart
-            data={wave_over_time}
+            data={modules_stats}
             x=timestamp
-            y={["Modules with Wave containers", "Modules without Wave containers"]}
-            title="Wave Containers (community.wave.seqera.io) Adoption Timeline"
+            y={['modules_with_wave_containers', 'modules_without_wave_containers']}
+            title="Wave Containers Adoption Timeline"
             yAxisTitle="Number of Modules"
         />
     </Tab>
@@ -199,13 +131,13 @@ order by timestamp
 
 ## Details
 
-This page tracks three metrics for nf-core modules:
+This page tracks several module update metrics for nf-core modules:
 
-1. **linux_amd64 Usage**: How many modules specify `linux_amd64` architecture in their `meta.yml` files
-2. **topics: versions: Field**: How many modules include the `topics:` section with `versions:` in their `meta.yml` files
-3. **Wave Containers**: How many modules use `community.wave.seqera.io/library/` containers in their `main.nf` files
+1. **New Container Syntax**: Modules that have adopted the new container syntax (measured by the presence of `linux_amd64` in their `meta.yml` files)
+2. **Version Topics**: Modules that have converted to using version topics (measured by the presence of `topics: versions:` in their `meta.yml` files)
+3. **Wave Containers**: Modules that use `community.wave.seqera.io/library/` containers in their `main.nf` files
 
-These metrics help understand metadata specification patterns and container adoption across the modules repository.
+These metrics help track the adoption of best practices and standardization efforts across the nf-core modules repository.
 
 ```sql modules_history
 select
@@ -217,7 +149,6 @@ select
     modules_without_topics_version,
     modules_with_wave_containers,
     modules_without_wave_containers,
-    conversion_percentage
 from nfcore_db.modules_container_conversion
 order by timestamp desc
 ```
@@ -228,12 +159,11 @@ order by timestamp desc
     defaultSort={[{ id: 'timestamp', desc: true }]}
 >
     <Column id=timestamp title="Date" contentType=colorscale scaleColor=blue />
-    <Column id=conversion_percentage title="Usage %" fmt=pct1 contentType=colorscale scaleColor=green />
-    <Column id=modules_converted title="With linux_amd64" />
-    <Column id=modules_with_old_pattern title="Without linux_amd64" />
-    <Column id=modules_with_topics_version title="With topics: versions:" />
-    <Column id=modules_without_topics_version title="Without topics: versions:" />
-    <Column id=modules_with_wave_containers title="With Wave containers" />
-    <Column id=modules_without_wave_containers title="Without Wave containers" />
+    <Column id=modules_converted title="With new Syntax" />
+    <Column id=modules_with_old_pattern title="With old Syntax" />
+    <Column id=modules_with_topics_version title="With Version Topics" />
+    <Column id=modules_without_topics_version title="Without Version Topics" />
+    <Column id=modules_with_wave_containers title="With Wave Containers" />
+    <Column id=modules_without_wave_containers title="Without Wave Containers" />
     <Column id=total_modules title="Total" />
 </DataTable>
