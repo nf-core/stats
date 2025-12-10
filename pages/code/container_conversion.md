@@ -29,6 +29,7 @@ order by timestamp desc
 ```
 
 ## Current Status
+
 <BigValue
     data={modules_stats}
     value=total_modules
@@ -41,7 +42,6 @@ order by timestamp desc
     title="New Container Syntax"
     sparkline=timestamp
     />
-
 
 <BigValue
     data={modules_stats}
@@ -155,10 +155,12 @@ order by timestamp desc
 ```
 
 <DataTable
-    data={modules_history}
-    search=false
-    defaultSort={[{ id: 'timestamp', desc: true }]}
+data={modules_history}
+search=false
+defaultSort={[{ id: 'timestamp', desc: true }]}
+
 >
+
     <Column id=timestamp title="Date" contentType=colorscale colorScale=info />
     <Column id=modules_converted title="With new Syntax" />
     <Column id=modules_with_old_pattern title="With old Syntax" />
@@ -167,4 +169,5 @@ order by timestamp desc
     <Column id=modules_with_wave_containers title="With Wave Containers" />
     <Column id=modules_without_wave_containers title="Without Wave Containers" />
     <Column id=total_modules title="Total" />
+
 </DataTable>

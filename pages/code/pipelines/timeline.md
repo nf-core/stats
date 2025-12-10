@@ -10,18 +10,19 @@ This timeline shows when each nf-core pipeline was in development and when they 
 ## Pipeline Lifecycle Timeline
 
 Each pipeline's lifecycle is visualized with three complementary bar charts:
+
 - **📊 Total Timeline**: Complete tracked time from repository creation to today
-- **🔨 Development Period**: Time from initial commit to **first release** 
+- **🔨 Development Period**: Time from initial commit to **first release**
 - **🚀 Post-Release Period**: Time since **first release** (ongoing development)
 
 ```sql lifecycle_summary
 -- Show complete lifecycle for each pipeline with bar chart data
 -- Now showing time to FIRST release, not last release
-SELECT 
+SELECT
     pipeline_name,
     development_start::DATE as start_date,
-    CASE 
-        WHEN status = 'Released' AND development_end IS NOT NULL 
+    CASE
+        WHEN status = 'Released' AND development_end IS NOT NULL
         THEN STRFTIME(development_end::DATE, '%b %Y')
         ELSE '—'
     END as first_release_date,
@@ -29,20 +30,20 @@ SELECT
     -- Add grouping columns
     EXTRACT(YEAR FROM development_start) as start_year,
     development_days,
-    CASE 
-        WHEN status = 'Released' AND development_end IS NOT NULL 
+    CASE
+        WHEN status = 'Released' AND development_end IS NOT NULL
         THEN DATE_DIFF('day', development_end, CURRENT_DATE)
         ELSE 0
     END as days_since_first_release,
-    CASE 
-        WHEN status = 'Released' AND development_end IS NOT NULL 
+    CASE
+        WHEN status = 'Released' AND development_end IS NOT NULL
         THEN development_days + DATE_DIFF('day', development_end, CURRENT_DATE)
         ELSE development_days
     END as total_days_tracked,
     -- Bar chart values for visualization
     development_days as dev_duration,
-    CASE 
-        WHEN status = 'Released' AND development_end IS NOT NULL 
+    CASE
+        WHEN status = 'Released' AND development_end IS NOT NULL
         THEN DATE_DIFF('day', development_end, CURRENT_DATE)
         ELSE 0
     END as release_duration
@@ -51,19 +52,21 @@ WHERE development_start >= '2017-01-01'
 ORDER BY start_year DESC, development_start DESC
 ```
 
-<DataTable 
-    title="Pipeline Development Timeline by Year"
-    data={lifecycle_summary} 
-    search=true
-    compact=true
-    rowShading=true
-    wrapTitles=true
-    groupBy=start_year
-    groupType=accordion
-    groupsOpen=true
-    subtotals=false
-    colorPalette={["#accent", "warning", "primary"]}
+<DataTable
+title="Pipeline Development Timeline by Year"
+data={lifecycle_summary}
+search=true
+compact=true
+rowShading=true
+wrapTitles=true
+groupBy=start_year
+groupType=accordion
+groupsOpen=true
+subtotals=false
+colorPalette={["#accent", "warning", "primary"]}
+
 >
+
     <Column id=pipeline_name title="Pipeline" align=left/>
     <Column id=start_date title="Development Started" fmt="mmm yyyy" align=center />
     <Column id=total_days_tracked title="📊 Total Timeline in days" contentType=bar backgroundColor="base-300" align=center description="Complete timeline from start to today" />
@@ -71,13 +74,14 @@ ORDER BY start_year DESC, development_start DESC
     <Column id=release_duration title="🚀 Days Since First Release" contentType=bar  backgroundColor="base-300" align=center description="Time since first release" />
     <Column id=first_release_date title="First Release" align=center />
     <Column id=status title="Status" align=center />
+
 </DataTable>
 
 ## Development vs Released Time Analysis
 
 ```sql duration_stats
 -- Calculate statistics about development vs time since first release
-SELECT 
+SELECT
     status,
     COUNT(*) as pipeline_count,
     ROUND(AVG(development_days), 0) as avg_development_days,
@@ -96,8 +100,8 @@ ORDER BY avg_development_days DESC
 
 ```sql quick_vs_slow
 -- Categorize pipelines by development speed
-SELECT 
-    CASE 
+SELECT
+    CASE
         WHEN development_days <= 180 THEN 'Quick (≤6 months)'
         WHEN development_days <= 365 THEN 'Medium (6-12 months)'
         WHEN development_days <= 730 THEN 'Slow (1-2 years)'
@@ -112,7 +116,7 @@ ORDER BY avg_days
 
 ### Development Speed Distribution
 
-<BarChart 
+<BarChart
     data={quick_vs_slow}
     x=development_speed
     y=count
@@ -126,7 +130,7 @@ ORDER BY avg_days
 
 ```sql yearly_analysis
 -- Analysis by start year to see trends - IMPROVED VERSION
-SELECT 
+SELECT
     CAST(start_year AS INTEGER) as start_year_int,
     DATE_TRUNC('year', MAKE_DATE(CAST(start_year AS INTEGER), 1, 1)) as start_year,
     COUNT(*) as pipelines_started,
@@ -144,13 +148,13 @@ SELECT
     MIN(CASE WHEN status = 'Released' THEN development_days END) as min_dev_days_released,
     MAX(CASE WHEN status = 'Released' THEN development_days END) as max_dev_days_released,
     -- Filter out incomplete recent years for more accurate trending
-    CASE 
+    CASE
         WHEN start_year >= 2024 THEN 'Recent (Incomplete)'
-        WHEN start_year >= 2020 THEN 'Recent'  
+        WHEN start_year >= 2020 THEN 'Recent'
         ELSE 'Historical'
     END as time_period
 FROM nfcore_db.pipeline_timeline
-WHERE start_year >= 2018 
+WHERE start_year >= 2018
   AND start_year <= EXTRACT(YEAR FROM CURRENT_DATE) -- Don't include future years
 GROUP BY start_year
 ORDER BY start_year
@@ -162,7 +166,7 @@ ORDER BY start_year
 Recent years (2024+) show lower average days until first release because many pipelines are still in development. The chart below shows trends for **released pipelines only** to avoid this bias.
 </Note>
 
-<LineChart 
+<LineChart
     data={yearly_analysis}
     x=start_year
     y=avg_development_days_released
@@ -175,13 +179,14 @@ Recent years (2024+) show lower average days until first release because many pi
     yFmt="0"
 />
 
+<DataTable
+data={yearly_analysis}
+title="Year-over-Year Pipeline Development Analysis"
+compact=true
+rowShading=true
 
-<DataTable 
-    data={yearly_analysis}
-    title="Year-over-Year Pipeline Development Analysis"
-    compact=true
-    rowShading=true
 >
+
     <Column id=start_year title="Year" align=center fmt="yyyy" />
     <Column id=pipelines_started title="Started Total" align=center />
     <Column id=pipelines_released title="Released" align=center />
@@ -192,13 +197,14 @@ Recent years (2024+) show lower average days until first release because many pi
     <Column id=min_dev_days_released title="Min Days Until Release" align=right fmt="#,##0" />
     <Column id=max_dev_days_released title="Max Days Until Release" align=right fmt="#,##0" />
     <Column id=time_period title="Period" align=center />
+
 </DataTable>
 
 ## Development Start vs Duration Analysis
 
 ```sql scatter_data
 -- Scatter plot data showing start vs duration
-SELECT 
+SELECT
     development_start,
     development_days,
     status,
@@ -208,7 +214,7 @@ FROM nfcore_db.pipeline_timeline
 WHERE development_start >= '2018-01-01'
 ```
 
-<ScatterPlot 
+<ScatterPlot
     data={scatter_data}
     x=development_start
     y=development_days
@@ -220,6 +226,6 @@ WHERE development_start >= '2018-01-01'
 />
 
 <Alert status="warning">
-This analysis focuses on <strong>first release</strong> rather than most recent release to better understand the initial development effort required for each pipeline. 
-Pipelines with many total releases indicate active ongoing development after the initial release. 
+This analysis focuses on <strong>first release</strong> rather than most recent release to better understand the initial development effort required for each pipeline.
+Pipelines with many total releases indicate active ongoing development after the initial release.
 </Alert>

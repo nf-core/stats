@@ -5,4 +5,4 @@ package-lock.json
 pnpm-lock.yaml
 
 # Default owners for everything in the repo
-* @nf-core/infrastructure 
+* @nf-core/infrastructure

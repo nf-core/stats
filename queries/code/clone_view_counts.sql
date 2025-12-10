@@ -12,11 +12,11 @@ GROUP BY timestamp
 
 -- Add explicit 0 records for the data outage period for proper chart visualization
 UNION ALL
-SELECT 
+SELECT
     UNNEST(generate_series('2024-01-25'::timestamp, '2025-06-09'::timestamp, INTERVAL '1 day')) as timestamp,
     0 as sum_total_views,
     0 as sum_total_views_unique,
     0 as sum_total_clones,
     0 as sum_total_clones_unique
 
-ORDER BY timestamp ASC 
+ORDER BY timestamp ASC
