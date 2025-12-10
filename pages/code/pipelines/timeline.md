@@ -63,7 +63,9 @@ groupBy=start_year
 groupType=accordion
 groupsOpen=true
 subtotals=false
-colorPalette={["#accent", "warning", "primary"]}>
+colorPalette={["#accent", "warning", "primary"]}
+
+>
 
     <Column id=pipeline_name title="Pipeline" align=left/>
     <Column id=start_date title="Development Started" fmt="mmm yyyy" align=center />
@@ -181,7 +183,9 @@ Recent years (2024+) show lower average days until first release because many pi
 data={yearly_analysis}
 title="Year-over-Year Pipeline Development Analysis"
 compact=true
-rowShading=true>
+rowShading=true
+
+>
 
     <Column id=start_year title="Year" align=center fmt="yyyy" />
     <Column id=pipelines_started title="Started Total" align=center />

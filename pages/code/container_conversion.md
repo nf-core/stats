@@ -157,7 +157,9 @@ order by timestamp desc
 <DataTable
 data={modules_history}
 search=false
-defaultSort={[{ id: 'timestamp', desc: true }]}>
+defaultSort={[{ id: 'timestamp', desc: true }]}
+
+>
 
     <Column id=timestamp title="Date" contentType=colorscale colorScale=info />
     <Column id=modules_converted title="With new Syntax" />
