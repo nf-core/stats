@@ -25,7 +25,7 @@ select
     modules_with_wave_containers / nullif(total_modules, 0)::float as modules_with_wave_containers_pct,
     modules_without_wave_containers / nullif(total_modules, 0)::float as modules_without_wave_containers_pct
 from nfcore_db.modules_container_conversion
-order by timestamp
+order by timestamp desc
 ```
 
 ## Current Status
@@ -66,7 +66,7 @@ order by timestamp
             x=timestamp
             y={['modules_converted_pct', 'modules_with_old_pattern_pct']}
             title="New Container Syntax Adoption Timeline (%)"
-            yFmt="pct"
+            yFmt="pct0"
             yMax={1}
         />
     </Tab>
@@ -90,7 +90,8 @@ order by timestamp
             x=timestamp
             y={['modules_with_topics_version_pct', 'modules_without_topics_version_pct']}
             title="Version Topics Adoption Timeline (%)"
-            yFmt="pct"
+            yFmt="pct0"
+            xFmt="m/d"
             yMax={1}
         />
     </Tab>
@@ -114,7 +115,7 @@ order by timestamp
             x=timestamp
             y={['modules_with_wave_containers_pct', 'modules_without_wave_containers_pct']}
             title="Wave Containers Adoption Timeline (%)"
-            yFmt="pct"
+            yFmt="pct0"
             yMax={1}
         />
     </Tab>
