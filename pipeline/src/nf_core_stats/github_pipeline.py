@@ -423,7 +423,7 @@ def commit_stats(organization: str, headers: dict, repos: list[dict]) -> Iterato
 
 @dlt.resource(write_disposition="append", primary_key=["timestamp"])
 def modules_container_conversion(headers: dict) -> Iterator[dict]:
-    """Track nf-core/modules containing 'linux_amd64' in meta.yml files, to track new container syntax.    """
+    """Track nf-core/modules containing 'linux_amd64' in meta.yml files, to track new container syntax."""
     logger.info("Scanning nf-core/modules for linux_amd64 usage in meta.yml")
 
     try:
@@ -435,7 +435,8 @@ def modules_container_conversion(headers: dict) -> Iterator[dict]:
 
         # Filter to only meta.yml files in modules/nf-core/ directory
         meta_yml_files = [
-            item for item in tree_data.get("tree", [])
+            item
+            for item in tree_data.get("tree", [])
             if item.get("path", "").startswith("modules/nf-core/")
             and item.get("path", "").endswith("meta.yml")
             and item.get("type") == "blob"
@@ -451,7 +452,7 @@ def modules_container_conversion(headers: dict) -> Iterator[dict]:
         search_url = f"https://api.github.com/search/code?q={requests.utils.quote(container_query)}&per_page=100"
 
         container_results = []
-        url = search_url
+        url: str | None = search_url
         while url:
             response = github_request(url, headers)
             data = response.json()
@@ -464,10 +465,7 @@ def modules_container_conversion(headers: dict) -> Iterator[dict]:
                 url = None
 
         # Filter to only meta.yml files
-        filtered_container = [
-            r for r in container_results
-            if r.get("path", "").endswith("meta.yml")
-        ]
+        filtered_container = [r for r in container_results if r.get("path", "").endswith("meta.yml")]
         total_with_pattern = len(filtered_container)
 
         logger.info(f"Total meta.yml files with linux_amd64: {total_with_pattern}/{total_modules}")
@@ -491,10 +489,7 @@ def modules_container_conversion(headers: dict) -> Iterator[dict]:
                 url = None
 
         # Filter to only meta.yml files
-        filtered_topics = [
-            r for r in topics_results
-            if r.get("path", "").endswith("meta.yml")
-        ]
+        filtered_topics = [r for r in topics_results if r.get("path", "").endswith("meta.yml")]
         total_with_topics_version = len(filtered_topics)
 
         logger.info(f"Total meta.yml files with topics: versions: {total_with_topics_version}/{total_modules}")
@@ -518,10 +513,7 @@ def modules_container_conversion(headers: dict) -> Iterator[dict]:
                 url = None
 
         # Filter to only main.nf files
-        filtered_wave = [
-            r for r in wave_results
-            if r.get("path", "").endswith("main.nf")
-        ]
+        filtered_wave = [r for r in wave_results if r.get("path", "").endswith("main.nf")]
         total_with_wave = len(filtered_wave)
 
         logger.info(f"Total modules in repository: {total_modules}")

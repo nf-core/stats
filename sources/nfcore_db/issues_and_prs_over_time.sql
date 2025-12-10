@@ -21,4 +21,4 @@ FROM github.issue_stats
 WHERE issue_type = 'pr'
 GROUP BY DATE_TRUNC('week', created_at)
 
-ORDER BY type, timestamp; 
+ORDER BY type, timestamp;

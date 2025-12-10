@@ -1,6 +1,6 @@
 [
-	{
-		"action": "remove",
-		"files": [".devcontainer"]
-	}
+  {
+    "action": "remove",
+    "files": [".devcontainer"]
+  }
 ]
