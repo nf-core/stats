@@ -39,14 +39,14 @@ def github_source(organization: str = "nf-core", api_token: str = dlt.secrets.va
         )
 
     return [
-        # dlt.resource(
-        #     traffic_stats(organization, headers, repos, only_active_repos=True, max_repos=30), name="traffic_stats"
-        # ),
-        # dlt.resource(contributor_stats(organization, headers, repos), name="contributor_stats"),
-        # dlt.resource(issue_stats(organization, headers, repos), name="issue_stats"),
-        # dlt.resource(org_members(organization, headers), name="org_members"),
-        # dlt.resource(commit_stats(organization, headers, repos), name="commit_stats"),
-        # dlt.resource(pipelines(organization, headers, repos), name="nfcore_pipelines"),
+        dlt.resource(
+            traffic_stats(organization, headers, repos, only_active_repos=True, max_repos=30), name="traffic_stats"
+        ),
+        dlt.resource(contributor_stats(organization, headers, repos), name="contributor_stats"),
+        dlt.resource(issue_stats(organization, headers, repos), name="issue_stats"),
+        dlt.resource(org_members(organization, headers), name="org_members"),
+        dlt.resource(commit_stats(organization, headers, repos), name="commit_stats"),
+        dlt.resource(pipelines(organization, headers, repos), name="nfcore_pipelines"),
         dlt.resource(modules_container_conversion(headers), name="modules_container_conversion"),
     ]
 
