@@ -5,7 +5,6 @@ SELECT
   p.description,
   p.gh_created_at,
   p.gh_updated_at,
-  p.gh_pushed_at,
   p.stargazers_count,
   p.watchers_count,
   p.forks_count,
@@ -13,7 +12,6 @@ SELECT
   LIST(t.value) as topics,
   p.default_branch,
   p.archived,
-  p.category
 FROM github.pipelines p
 LEFT JOIN github.pipelines__topics t ON p._dlt_id = t._dlt_parent_id
 WHERE p.category = 'core'
