@@ -1,0 +1,5 @@
+# ON pipeline release run
+# Pull from motherduck
+# dump to csv
+# Make report with quarto, whatever etc.
+# Add report as an artificat to github pipeline release

@@ -6,21 +6,20 @@ theme:
   # Define the main colors used throughout the UI
   colors:
     primary:
-      light: "#53A451" # nf-core green
-      dark: "#85EA7D" # nf-core light green
+      light: "#22ae63" # nf-core green
+      dark: "#1a9655" # nf-core light green
     accent:
       light: "#215EBE" # nf-core blue
       dark: "#93C5FD" # lighter blue for dark mode
     base:
-      light: "#FFFFFF" # white
+      light: "#f8f9fa" # white
       dark: "#222528" # dark gray/black
-    # TODO Figure out how to get these colors from the main website
-    # info:
-    #   light: "#CEE2FF"  # Cyan
-    #   dark: "#8be9fd"  # Cyan
-    # warning:
-    #   light: "#ffb86c"  # Orange
-    #   dark: "#ffb86c"  # Orange
+    info:
+      light: "#0dcaf0"  # Cyan
+      dark: "#74c7d4"  # Cyan
+    warning:
+      light: "#ffc107"  # Yellow
+      dark: "#ffda6a"  # Yellow
     # negative:
     #   light: "#ff5555"  # Red
     #   dark: "#ff5555"  # Red
@@ -34,12 +33,12 @@ theme:
       light:
         - "#53A451" # nf-core green
         - "#215EBE" # nf-core blue
-        - "#A16207" # amber
+        - "#ffc107" # amber
         - "#C2410C" # orange
       dark:
-        - "#85EA7D" # light green
+        - "#1a9655" # light green
         - "#93C5FD" # light blue
-        - "#FDE047" # light amber
+        - "#ffda6a" # light amber
         - "#FDBA74" # light orange
 
   # Color scales for heatmaps and continuous data
@@ -60,7 +59,7 @@ plugins:
 
   datasources:
     # You can add additional datasources here by adding npm packages.
-    # Make to also add them to `package.json`.
+    # Make sure to also add them to `package.json`.
     "@evidence-dev/csv": {}
     "@evidence-dev/duckdb": {}
     "@evidence-dev/motherduck": {}

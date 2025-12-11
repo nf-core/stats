@@ -1,4 +1,8 @@
-USE nfcore_db;
+USE nf_core_stats_bot;
 
--- FIXME Error: Unsupported object type: null
-SELECT * EXCLUDE (description, last_release_date) FROM nfcore_pipelines;
+SELECT * EXCLUDE (description, last_release_date),
+       CASE 
+         WHEN last_release_date IS NULL THEN 'Not released'
+         ELSE CAST(last_release_date AS VARCHAR)
+       END AS last_release_date
+FROM github.nfcore_pipelines;

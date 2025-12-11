@@ -1,6 +1,24 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
-  ]
+    "config:best-practices"
+  ],
+  "schedule": ["before 5am on the first day of the month"],
+  "timezone": "UTC",
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "all non-major dependencies",
+      "automerge": true,
+      "automergeType": "branch"
+    },
+    {
+      "matchDepTypes": ["devDependencies"],
+      "groupName": "all dev dependencies",
+      "automerge": true,
+      "automergeType": "branch"
+    }
+  ],
+  "dependencyDashboard": true,
+  "prCreation": "not-pending"
 }
