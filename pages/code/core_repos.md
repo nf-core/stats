@@ -13,6 +13,7 @@ select
   watchers_count,
   forks_count,
   open_issues_count,
+  topics,
   archived
 from nfcore_db.core_repos
 where archived = false
@@ -27,5 +28,4 @@ search=true
 wrapTitles=true
 totalRow=true
 >
-  <Column id="description" title="Description" wrap contentType="text" maxWidth={300} />
 </DataTable>

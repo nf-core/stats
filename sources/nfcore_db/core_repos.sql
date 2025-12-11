@@ -1,19 +1,21 @@
 USE nf_core_stats_bot;
 
-SELECT 
-  name,
-  description,
-  gh_created_at,
-  gh_updated_at,
-  gh_pushed_at,
-  stargazers_count,
-  watchers_count,
-  forks_count,
-  open_issues_count,
-  topics,
-  default_branch,
-  archived,
-  category
-FROM github.nfcore_pipelines 
-WHERE category = 'core'
-ORDER BY stargazers_count DESC;
+SELECT
+  p.name,
+  p.description,
+  p.gh_created_at,
+  p.gh_updated_at,
+  p.gh_pushed_at,
+  p.stargazers_count,
+  p.watchers_count,
+  p.forks_count,
+  p.open_issues_count,
+  LIST(t.value) as topics,
+  p.default_branch,
+  p.archived,
+  p.category
+FROM github.pipelines p
+LEFT JOIN github.pipelines__topics t ON p._dlt_id = t._dlt_parent_id
+WHERE p.category = 'core'
+GROUP BY ALL
+ORDER BY p.stargazers_count DESC;
