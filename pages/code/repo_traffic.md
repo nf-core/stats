@@ -17,12 +17,11 @@ Here are the nf-core repositories with the highest traffic numbers. This include
 select * from nfcore_db.repo_traffic_leaderboard
 ```
 
-<DataTable 
-    data={repo_traffic_leaderboard}
-    search=true
-    wrapTitles=true
-    totalRow=true
-    defaultSort={[{ id: 'total_views', desc: true }]}>
+<DataTable
+data={repo_traffic_leaderboard}
+search=true
+wrapTitles=true
+defaultSort={[{ id: 'total_views', desc: true }]}>
 
     <Column id="repository_link" title="Repository" align="left" contentType=link linkLabel=repository />
     <Column id="total_views" title="Total Views" align="right"/>
@@ -96,7 +95,7 @@ x=timestamp
 y=value
 series=category
 title="Views: All nf-core repositories"
-subtitle="nf-core repository web views per week from {inputs.range_filtering_a_query.start} to {inputs.range_filtering_a_query.end}"> 
+subtitle="nf-core repository web views per week from {inputs.range_filtering_a_query.start} to {inputs.range_filtering_a_query.end}">
 <ReferenceArea xMin='2024-01-24' xMax='2025-06-09' label="Data outage" color="gray"/>
 </LineChart>
 
@@ -118,9 +117,7 @@ x=timestamp
 y=value
 series=category
 title="Clones: All nf-core repositories"
-subtitle="nf-core repository clones per week from {inputs.range_filtering_a_query.start} to {inputs.range_filtering_a_query.end}"> 
-<ReferenceArea xMin='2024-01-24' xMax='2025-06-09' label="Data outage" color="gray"/>
-</AreaChart>
+subtitle="nf-core repository clones per week from {inputs.range_filtering_a_query.start} to {inputs.range_filtering_a_query.end}"> <ReferenceArea xMin='2024-01-24' xMax='2025-06-09' label="Data outage" color="gray"/> </AreaChart>
 
 <CalendarHeatmap
     data={traffic_by_day_filtered}

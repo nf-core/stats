@@ -22,9 +22,7 @@ Remember:
 data={code_contributors_leaderboard}
 search=true
 wrapTitles=true
-defaultSort={[{ id: 'total_commits', desc: true }]}
-
->
+defaultSort={[{ id: 'total_commits', desc: true }]}>
 
     <Column id="contributor" title="Contributor" align="left" contentType="html"/>
     <Column id="total_commits" title="Total Commits" align="right" />

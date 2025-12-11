@@ -34,8 +34,7 @@
   hideHeader={false}
   fullWidth={true}
   builtWithEvidence={true}
-  githubRepo="https://github.com/nf-core/stats"
->
+  githubRepo="https://github.com/nf-core/stats">
   <div slot="content">
     <slot />
     <div class="float-right">
