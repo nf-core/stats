@@ -5,6 +5,7 @@ from typing import Literal
 
 import dlt
 import requests
+from requests.utils import quote as requests_quote  # type: ignore[attr-defined]
 
 from ._github import check_rate_limit, get_github_headers, get_paginated_data, github_request
 
@@ -449,7 +450,7 @@ def modules_container_conversion(headers: dict) -> Iterator[dict]:
         # This is much more efficient than searching all yml files
         logger.info("Searching for linux_amd64 pattern in meta.yml files")
         container_query = 'repo:nf-core/modules "linux_amd64" extension:yml path:modules/nf-core'
-        search_url = f"https://api.github.com/search/code?q={requests.utils.quote(container_query)}&per_page=100"
+        search_url = f"https://api.github.com/search/code?q={requests_quote(container_query)}&per_page=100"
 
         container_results = []
         url: str | None = search_url
@@ -473,7 +474,7 @@ def modules_container_conversion(headers: dict) -> Iterator[dict]:
         # Search for "topics:" with "versions:" pattern in meta.yml files
         logger.info("Searching for topics: versions: pattern in meta.yml files")
         topics_query = 'repo:nf-core/modules "topics:" "versions:" extension:yml path:modules/nf-core'
-        topics_search_url = f"https://api.github.com/search/code?q={requests.utils.quote(topics_query)}&per_page=100"
+        topics_search_url = f"https://api.github.com/search/code?q={requests_quote(topics_query)}&per_page=100"
 
         topics_results = []
         url = topics_search_url
@@ -497,7 +498,7 @@ def modules_container_conversion(headers: dict) -> Iterator[dict]:
         # Search for "community.wave.seqera.io/library/" pattern in main.nf files
         logger.info("Searching for community.wave.seqera.io/library/ pattern in main.nf files")
         wave_query = 'repo:nf-core/modules "community.wave.seqera.io/library/" path:modules/nf-core'
-        wave_search_url = f"https://api.github.com/search/code?q={requests.utils.quote(wave_query)}&per_page=100"
+        wave_search_url = f"https://api.github.com/search/code?q={requests_quote(wave_query)}&per_page=100"
 
         wave_results = []
         url = wave_search_url
