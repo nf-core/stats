@@ -3,8 +3,10 @@ name: Run All Pipelines
   schedule:
     - cron: "0 0 * * *" # Run daily at midnight
   workflow_dispatch: # Allow manual triggers
-  # TODO: Run on dev dbs on pull request
-  #   pull_request:
+  pull_request:
+    paths:
+      - "pipeline/**"
+      - ".github/workflows/run_pipelines.yml"
   push:
     branches:
       - main
@@ -13,11 +15,13 @@ name: Run All Pipelines
       - ".github/workflows/run_pipelines.yml"
 
 env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-  TWITTER_BEARER_TOKEN: ${{ secrets.TWITTER_BEARER_TOKEN }}
-  DESTINATION__MOTHERDUCK__CREDENTIALS__DATABASE: ${{ secrets.MOTHERDUCK_DATABASE }}
-  DESTINATION__MOTHERDUCK__CREDENTIALS__PASSWORD: ${{ secrets.MOTHERDUCK_TOKEN }}
+  SOURCES__GITHUB_PIPELINE__GITHUB__API_TOKEN: ${{ secrets.GH_TOKEN_STATS_PAGE }}
+  SOURCES__SLACK_PIPELINE__SLACK__API_TOKEN: ${{ secrets.SLACK_USER_TOKEN }}
+  # Do not include motherduck tokens in case of a PR event, to avoid accidentically pushing to the prod database
+  DESTINATION__MOTHERDUCK__CREDENTIALS__DATABASE: ${{ github.event_name != 'pull_request' && 'nf_core_stats_bot' || '' }}
+  DESTINATION__MOTHERDUCK__CREDENTIALS__PASSWORD: ${{ github.event_name != 'pull_request' && secrets.MOTHERDUCK_TOKEN || '' }}
+  # For pull requests, use local DuckDB instead of MotherDuck
+  DESTINATION__DUCKDB__CREDENTIALS: ${{ github.event_name == 'pull_request' && './nf_core_stats.duckdb' || '' }}
   PYTHONUNBUFFERED: "1"
 
 jobs:
@@ -39,14 +43,15 @@ jobs:
     if: needs.maybe_skip.outputs.should_skip != 'true'
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         include:
           - pipeline: github
-            uuid: 017c8a09-9531-4206-a479-aa51a2209931
+            uuid: 73f22c65-592a-4368-8fc5-23787c1dc67d
           - pipeline: slack
-            uuid: af9808d6-6dd7-4e8d-8fc7-c132fc579597
-          - pipeline: twitter
-            uuid: 39c783d5-b697-4eb5-b677-05bae13a2490
+            uuid: 585d7c4f-abc9-49fa-980f-64d950d6fd2b
+          - pipeline: citations
+            uuid: 40694d0-50ed-4bb7-919d-463d3555b23f
     defaults:
       run:
         working-directory: pipeline
@@ -60,8 +65,8 @@ jobs:
           python-version: "3.10"
           enable-cache: true
           cache-dependency-glob: |
-            pipeline/pyproject.toml
-            pipeline/uv.lock
+            **/pyproject.toml
+            **/uv.lock
 
       - name: Install runitor
         env:
@@ -75,8 +80,15 @@ jobs:
           ./runitor -version
           sudo mv runitor /usr/local/bin/
 
-      - name: Run ${{ matrix.pipeline }} pipeline
+      - name: Get ${{ matrix.pipeline }} stats
         run: |
           runitor -uuid ${{ matrix.uuid }} -- \
-              uv run python \
-              ${{ matrix.pipeline }}_pipeline.py
+              uv run nf_core_stats ${{ matrix.pipeline }} ${{ github.event_name == 'pull_request' && '--destination duckdb' || '' }}
+
+      - name: Upload DuckDB artifacts
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: duckdb-${{ matrix.pipeline }}
+          path: pipeline/nf_core_stats.duckdb
+          retention-days: 7

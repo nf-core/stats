@@ -1,4 +1,4 @@
-use nfcore_db;
+use nf_core_stats_bot;
 
-select * from nfcore_db.twitter;
--- timestamp, followers
+select timestamp, followers_count from twitter.account_stats
+where timestamp < epoch(TIMESTAMP '2023-04-28 00:00:00');

@@ -8,5 +8,6 @@ static/data
 .vscode/settings.json
 .env
 .evidence/meta
-
 .meltano/
+*.pyc
+__pycache__

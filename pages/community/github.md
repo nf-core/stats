@@ -1,6 +1,8 @@
 ---
 title: GitHub
 sidebar_position: 2
+queries:
+ - code/growth_gh_commits.sql
 ---
 
 ## GitHub organisation members
@@ -10,7 +12,7 @@ We use GitHub to manage all of the code written for nf-core. It's a fantastic pl
 It's not required to be a member of the nf-core GitHub organisation to contribute. However, members get the nf-core logo listed on their profile page and full write-access to all nf-core repositories.
 
 ```github_members
-select * from community_github_members;
+select * from community_github_members order by 1 desc
 ```
 
 <AreaChart 
@@ -26,12 +28,25 @@ select * from community_github_members;
 Anybody can fork nf-core repositories and open a pull-request. Here we count how many different people have contributed at least one commit to an nf-core repository, or created or commented on an issue or pull-request.
 
 ```contributors_over_time
+with all_timestamps as (
+  select distinct timestamp
+  from community_github_contributors
+  order by timestamp
+),
+cumulative_contributors as (
+  select 
+    t.timestamp,
+    count(distinct c.username) as number_of_contributors
+  from all_timestamps t
+  left join community_github_contributors c 
+    on c.timestamp <= t.timestamp
+  group by t.timestamp
+)
 select 
-timestamp,
-sum(count(username)) over (order by timestamp) as number_of_contributors,
-from
-community_github_contributors
-group by timestamp
+  timestamp,
+  number_of_contributors
+from cumulative_contributors
+order by timestamp
 ```
 
 <AreaChart
@@ -40,25 +55,15 @@ group by timestamp
     y=number_of_contributors
 />
 
-> Plot truncated to start of 2018 (some pipelines moved to nf-core so have older contributions).
-
-
 
 ### Commits and Issues
 
 <!-- commits, commits and issues, issues area chart -->
 
-```commits_over_time
-select 
-to_timestamp(timestamp) as timestamp,
-sum(number_of_commits) over (order by timestamp) as number_of_commits,
-from
-nfcore_issues_stats.gh_commits
-```
 
 <AreaChart
-    data={commits_over_time}
-    x=timestamp
-    y=number_of_commits
+    data={code_growth_gh_commits}
+    x=month
+    y=num_commits
 />
 

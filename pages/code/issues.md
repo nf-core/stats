@@ -7,70 +7,44 @@ sidebar_position: 3
 
 GitHub issues can be created to log feature requests, bug reports or questions.
 
-<!-- TODO: Live data https://github.com/nf-core/stats/issues/4 -->
-<!-- FIXME Need to split the data again values aren't right-->
-
 ```sql issues_over_time
-select
-  date,
-  'Closed' as status,
-  closed as count
-from stats_static.github_issues
-union all
-select
-  date,
-  'Open' as status,
-  open as count
-from stats_static.github_issues
-order by date asc, status asc
+select timestamp, -closed_merged as "Closed", open as "Open"
+from nfcore_db.issues_and_prs_over_time
+where type = 'issue'
 ```
 
-<AreaChart
+<LineChart
   data={issues_over_time}
-  x=date
-  y=count
-  series=status
-  seriesOrder={['Closed', 'Open']}
+  x=timestamp
+  y={["Closed", "Open"]}
   title="GitHub Issues over time"
   yAxisTitle="Number of Issues"
 />
 
-## Issue response times
+## Issue Response Times
 
 A sign of an active community is a quick response time to issues. Here we see a frequency histogram of how long it takes to respond to and close issues.
 
-<!-- TODO: Live data https://github.com/nf-core/stats/issues/5 -->
+The histogram below shows the distribution of response times split between pipeline repositories and core infrastructure repositories. Pipeline repos are those listed in the nf-core pipelines registry, while core repos include tools, website, and other infrastructure. This comparison helps identify if there are different response patterns between the scientific pipelines and the supporting infrastructure.
 
 ```sql issues_response_time
-select
-  label,
-  time_to_close as value,
-  'Time to close' as category
-from stats_static.github_issue_response_time
-
-union all
-
-select
-  label,
-  time_to_first_response as value,
-  'Time to First Response' as category
-from stats_static.github_issue_response_time
+select *
+from nfcore_db.response_times
+where type = 'issue'
 ```
 
 <BarChart
-  data={issues_response_time}
-  x=label
-  y=value
-  swapXY=true
-  series=category
-  sort=false
-  type=grouped
-  title="GitHub Issues Response Time"
-  subtitle="First response is when a comment is made by a GitHub user other than the original issue author"
-  yAxisTitle="Percentage of issues"
-  yFmt=pct
-  xType="category"
-  xGridLines=true
-  xLabelRotation={45}
-  legendPosition="bottom"
+data={issues_response_time}
+x=label
+y={["pipeline_time_to_close", "core_time_to_close"]}
+sort=false
+type=grouped
+title="GitHub Issue Response Time by Repository Type"
+subtitle="Distribution of close times for pipeline repos vs core infrastructure repos"
+yAxisTitle="Percentage of Issues"
+yFmt=pct
+xType="category"
+xGridLines=true
+xLabelWrap=true
+legendPosition="bottom"
 />

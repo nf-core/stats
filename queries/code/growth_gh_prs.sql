@@ -1,32 +1,11 @@
-with monthly_counts as (
-    select date_trunc('month', generate_series) as month,
-        max(closed_merged) as num_prs
-    from stats_static.github_prs
-        cross join generate_series(
-            date_trunc('month', '2020-01-01'::timestamp),
-            date_trunc('month', current_date),
-            interval '1 month'
-        )
-    where date <= generate_series
-    group by 1
-)
-select month,
-    num_prs,
-    lag(num_prs) over (
-        order by month
-    ) as prev_month_num_prs,
-    round(
-        cast(
-            (
-                num_prs / nullif(
-                    lag(num_prs) over (
-                        order by month
-                    ),
-                    0
-                ) - 1
-            ) * 100 as numeric
-        ),
-        1
-    ) as growth_rate
-from monthly_counts
+select 
+    month,
+    num_total as num_prs,
+    num_open as num_open_prs,
+    prev_month_total as prev_month_num_prs,
+    prev_month_open as prev_month_num_open_prs,
+    growth_rate,
+    open_growth_rate
+from ${code_growth_issues_and_prs}
+where type = 'pr'
 order by month desc
