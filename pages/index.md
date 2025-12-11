@@ -18,7 +18,6 @@ On this page you can see the beating heart of nf-core - the size of our communit
 
 The numbers below track our growth over the various channels that the nf-core community operates in.
 
-
 <BigValue
   data={community_growth_gh_members}
   value=members

@@ -1,4 +1,4 @@
-select 
+select
     month,
     num_total as num_issues,
     num_open as num_open_issues,

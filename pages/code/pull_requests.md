@@ -14,11 +14,11 @@ where type = 'pr'
 ```
 
 <LineChart
-  data={pull_requests_over_time}
-  x=timestamp
-  y={["Closed / Merged", "Open"]}
-  title="GitHub Pull Requests over time"
-  yAxisTitle="Number of Pull Requests"
+data={pull_requests_over_time}
+x=timestamp
+y={["Closed / Merged", "Open"]}
+title="GitHub Pull Requests over time"
+yAxisTitle="Number of Pull Requests"
 />
 
 ## Pull Request Response Times

@@ -1,6 +1,6 @@
 USE nf_core_stats_bot;
 
-SELECT 
+SELECT
   name,
   archived,
   gh_created_at,

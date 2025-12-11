@@ -14,7 +14,7 @@ The pipeline will:
 
 ## Setup
 
-All dependencies are declared in `pyproject.toml` and `uv.lock`. 
+All dependencies are declared in `pyproject.toml` and `uv.lock`.
 To setup the virtual environment, execute
 
 ```bash
@@ -26,14 +26,14 @@ in the `pipeline` directory.
 ## Configuration
 
 The pipeline relies on the following environment variables for retrieving secrets and
-configuration. These are "magic" environment variables that are interpreted by `dlt` to 
-set its configuration. You could also use a `secrets.toml` file instead. For more details, 
-refor to the [credentials](https://dlthub.com/docs/general-usage/credentials/setup) page. 
+configuration. These are "magic" environment variables that are interpreted by `dlt` to
+set its configuration. You could also use a `secrets.toml` file instead. For more details,
+refor to the [credentials](https://dlthub.com/docs/general-usage/credentials/setup) page.
 
 ```bash
 # github token
 # requires `repo`, `public_repo`, and `read:org` permissions
-SOURCES__GITHUB_PIPELINE__GITHUB__API_TOKEN                           
+SOURCES__GITHUB_PIPELINE__GITHUB__API_TOKEN
 SOURCES__SLACK_PIPELINE__SLACK__API_TOKEN                             # slack token
 
 # For motherduck destination
@@ -44,22 +44,22 @@ DESTINATION__MOTHERDUCK__CREDENTIALS__PASSWORD                        # motherdu
 DESTINATION__DUCKDB__CREDENTIALS="./nf_core_stats.duckdb"
 ```
 
-`dotenv` can retrieve them from 1password automatically, see `.envrc` for more details. If you 
+`dotenv` can retrieve them from 1password automatically, see `.envrc` for more details. If you
 are not using `dotenv`, you need to set these env vars manually.
 
 ## Usage
 
-The data loading pipeline is executed on github actions, triggered by a nightly cronjob. 
-See `.github/workflows/run_pipelines.yml` for more details. 
+The data loading pipeline is executed on github actions, triggered by a nightly cronjob.
+See `.github/workflows/run_pipelines.yml` for more details.
 
 To manually run the pipeline in development mode, run the pipelines with `uv`. The pipelines
-are organized as subcommands of the `nf_core_stats` binary: 
+are organized as subcommands of the `nf_core_stats` binary:
 
 ```bash
 uv run nf_core_stats --help
 ```
 
-For example, you can run 
+For example, you can run
 
 ```bash
 uv run nf_core_stats github --destination duckdb
@@ -128,6 +128,7 @@ Database: nf_core_stats
 - `clones_uniques`: Number of unique cloners
 
 **Note**: Traffic stats are optimized to reduce API burden by only collecting data for:
+
 - Repositories updated in the last 6 months (non-archived)
 - Top repositories by star count (configurable limit, default 50)
 
@@ -159,6 +160,7 @@ Database: nf_core_stats
 - `html_url`: Link to issue/PR
 
 **Note**: Comment fetching is incremental and only occurs when:
+
 - Rate limit allows (>500 requests remaining)
 - Issue has new or changed comments since last run
 

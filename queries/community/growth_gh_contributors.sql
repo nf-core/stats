@@ -1,13 +1,13 @@
 with first_contributions as (
-    select 
+    select
         username,
         date_trunc('month', min(timestamp)) as first_contribution_month
-    from community_github_contributors 
+    from community_github_contributors
     where week_commits > 0  -- only count actual contributors
     group by username
 ),
 monthly_new_contributors as (
-    select 
+    select
         first_contribution_month as month,
         count(*) as new_contributors
     from first_contributions

@@ -53,26 +53,26 @@ issue_core_totals AS (
   WHERE i.issue_type = 'issue' AND i.closed_wait_seconds IS NOT NULL AND p.name IS NULL
 )
 
-SELECT 
+SELECT
   b.label,
   'pr' as type,
   b.min_seconds,
   -- PR Pipeline repos
   ROUND(
-    CAST(COUNT(CASE WHEN p.name IS NOT NULL AND i1.issue_type = 'pr' AND i1.closed_wait_seconds IS NOT NULL THEN 1 END) AS FLOAT) / 
-    (SELECT total FROM pr_pipeline_totals), 
+    CAST(COUNT(CASE WHEN p.name IS NOT NULL AND i1.issue_type = 'pr' AND i1.closed_wait_seconds IS NOT NULL THEN 1 END) AS FLOAT) /
+    (SELECT total FROM pr_pipeline_totals),
     6
   ) as pipeline_time_to_close,
   -- PR Core repos
   ROUND(
-    CAST(COUNT(CASE WHEN p.name IS NULL AND i1.issue_type = 'pr' AND i1.closed_wait_seconds IS NOT NULL THEN 1 END) AS FLOAT) / 
-    (SELECT total FROM pr_core_totals), 
+    CAST(COUNT(CASE WHEN p.name IS NULL AND i1.issue_type = 'pr' AND i1.closed_wait_seconds IS NOT NULL THEN 1 END) AS FLOAT) /
+    (SELECT total FROM pr_core_totals),
     6
   ) as core_time_to_close
 FROM time_bins b
 LEFT JOIN github.issue_stats i1 ON (
-  i1.issue_type = 'pr' 
-  AND i1.closed_wait_seconds > b.min_seconds 
+  i1.issue_type = 'pr'
+  AND i1.closed_wait_seconds > b.min_seconds
   AND i1.closed_wait_seconds <= b.max_seconds
 )
 LEFT JOIN github.nfcore_pipelines p ON i1.pipeline_name = p.name
@@ -80,29 +80,29 @@ GROUP BY b.label, b.min_seconds
 
 UNION ALL
 
-SELECT 
+SELECT
   b.label,
   'issue' as type,
   b.min_seconds,
   -- Issue Pipeline repos
   ROUND(
-    CAST(COUNT(CASE WHEN p.name IS NOT NULL AND i1.issue_type = 'issue' AND i1.closed_wait_seconds IS NOT NULL THEN 1 END) AS FLOAT) / 
-    (SELECT total FROM issue_pipeline_totals), 
+    CAST(COUNT(CASE WHEN p.name IS NOT NULL AND i1.issue_type = 'issue' AND i1.closed_wait_seconds IS NOT NULL THEN 1 END) AS FLOAT) /
+    (SELECT total FROM issue_pipeline_totals),
     6
   ) as pipeline_time_to_close,
   -- Issue Core repos
   ROUND(
-    CAST(COUNT(CASE WHEN p.name IS NULL AND i1.issue_type = 'issue' AND i1.closed_wait_seconds IS NOT NULL THEN 1 END) AS FLOAT) / 
-    (SELECT total FROM issue_core_totals), 
+    CAST(COUNT(CASE WHEN p.name IS NULL AND i1.issue_type = 'issue' AND i1.closed_wait_seconds IS NOT NULL THEN 1 END) AS FLOAT) /
+    (SELECT total FROM issue_core_totals),
     6
   ) as core_time_to_close
 FROM time_bins b
 LEFT JOIN github.issue_stats i1 ON (
-  i1.issue_type = 'issue' 
-  AND i1.closed_wait_seconds > b.min_seconds 
+  i1.issue_type = 'issue'
+  AND i1.closed_wait_seconds > b.min_seconds
   AND i1.closed_wait_seconds <= b.max_seconds
 )
 LEFT JOIN github.nfcore_pipelines p ON i1.pipeline_name = p.name
 GROUP BY b.label, b.min_seconds
 
-ORDER BY type, min_seconds 
+ORDER BY type, min_seconds

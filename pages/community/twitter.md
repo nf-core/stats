@@ -3,7 +3,7 @@ title: Twitter
 sidebar_position: 2
 ---
 
-Up until 2025-01-20, we used our [@nf_core](https://twitter.com/nf_core) twitter account to send automated tweets about new pipeline releases and other updates relevant to the community. 
+Up until 2025-01-20, we used our [@nf_core](https://twitter.com/nf_core) twitter account to send automated tweets about new pipeline releases and other updates relevant to the community.
 
 Follower counts give some indication to the historical level of interest in the nf-core project.
 
@@ -22,7 +22,7 @@ group by 1
 />
 
 ```twitter_followers
-select 
+select
     to_timestamp(timestamp) as date,
     followers_count
 from twitter
@@ -37,6 +37,4 @@ where date between '${inputs.range_filtering_a_query.start}' and '${inputs.range
     subtitle="Per day from {inputs.range_filtering_a_query.start} to {inputs.range_filtering_a_query.end}"
 />
 
-
 ⚠️ Data from before 2019-06-26 fudged by reverse-engineering a tiny sparkline plot on the twitter analytics website.
-

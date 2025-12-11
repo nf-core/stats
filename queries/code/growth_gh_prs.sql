@@ -1,4 +1,4 @@
-select 
+select
     month,
     num_total as num_prs,
     num_open as num_open_prs,

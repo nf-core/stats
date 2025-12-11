@@ -2,8 +2,6 @@
 ![Slack Stats Pipeline](https://img.shields.io/endpoint?url=https%3A%2F%2Fhealthchecks.io%2Fb%2F3%2F6e2e8ee4-ae42-482d-a1cf-85c923dabb8b.shields)
 ![Twitter Stats Pipeline](https://img.shields.io/endpoint?url=https%3A%2F%2Fhealthchecks.io%2Fb%2F3%2Fb661a22a-d804-4327-931a-cea96a26747f.shields)
 
-
-
 # Data loading pipeline
 
 This project uses [dlt](https://dlthub.com/docs) to load data into a motherduck instance. For more details, see [pipeline/README.md](pipeline/README.md)
@@ -46,10 +44,10 @@ The easiest way to get started is using the [VS Code Extension](https://marketpl
 
 ```bash
 npx degit evidence-dev/template my-project
-cd my-project 
-npm install 
+cd my-project
+npm install
 npm run sources
-npm run dev 
+npm run dev
 ```
 
 Check out the docs for [alternative install methods](https://docs.evidence.dev/getting-started/install-evidence) including Docker, Github Codespaces, and alongside dbt.

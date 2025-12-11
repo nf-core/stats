@@ -1,5 +1,8 @@
 # This file was automatically generated
-name: nfcore_db
 type: motherduck
+name: nfcore_db
 options:
   database: nf_core_stats_bot
+# Advanced Options, you probably don't want to change this
+buildOptions:
+  batchSize: 1000000

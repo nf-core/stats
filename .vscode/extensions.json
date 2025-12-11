@@ -1,6 +1,6 @@
 {
-	"recommendations": [
-		"evidence.evidence-vscode",
-		"evidence.sqltools-duckdb-driver"
-	]
+  "recommendations": [
+    "evidence.evidence-vscode",
+    "evidence.sqltools-duckdb-driver"
+  ]
 }

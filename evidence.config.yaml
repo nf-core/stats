@@ -15,11 +15,11 @@ theme:
       light: "#f8f9fa" # white
       dark: "#222528" # dark gray/black
     info:
-      light: "#0dcaf0"  # Cyan
-      dark: "#74c7d4"  # Cyan
+      light: "#0dcaf0" # Cyan
+      dark: "#74c7d4" # Cyan
     warning:
-      light: "#ffc107"  # Yellow
-      dark: "#ffda6a"  # Yellow
+      light: "#ffc107" # Yellow
+      dark: "#ffda6a" # Yellow
     # negative:
     #   light: "#ff5555"  # Red
     #   dark: "#ff5555"  # Red

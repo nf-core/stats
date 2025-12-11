@@ -5,16 +5,15 @@ sidebar_position: 1
 
 All nf-core pipelines are only considered stable when they have at least one release. Until then, they are classed as "in development".
 
-
 ```sql pipeline_chart_data
 -- Transform the data for the area chart
-SELECT 
+SELECT
   date,
   in_development as count,
   'in development' as status
 FROM nfcore_db.pipeline_numbers
 UNION ALL
-SELECT 
+SELECT
   date,
   released as count,
   'released' as status
@@ -27,7 +26,7 @@ data={pipeline_chart_data}
 x=date
 y=count
 series=status
-seriesOrder={['released','in development']} 
+seriesOrder={['released','in development']}
 title="nf-core pipeline numbers over time"
 yAxisTitle="Number of pipelines"
 />
@@ -37,21 +36,21 @@ yAxisTitle="Number of pipelines"
 ```sql latest_numbers
 -- Get the most recent counts for both statuses
 WITH latest_data AS (
-  SELECT 
+  SELECT
     in_development,
     released
   FROM nfcore_db.pipeline_numbers
   ORDER BY date DESC
   LIMIT 1
 )
-SELECT 
+SELECT
   'In development' as status,
   in_development as count
 FROM latest_data
 
 UNION ALL
 
-SELECT 
+SELECT
   'Released' as status,
   released as count
 FROM latest_data
