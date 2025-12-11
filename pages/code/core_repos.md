@@ -15,6 +15,7 @@ select
   open_issues_count,
   topics,
   archived,
+  default_branch,
   'https://github.com/nf-core/' || name as github_url
 from nfcore_db.core_repos
 where archived = false
