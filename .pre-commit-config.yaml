@@ -12,6 +12,8 @@ repos:
         entry: prettier --experimental-cli --write --ignore-unknown --no-cache
         additional_dependencies:
           - prettier@3.7.4
+          - prettier-plugin-svelte@3.4.0
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
