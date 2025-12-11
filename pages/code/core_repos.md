@@ -14,7 +14,8 @@ select
   forks_count,
   open_issues_count,
   topics,
-  archived
+  archived,
+  'https://github.com/nf-core/' || name as github_url
 from nfcore_db.core_repos
 where archived = false
 ```
@@ -27,5 +28,6 @@ defaultSort={[{ id: 'stargazers_count', desc: true }]}
 search=true
 wrapTitles=true
 totalRow=true
+link=github_url
 >
 </DataTable>
