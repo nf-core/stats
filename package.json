@@ -23,7 +23,7 @@
         "@evidence-dev/motherduck": "^1.0.5"
     },
     "overrides": {
-        "jsonwebtoken": "9.0.2",
+        "jsonwebtoken": "9.0.3",
         "trim@<0.0.3": ">0.0.3",
         "sqlite3": "5.1.7",
         "axios": "^1.7.4"
