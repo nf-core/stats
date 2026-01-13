@@ -20,6 +20,42 @@ from ._logging import log_pipeline_stats, logger
 
 PIPELINES_URL = "https://nf-co.re/pipelines.json"
 PIPELINES_DIR = Path("pipelines")
+NEXTFLOW_REPO = "https://github.com/nextflow-io/nextflow.git"
+
+
+def get_nextflow_sha() -> str:
+    """Get Nextflow HEAD commit SHA from remote."""
+    result = subprocess.run(
+        ["git", "ls-remote", NEXTFLOW_REPO, "HEAD"],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    return result.stdout.split()[0]
+
+
+def get_remote_head_sha(repo_url: str) -> str | None:
+    """Get HEAD commit SHA from remote without cloning."""
+    try:
+        # Try dev branch first
+        result = subprocess.run(
+            ["git", "ls-remote", repo_url, "refs/heads/dev"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        if result.stdout.strip():
+            return result.stdout.split()[0]
+        # Fallback to default branch
+        result = subprocess.run(
+            ["git", "ls-remote", repo_url, "HEAD"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return result.stdout.split()[0] if result.stdout.strip() else None
+    except subprocess.CalledProcessError:
+        return None
 
 
 def get_nextflow_version() -> str:
@@ -127,8 +163,13 @@ def strict_syntax_source(pipelines_filter: list[str] | None = None):
     """DLT source for strict-syntax linting data."""
     logger.info("Initialized strict-syntax linting source")
 
+    # Get dlt state for caching
+    state = dlt.current.source_state()
+    last_analyzed = state.setdefault("last_analyzed", {})
+
     nf_version = get_nextflow_version()
-    logger.info(f"Nextflow version: {nf_version}")
+    nf_sha = get_nextflow_sha()
+    logger.info(f"Nextflow version: {nf_version} (sha: {nf_sha[:8]})")
 
     pipelines = fetch_pipelines()
     if pipelines_filter:
@@ -138,38 +179,62 @@ def strict_syntax_source(pipelines_filter: list[str] | None = None):
 
     # Run linting and collect results
     results = []
+    skipped = 0
     for pipeline in pipelines:
-        logger.info(f"Processing {pipeline['name']}...")
+        name = pipeline["name"]
+        repo_url = pipeline["html_url"]
+
+        # Check if we can skip this pipeline
+        pipeline_sha = get_remote_head_sha(repo_url)
+        cached = last_analyzed.get(name, {})
+        if (
+            pipeline_sha
+            and cached.get("nf_sha") == nf_sha
+            and cached.get("pipeline_sha") == pipeline_sha
+        ):
+            logger.info(f"Skipping unchanged: {name}")
+            skipped += 1
+            continue
+
+        logger.info(f"Processing {name}...")
         try:
             repo_path = clone_pipeline(pipeline)
             lint_result = lint_pipeline(repo_path)
             results.append({
-                "name": pipeline["name"],
+                "name": name,
                 "full_name": pipeline["full_name"],
-                "html_url": pipeline["html_url"],
+                "html_url": repo_url,
                 "errors": lint_result.get("summary", {}).get("errors", 0),
                 "warnings": len(lint_result.get("warnings", [])),
                 "parse_error": lint_result.get("parse_error", False),
+                "commit_sha": pipeline_sha,
+                "nextflow_sha": nf_sha,
             })
+            # Update state on success
+            last_analyzed[name] = {"nf_sha": nf_sha, "pipeline_sha": pipeline_sha}
         except subprocess.CalledProcessError as e:
-            logger.error(f"Failed to process {pipeline['name']}: {e}")
+            logger.error(f"Failed to process {name}: {e}")
             results.append({
-                "name": pipeline["name"],
+                "name": name,
                 "full_name": pipeline["full_name"],
-                "html_url": pipeline["html_url"],
+                "html_url": repo_url,
                 "errors": 0,
                 "warnings": 0,
                 "parse_error": True,
+                "commit_sha": pipeline_sha,
+                "nextflow_sha": nf_sha,
             })
 
+    logger.info(f"Processed {len(results)} pipelines, skipped {skipped} unchanged")
+
     return [
-        dlt.resource(strict_syntax_history(results, nf_version), name="strict_syntax_history"),
+        dlt.resource(strict_syntax_history(results, nf_version, nf_sha), name="strict_syntax_history"),
         dlt.resource(strict_syntax_pipelines(results), name="strict_syntax_pipelines"),
     ]
 
 
 @dlt.resource(write_disposition="merge", primary_key=["date"])
-def strict_syntax_history(results: list[dict], nf_version: str) -> Iterator[dict]:
+def strict_syntax_history(results: list[dict], nf_version: str, nf_sha: str) -> Iterator[dict]:
     """Generate aggregated history entry from lint results."""
     valid_results = [r for r in results if not r.get("parse_error", False)]
     parse_error_count = sum(1 for r in results if r.get("parse_error", False))
@@ -179,6 +244,7 @@ def strict_syntax_history(results: list[dict], nf_version: str) -> Iterator[dict
     yield {
         "date": today,
         "nextflow_version": nf_version,
+        "nextflow_sha": nf_sha,
         "total_pipelines": len(results),
         "parse_errors": parse_error_count,
         "errors_zero": sum(1 for r in valid_results if r["errors"] == 0),
@@ -203,6 +269,8 @@ def strict_syntax_pipelines(results: list[dict]) -> Iterator[dict]:
             "parse_error": r["parse_error"],
             "errors": r["errors"] if not r["parse_error"] else None,
             "warnings": r["warnings"] if not r["parse_error"] else None,
+            "commit_sha": r.get("commit_sha"),
+            "nextflow_sha": r.get("nextflow_sha"),
             "updated_at": datetime.now(timezone.utc).isoformat(),
         }
 
