@@ -1,0 +1,90 @@
+name: Lint nf-core Pipelines (Strict Syntax)
+
+on:
+  schedule:
+    # Run daily at 1 AM UTC (after other pipelines finish)
+    - cron: "0 1 * * *"
+  workflow_dispatch:
+    inputs:
+      pipelines:
+        description: "Specific pipeline(s) to lint (comma-separated, leave empty for all)"
+        type: string
+        default: ""
+
+permissions:
+  contents: write
+
+env:
+  SOURCES__GITHUB_PIPELINE__GITHUB__API_TOKEN: ${{ secrets.GH_TOKEN_STATS_PAGE }}
+  DESTINATION__MOTHERDUCK__CREDENTIALS__DATABASE: ${{ github.event_name != 'pull_request' && 'nf_core_stats_bot' || '' }}
+  DESTINATION__MOTHERDUCK__CREDENTIALS__PASSWORD: ${{ github.event_name != 'pull_request' && secrets.MOTHERDUCK_TOKEN || '' }}
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: pipeline
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get Nextflow latest commit
+        id: nf-commit
+        run: |
+          COMMIT=$(git ls-remote https://github.com/nextflow-io/nextflow.git HEAD | cut -f1)
+          echo "sha=$COMMIT" >> $GITHUB_OUTPUT
+
+      - name: Restore Nextflow build cache
+        id: cache-nextflow
+        uses: actions/cache/restore@v4
+        with:
+          path: nextflow-src/build/releases
+          key: nextflow-build-${{ steps.nf-commit.outputs.sha }}
+
+      - name: Set up Java
+        if: steps.cache-nextflow.outputs.cache-hit != 'true'
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Clone and build Nextflow
+        id: build-nextflow
+        if: steps.cache-nextflow.outputs.cache-hit != 'true'
+        run: |
+          cd ..
+          git clone --depth 1 https://github.com/nextflow-io/nextflow.git nextflow-src
+          cd nextflow-src
+          make pack
+          cd build/releases/
+          ln -s nextflow-*-dist nextflow
+
+      - name: Save Nextflow build cache
+        if: steps.cache-nextflow.outputs.cache-hit != 'true' && steps.build-nextflow.outcome == 'success' && always()
+        uses: actions/cache/save@v4
+        with:
+          path: nextflow-src/build/releases
+          key: nextflow-build-${{ steps.nf-commit.outputs.sha }}
+
+      - name: Add Nextflow to PATH
+        run: echo "${{ github.workspace }}/nextflow-src/build/releases" >> $GITHUB_PATH
+
+      - name: Verify Nextflow
+        run: nextflow -version
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Run strict-syntax pipeline
+        run: |
+          PIPELINE_FILTER=""
+          if [[ -n "${{ inputs.pipelines }}" ]]; then
+            PIPELINE_FILTER="--pipelines ${{ inputs.pipelines }}"
+          fi
+          uv run nf_core_stats strict-syntax $PIPELINE_FILTER
