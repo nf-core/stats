@@ -1,6 +1,9 @@
 name: Lint nf-core Pipelines (Strict Syntax)
 
 on:
+  push:
+    paths:
+      - ".github/workflows/lint_strict_syntax.yml"
   schedule:
     # Run daily at 1 AM UTC (after other pipelines finish)
     - cron: "0 1 * * *"
