@@ -10,6 +10,7 @@ authors = [{ name = "nf-core team" }]
 dependencies = [
     "cyclopts>=4.1.0",
     "dlt[cli,duckdb,motherduck]>=1.18.2",
+    "httpx>=0.27.0",
     "python-dotenv==1.2.1",
     "requests>=2.31.0",
     "semanticscholar>=0.11.0",
