@@ -1,7 +1,7 @@
 USE nf_core_stats_bot;
 
 SELECT
-    date,
+    date::DATE as date,
     nextflow_version,
     total_pipelines,
     parse_errors,
