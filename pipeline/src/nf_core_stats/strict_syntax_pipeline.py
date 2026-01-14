@@ -158,34 +158,30 @@ def lint_pipeline(repo_path: Path) -> dict:
         return {"summary": {"errors": 0}, "errors": [], "warnings": [], "parse_error": True}
 
 
-@dlt.source(name="strict_syntax")
-def strict_syntax_source(pipelines_filter: list[str] | None = None):
-    """DLT source for strict-syntax linting data."""
-    logger.info("Initialized strict-syntax linting source")
+@dlt.resource(write_disposition="replace", primary_key=["pipeline_name"])
+def strict_syntax_lint_results(
+    pipelines: list[dict],
+    nf_version: str,
+    nf_sha: str,
+) -> Iterator[dict]:
+    """Lint pipelines with caching based on (nf_sha, pipeline_sha).
 
-    # Get dlt state for caching
+    State is accessed here (inside @dlt.resource) so it persists correctly.
+    Also stores aggregated stats in state for the history resource.
+    """
     state = dlt.current.source_state()
     last_analyzed = state.setdefault("last_analyzed", {})
 
-    nf_version = get_nextflow_version()
-    nf_sha = get_nextflow_sha()
-    logger.info(f"Nextflow version: {nf_version} (sha: {nf_sha[:8]})")
-
-    pipelines = fetch_pipelines()
-    if pipelines_filter:
-        filter_set = set(pipelines_filter)
-        pipelines = [p for p in pipelines if p["name"] in filter_set]
-        logger.info(f"Filtered to {len(pipelines)} pipelines: {', '.join(p['name'] for p in pipelines)}")
-
-    # Run linting and collect results
-    results = []
     skipped = 0
+    processed = 0
+    results_for_history: list[dict] = []
+
     for pipeline in pipelines:
         name = pipeline["name"]
         repo_url = pipeline["html_url"]
-
-        # Check if we can skip this pipeline
         pipeline_sha = get_remote_head_sha(repo_url)
+
+        # Check cache
         cached = last_analyzed.get(name, {})
         if (
             pipeline_sha
@@ -200,7 +196,7 @@ def strict_syntax_source(pipelines_filter: list[str] | None = None):
         try:
             repo_path = clone_pipeline(pipeline)
             lint_result = lint_pipeline(repo_path)
-            results.append({
+            result = {
                 "name": name,
                 "full_name": pipeline["full_name"],
                 "html_url": repo_url,
@@ -209,12 +205,12 @@ def strict_syntax_source(pipelines_filter: list[str] | None = None):
                 "parse_error": lint_result.get("parse_error", False),
                 "commit_sha": pipeline_sha,
                 "nextflow_sha": nf_sha,
-            })
+            }
             # Update state on success
             last_analyzed[name] = {"nf_sha": nf_sha, "pipeline_sha": pipeline_sha}
         except subprocess.CalledProcessError as e:
             logger.error(f"Failed to process {name}: {e}")
-            results.append({
+            result = {
                 "name": name,
                 "full_name": pipeline["full_name"],
                 "html_url": repo_url,
@@ -223,30 +219,34 @@ def strict_syntax_source(pipelines_filter: list[str] | None = None):
                 "parse_error": True,
                 "commit_sha": pipeline_sha,
                 "nextflow_sha": nf_sha,
-            })
+            }
 
-    logger.info(f"Processed {len(results)} pipelines, skipped {skipped} unchanged")
+        results_for_history.append(result)
+        processed += 1
 
-    return [
-        dlt.resource(strict_syntax_history(results, nf_version, nf_sha), name="strict_syntax_history"),
-        dlt.resource(strict_syntax_pipelines(results), name="strict_syntax_pipelines"),
-    ]
+        # Yield pipeline result
+        yield {
+            "pipeline_name": result["name"],
+            "full_name": result["full_name"],
+            "html_url": result["html_url"],
+            "parse_error": result["parse_error"],
+            "errors": result["errors"] if not result["parse_error"] else None,
+            "warnings": result["warnings"] if not result["parse_error"] else None,
+            "commit_sha": result.get("commit_sha"),
+            "nextflow_sha": result.get("nextflow_sha"),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }
 
+    logger.info(f"Processed {processed} pipelines, skipped {skipped} unchanged")
 
-@dlt.resource(write_disposition="merge", primary_key=["date"])
-def strict_syntax_history(results: list[dict], nf_version: str, nf_sha: str) -> Iterator[dict]:
-    """Generate aggregated history entry from lint results."""
-    valid_results = [r for r in results if not r.get("parse_error", False)]
-    parse_error_count = sum(1 for r in results if r.get("parse_error", False))
-
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-
-    yield {
-        "date": today,
+    # Store aggregated stats in state for history resource
+    valid_results = [r for r in results_for_history if not r.get("parse_error", False)]
+    state["history_data"] = {
+        "date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
         "nextflow_version": nf_version,
         "nextflow_sha": nf_sha,
-        "total_pipelines": len(results),
-        "parse_errors": parse_error_count,
+        "total_pipelines": processed,
+        "parse_errors": sum(1 for r in results_for_history if r.get("parse_error", False)),
         "errors_zero": sum(1 for r in valid_results if r["errors"] == 0),
         "errors_low": sum(1 for r in valid_results if 0 < r["errors"] <= 5),
         "errors_high": sum(1 for r in valid_results if r["errors"] > 5),
@@ -258,21 +258,35 @@ def strict_syntax_history(results: list[dict], nf_version: str, nf_sha: str) -> 
     }
 
 
-@dlt.resource(write_disposition="replace", primary_key=["pipeline_name"])
-def strict_syntax_pipelines(results: list[dict]) -> Iterator[dict]:
-    """Generate per-pipeline lint results."""
-    for r in results:
-        yield {
-            "pipeline_name": r["name"],
-            "full_name": r["full_name"],
-            "html_url": r["html_url"],
-            "parse_error": r["parse_error"],
-            "errors": r["errors"] if not r["parse_error"] else None,
-            "warnings": r["warnings"] if not r["parse_error"] else None,
-            "commit_sha": r.get("commit_sha"),
-            "nextflow_sha": r.get("nextflow_sha"),
-            "updated_at": datetime.now(timezone.utc).isoformat(),
-        }
+@dlt.resource(write_disposition="merge", primary_key=["date"])
+def strict_syntax_history() -> Iterator[dict]:
+    """Generate aggregated history entry from state (populated by lint_results)."""
+    state = dlt.current.source_state()
+    history_data = state.get("history_data")
+    if history_data:
+        yield history_data
+
+
+@dlt.source(name="strict_syntax")
+def strict_syntax_source(pipelines_filter: list[str] | None = None):
+    """DLT source for strict-syntax linting data."""
+    logger.info("Initialized strict-syntax linting source")
+
+    nf_version = get_nextflow_version()
+    nf_sha = get_nextflow_sha()
+    logger.info(f"Nextflow version: {nf_version} (sha: {nf_sha[:8]})")
+
+    pipelines = fetch_pipelines()
+    if pipelines_filter:
+        filter_set = set(pipelines_filter)
+        pipelines = [p for p in pipelines if p["name"] in filter_set]
+        logger.info(f"Filtered to {len(pipelines)} pipelines: {', '.join(p['name'] for p in pipelines)}")
+
+    # Return resources - state is accessed inside these (works correctly)
+    return [
+        strict_syntax_lint_results(pipelines, nf_version, nf_sha),
+        strict_syntax_history(),
+    ]
 
 
 def main(
