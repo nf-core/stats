@@ -444,6 +444,7 @@ source = { editable = "." }
 dependencies = [
     { name = "cyclopts" },
     { name = "dlt", extra = ["cli", "duckdb", "motherduck"] },
+    { name = "httpx" },
     { name = "python-dotenv" },
     { name = "requests" },
     { name = "semanticscholar" },
@@ -454,6 +455,7 @@ dependencies = [
 requires-dist = [
     { name = "cyclopts", specifier = ">=4.1.0" },
     { name = "dlt", extras = ["cli", "duckdb", "motherduck"], specifier = ">=1.18.2" },
+    { name = "httpx", specifier = ">=0.27.0" },
     { name = "python-dotenv", specifier = "==1.2.1" },
     { name = "requests", specifier = ">=2.31.0" },
     { name = "semanticscholar", specifier = ">=0.11.0" },
