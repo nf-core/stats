@@ -1,4 +1,6 @@
+import io
 import logging
+import zipfile
 from collections.abc import Iterator
 from datetime import datetime, timedelta, timezone
 from typing import Literal
@@ -424,99 +426,42 @@ def commit_stats(organization: str, headers: dict, repos: list[dict]) -> Iterato
 
 @dlt.resource(write_disposition="append", primary_key=["timestamp"])
 def modules_container_conversion(headers: dict) -> Iterator[dict]:
-    """Track nf-core/modules containing 'linux_amd64' in meta.yml files, to track new container syntax."""
-    logger.info("Scanning nf-core/modules for linux_amd64 usage in meta.yml")
+    """Track nf-core/modules containing 'linux/amd64' in meta.yml files, to track new container syntax.    """
+    logger.info("Scanning nf-core/modules for linux/amd64 usage in meta.yml")
 
     try:
-        # Use GitHub Tree API to get all files (only 1 API call)
-        tree_url = "https://api.github.com/repos/nf-core/modules/git/trees/master?recursive=1"
-        logger.info("Fetching repository tree from GitHub API")
-        response = github_request(tree_url, headers)
-        tree_data = response.json()
+        archive_url = "https://codeload.github.com/nf-core/modules/zip/refs/heads/master"
+        logger.info("Downloading nf-core/modules repository archive")
+        response = github_request(archive_url, headers)
 
-        # Filter to only meta.yml files in modules/nf-core/ directory
-        meta_yml_files = [
-            item
-            for item in tree_data.get("tree", [])
-            if item.get("path", "").startswith("modules/nf-core/")
-            and item.get("path", "").endswith("meta.yml")
-            and item.get("type") == "blob"
-        ]
+        total_modules = 0
+        total_with_pattern = 0
+        total_with_topics_version = 0
+        total_with_wave = 0
 
-        total_modules = len(meta_yml_files)
+        logger.info("Scanning repository archive for meta.yml and main.nf files")
+        with zipfile.ZipFile(io.BytesIO(response.content)) as archive:
+            for entry in archive.infolist():
+                if entry.is_dir():
+                    continue
+                path = entry.filename
+                if "/modules/nf-core/" not in path:
+                    continue
+                if path.endswith("meta.yml"):
+                    total_modules += 1
+                    content = archive.read(entry).decode("utf-8", errors="replace")
+                    if "linux/amd64" in content:
+                        total_with_pattern += 1
+                    if "topics:" in content and "versions:" in content:
+                        total_with_topics_version += 1
+                elif path.endswith("main.nf"):
+                    content = archive.read(entry).decode("utf-8", errors="replace")
+                    if "community.wave.seqera.io/library/" in content:
+                        total_with_wave += 1
+
         logger.info(f"Found {total_modules} meta.yml files in modules/nf-core/")
-
-        # Now search for "linux_amd64" pattern in these specific files using Code Search
-        # This is much more efficient than searching all yml files
-        logger.info("Searching for linux_amd64 pattern in meta.yml files")
-        container_query = 'repo:nf-core/modules "linux_amd64" extension:yml path:modules/nf-core'
-        search_url = f"https://api.github.com/search/code?q={requests_quote(container_query)}&per_page=100"
-
-        container_results = []
-        url: str | None = search_url
-        while url:
-            response = github_request(url, headers)
-            data = response.json()
-            items = data.get("items", [])
-            container_results.extend(items)
-
-            if "next" in response.links:
-                url = response.links["next"]["url"]
-            else:
-                url = None
-
-        # Filter to only meta.yml files
-        filtered_container = [r for r in container_results if r.get("path", "").endswith("meta.yml")]
-        total_with_pattern = len(filtered_container)
-
-        logger.info(f"Total meta.yml files with linux_amd64: {total_with_pattern}/{total_modules}")
-
-        # Search for "topics:" with "versions:" pattern in meta.yml files
-        logger.info("Searching for topics: versions: pattern in meta.yml files")
-        topics_query = 'repo:nf-core/modules "topics:" "versions:" extension:yml path:modules/nf-core'
-        topics_search_url = f"https://api.github.com/search/code?q={requests_quote(topics_query)}&per_page=100"
-
-        topics_results = []
-        url = topics_search_url
-        while url:
-            response = github_request(url, headers)
-            data = response.json()
-            items = data.get("items", [])
-            topics_results.extend(items)
-
-            if "next" in response.links:
-                url = response.links["next"]["url"]
-            else:
-                url = None
-
-        # Filter to only meta.yml files
-        filtered_topics = [r for r in topics_results if r.get("path", "").endswith("meta.yml")]
-        total_with_topics_version = len(filtered_topics)
-
+        logger.info(f"Total meta.yml files with linux/amd64: {total_with_pattern}/{total_modules}")
         logger.info(f"Total meta.yml files with topics: versions: {total_with_topics_version}/{total_modules}")
-
-        # Search for "community.wave.seqera.io/library/" pattern in main.nf files
-        logger.info("Searching for community.wave.seqera.io/library/ pattern in main.nf files")
-        wave_query = 'repo:nf-core/modules "community.wave.seqera.io/library/" path:modules/nf-core'
-        wave_search_url = f"https://api.github.com/search/code?q={requests_quote(wave_query)}&per_page=100"
-
-        wave_results = []
-        url = wave_search_url
-        while url:
-            response = github_request(url, headers)
-            data = response.json()
-            items = data.get("items", [])
-            wave_results.extend(items)
-
-            if "next" in response.links:
-                url = response.links["next"]["url"]
-            else:
-                url = None
-
-        # Filter to only main.nf files
-        filtered_wave = [r for r in wave_results if r.get("path", "").endswith("main.nf")]
-        total_with_wave = len(filtered_wave)
-
         logger.info(f"Total modules in repository: {total_modules}")
         logger.info(f"Total main.nf files with community.wave.seqera.io/library/: {total_with_wave}/{total_modules}")
 
@@ -541,7 +486,7 @@ def modules_container_conversion(headers: dict) -> Iterator[dict]:
     }
 
     logger.info(
-        f"modules container conversion: {total_with_pattern}/{total_modules} modules use linux_amd64. \n modules container conversion: data collected"
+        f"modules container conversion: {total_with_pattern}/{total_modules} modules use linux/amd64. \n modules container conversion: data collected"
     )
 
     yield result
