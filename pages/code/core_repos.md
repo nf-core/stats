@@ -30,5 +30,5 @@ search=true
 wrapTitles=true
 totalRow=true
 link=github_url
->
-</DataTable>
+
+> </DataTable>

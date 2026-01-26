@@ -6,10 +6,12 @@ description: Scaffold new DLT pipeline for data ingestion to MotherDuck
 # Add DLT Data Source
 
 ## When to Use
+
 - Adding new external data source (API, file, webhook)
 - Creating new tables in MotherDuck database
 
 ## File Structure
+
 ```
 pipeline/src/nf_core_stats/
 ├── __init__.py          # Add command registration
@@ -73,6 +75,7 @@ def main(
 ## CLI Registration
 
 Add to `pipeline/src/nf_core_stats/__init__.py`:
+
 ```python
 from . import <source>_pipeline
 app.command(<source>_pipeline.main, "<source>")
@@ -81,26 +84,28 @@ app.command(<source>_pipeline.main, "<source>")
 ## Workflow Integration
 
 Add to `.github/workflows/run_pipelines.yml` matrix:
+
 ```yaml
 - pipeline: <source>
-  uuid: <generate-new-uuid>  # for runitor monitoring
+  uuid: <generate-new-uuid> # for runitor monitoring
 ```
 
 Or create separate workflow if pipeline needs special dependencies (like Nextflow).
 
 ## Write Dispositions
 
-| Mode | Use When |
-|------|----------|
-| `merge` | Update existing rows by primary_key |
-| `replace` | Full table reload each run |
-| `append` | Insert-only, keep all history |
+| Mode      | Use When                            |
+| --------- | ----------------------------------- |
+| `merge`   | Update existing rows by primary_key |
+| `replace` | Full table reload each run          |
+| `append`  | Insert-only, keep all history       |
 
 ## Secrets Pattern
 
 Environment variable: `SOURCES__<PIPELINE>__<SERVICE>__<KEY>`
 
 Access in code:
+
 ```python
 api_token: str = dlt.secrets["sources.<pipeline>.<service>.<key>"]
 ```

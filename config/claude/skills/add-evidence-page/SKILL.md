@@ -6,10 +6,12 @@ description: Create new Evidence.dev dashboard page with charts and tables
 # Add Evidence Page
 
 ## When to Use
+
 - Adding new visualization/dashboard
 - Creating charts for existing DLT data
 
 ## File Structure
+
 ```
 ├── pages/<category>/<page>.md    # Page with charts
 └── sources/nfcore_db/<query>.sql # SQL data source
@@ -17,7 +19,7 @@ description: Create new Evidence.dev dashboard page with charts and tables
 
 ## Page Template
 
-```markdown
+````markdown
 ---
 title: Page Title
 sidebar_position: 1
@@ -28,6 +30,7 @@ Brief description of what this page shows.
 ```sql summary_query
 SELECT COUNT(*) as total FROM nfcore_db.<table_name>
 ```
+````
 
 <BigValue
   data={summary_query}
@@ -57,6 +60,7 @@ ORDER BY 1
 ## SQL Source Template
 
 File: `sources/nfcore_db/<query>.sql`
+
 ```sql
 SELECT
   column1,
@@ -69,16 +73,16 @@ ORDER BY count DESC
 
 ## Component Reference
 
-| Component | Use Case | Key Props |
-|-----------|----------|-----------|
-| BigValue | KPI cards | `data`, `value`, `title`, `sparkline`, `fmt` |
-| LineChart | Time series | `data`, `x`, `y`, `title`, `yAxisTitle` |
-| AreaChart | Stacked trends | `data`, `x`, `y`, `series`, `seriesColors` |
-| BarChart | Comparisons | `data`, `x`, `y`, `type=grouped`, `yFmt` |
-| DataTable | Tabular data | `data`, `search`, `totalRow`, `<Column>` |
-| CalendarHeatmap | Daily heatmap | `data`, `date`, `value` |
-| Tabs/Tab | Tabbed views | `<Tab label="Name">` |
-| DateRange | Date filter | `name`, `data`, `dates`, `defaultValue` |
+| Component       | Use Case       | Key Props                                    |
+| --------------- | -------------- | -------------------------------------------- |
+| BigValue        | KPI cards      | `data`, `value`, `title`, `sparkline`, `fmt` |
+| LineChart       | Time series    | `data`, `x`, `y`, `title`, `yAxisTitle`      |
+| AreaChart       | Stacked trends | `data`, `x`, `y`, `series`, `seriesColors`   |
+| BarChart        | Comparisons    | `data`, `x`, `y`, `type=grouped`, `yFmt`     |
+| DataTable       | Tabular data   | `data`, `search`, `totalRow`, `<Column>`     |
+| CalendarHeatmap | Daily heatmap  | `data`, `date`, `value`                      |
+| Tabs/Tab        | Tabbed views   | `<Tab label="Name">`                         |
+| DateRange       | Date filter    | `name`, `data`, `dates`, `defaultValue`      |
 
 ## DataTable with Columns
 
@@ -105,7 +109,7 @@ ORDER BY count DESC
 
 ## Date Filtering Pattern
 
-```markdown
+````markdown
 <DateRange name="date_range" data={base_query} dates=timestamp defaultValue="Last 90 Days"/>
 
 ```sql filtered_query
@@ -113,6 +117,7 @@ SELECT * FROM nfcore_db.<table>
 WHERE timestamp >= '${inputs.date_range.start}'
   AND timestamp <= '${inputs.date_range.end}'
 ```
+````
 
 <LineChart data={filtered_query} x=timestamp y=value/>
 ```
