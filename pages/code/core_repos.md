@@ -29,6 +29,4 @@ defaultSort={[{ id: 'stargazers_count', desc: true }]}
 search=true
 wrapTitles=true
 totalRow=true
-link=github_url
-
-> </DataTable>
+link=github_url> </DataTable>
