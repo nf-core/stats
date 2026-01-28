@@ -20,9 +20,9 @@ jobs:
       (${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }} != '')
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      pull-requests: write
-      issues: write
+      contents: read
+      pull-requests: read
+      issues: read
       id-token: write
       actions: read # Required for Claude to read CI results on PRs
     steps:
