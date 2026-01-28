@@ -1,31 +1,25 @@
 {
-    "name": "stats",
-    "version": "0.0.1",
-    "scripts": {
-        "build": "evidence build",
-        "build:strict": "evidence build:strict",
-        "dev": "evidence dev --open /",
-        "test": "evidence build",
-        "sources": "evidence sources",
-        "preview": "evidence preview"
-    },
-    "engines": {
-        "npm": ">=7.0.0",
-        "node": ">=18.0.0 <23.0.0"
-    },
-    "type": "module",
-    "private": true,
-    "dependencies": {
-        "@evidence-dev/core-components": "^5.4.0",
-        "@evidence-dev/csv": "^1.0.15",
-        "@evidence-dev/duckdb": "^2.0.0",
-        "@evidence-dev/evidence": "^40.1.6",
-        "@evidence-dev/motherduck": "^1.0.5"
-    },
-    "overrides": {
-        "jsonwebtoken": "9.0.2",
-        "trim@<0.0.3": ">0.0.3",
-        "sqlite3": "5.1.7",
-        "axios": "^1.7.4"
-    }
+  "name": "stats",
+  "version": "0.0.1",
+  "scripts": {
+    "build": "evidence build",
+    "build:strict": "evidence build:strict",
+    "dev": "evidence dev --open /",
+    "test": "evidence build",
+    "sources": "evidence sources",
+    "preview": "evidence preview"
+  },
+  "engines": {
+    "npm": ">=7.0.0",
+    "node": ">=18.0.0 <25.0.0"
+  },
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@evidence-dev/core-components": "^5.4.0",
+    "@evidence-dev/csv": "^1.0.15",
+    "@evidence-dev/duckdb": "^2.0.0",
+    "@evidence-dev/evidence": "^40.1.6",
+    "@evidence-dev/motherduck": "^1.0.5"
+  }
 }

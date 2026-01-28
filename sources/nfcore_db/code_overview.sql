@@ -1,6 +1,6 @@
 USE nf_core_stats_bot;
 
-select 
+select
     count(*) as num_pipelines
 from github.nfcore_pipelines
 -- TODO issues

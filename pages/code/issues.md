@@ -14,11 +14,11 @@ where type = 'issue'
 ```
 
 <LineChart
-  data={issues_over_time}
-  x=timestamp
-  y={["Closed", "Open"]}
-  title="GitHub Issues over time"
-  yAxisTitle="Number of Issues"
+data={issues_over_time}
+x=timestamp
+y={["Closed", "Open"]}
+title="GitHub Issues over time"
+yAxisTitle="Number of Issues"
 />
 
 ## Issue Response Times

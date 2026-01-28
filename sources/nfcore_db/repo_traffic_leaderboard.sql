@@ -1,6 +1,6 @@
 USE nf_core_stats_bot;
 
-SELECT 
+SELECT
     t.pipeline_name as repository,
     'https://github.com/nf-core/' || t.pipeline_name as repository_link,
     SUM(COALESCE(t.views, 0)) as total_views,

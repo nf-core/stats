@@ -8,4 +8,4 @@ SELECT
     clones_uniques
 FROM github.traffic_stats
 INNER JOIN github.nfcore_pipelines
-ON github.traffic_stats.pipeline_name = github.nfcore_pipelines.name 
+ON github.traffic_stats.pipeline_name = github.nfcore_pipelines.name
