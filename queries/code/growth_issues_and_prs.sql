@@ -1,4 +1,4 @@
-SELECT 
+SELECT
     month,
     type,
     total_count AS num_total,
@@ -8,7 +8,7 @@ SELECT
     round((total_count / lag(total_count, 1, 1) OVER (PARTITION BY type ORDER BY month) - 1)::numeric, 1) AS growth_rate,
     round((open_count / lag(open_count, 1, 1) OVER (PARTITION BY type ORDER BY month) - 1)::numeric * 100, 1) AS open_growth_rate
 FROM (
-    SELECT 
+    SELECT
         date_trunc('month', generate_series) AS month,
         type,
         max(closed_merged + open) AS total_count,

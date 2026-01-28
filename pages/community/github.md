@@ -2,7 +2,7 @@
 title: GitHub
 sidebar_position: 2
 queries:
- - code/growth_gh_commits.sql
+  - code/growth_gh_commits.sql
 ---
 
 ## GitHub organisation members
@@ -15,8 +15,8 @@ It's not required to be a member of the nf-core GitHub organisation to contribut
 select * from community_github_members order by 1 desc
 ```
 
-<AreaChart 
-    data={github_members} 
+<AreaChart
+    data={github_members}
     x=timestamp
     y=total_github_members
 />
@@ -34,15 +34,15 @@ with all_timestamps as (
   order by timestamp
 ),
 cumulative_contributors as (
-  select 
+  select
     t.timestamp,
     count(distinct c.username) as number_of_contributors
   from all_timestamps t
-  left join community_github_contributors c 
+  left join community_github_contributors c
     on c.timestamp <= t.timestamp
   group by t.timestamp
 )
-select 
+select
   timestamp,
   number_of_contributors
 from cumulative_contributors
@@ -55,15 +55,12 @@ order by timestamp
     y=number_of_contributors
 />
 
-
 ### Commits and Issues
 
 <!-- commits, commits and issues, issues area chart -->
-
 
 <AreaChart
     data={code_growth_gh_commits}
     x=month
     y=num_commits
 />
-

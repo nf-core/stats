@@ -1,8 +1,8 @@
 USE nf_core_stats_bot;
 
-select 
+select
 to_timestamp(timestamp) as timestamp,
 max(num_members) as total_github_members
-from github.org_members 
+from github.org_members
 group by timestamp
 order by timestamp

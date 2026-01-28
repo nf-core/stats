@@ -1,6 +1,6 @@
 -- Contributors leaderboard with separation between pipeline and core repository contributions
 WITH contributor_totals AS (
-  SELECT 
+  SELECT
     author,
     avatar_url,
     SUM(CASE WHEN contribution_type = 'pipeline' THEN total_sum_commits ELSE 0 END) AS pipeline_commits,
@@ -9,7 +9,7 @@ WITH contributor_totals AS (
     SUM(CASE WHEN contribution_type = 'core' THEN total_sum_additions ELSE 0 END) AS core_additions,
     SUM(CASE WHEN contribution_type = 'pipeline' THEN total_sum_deletions ELSE 0 END) AS pipeline_deletions,
     SUM(CASE WHEN contribution_type = 'core' THEN total_sum_deletions ELSE 0 END) AS core_deletions,
-   
+
     SUM(total_sum_commits) AS total_commits,
     SUM(total_sum_additions) AS total_additions,
     SUM(total_sum_deletions) AS total_deletions,
@@ -19,15 +19,15 @@ WITH contributor_totals AS (
   FROM nfcore_db.gh_contributors
   GROUP BY author, avatar_url
 )
-SELECT 
+SELECT
   '<div style="display: flex; align-items: center;"><img src="' || avatar_url || '" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 8px;" alt="' || author || '" /><a href="https://github.com/' || author || '" target="_blank" style="text-decoration: none;">@' || author || '</a></div>' AS contributor,
   total_commits,
   pipeline_commits,
   core_commits,
   ROUND(
-    CASE 
+    CASE
       WHEN total_commits > 0 THEN (core_commits * 100.0 / total_commits)
-      ELSE 0 
+      ELSE 0
     END, 1
   ) AS core_commits_percentage,
   total_additions,
@@ -41,4 +41,4 @@ SELECT
   last_commit_week
 FROM contributor_totals
 ORDER BY total_commits DESC
-LIMIT 100  -- Show top 100 contributors 
+LIMIT 100  -- Show top 100 contributors
