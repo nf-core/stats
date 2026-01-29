@@ -7,7 +7,6 @@ from typing import Literal
 
 import dlt
 import requests
-from requests.utils import quote as requests_quote  # type: ignore[attr-defined]
 
 from ._github import check_rate_limit, get_github_headers, get_paginated_data, github_request
 
@@ -41,9 +40,7 @@ def github_source(organization: str = "nf-core", api_token: str = dlt.secrets.va
         )
 
     return [
-        dlt.resource(
-            traffic_stats(organization, headers, repos, only_active_repos=True, max_repos=30), name="traffic_stats"
-        ),
+        dlt.resource(traffic_stats(organization, headers, repos), name="traffic_stats"),
         dlt.resource(contributor_stats(organization, headers, repos), name="contributor_stats"),
         dlt.resource(issue_stats(organization, headers, repos), name="issue_stats"),
         dlt.resource(org_members(organization, headers), name="org_members"),
@@ -55,18 +52,18 @@ def github_source(organization: str = "nf-core", api_token: str = dlt.secrets.va
 
 @dlt.resource(write_disposition="merge", primary_key=["pipeline_name", "timestamp"])
 def traffic_stats(
-    organization: str, headers: dict, repos: list[dict], only_active_repos: bool = True, max_repos: int | None = 30
+    organization: str, headers: dict, repos: list[dict], only_active_repos: bool = False, max_repos: int | None = None
 ) -> Iterator[dict]:
-    """Collect traffic stats for repositories with optimizations to reduce API burden
+    """Collect traffic stats for repositories
 
     Args:
         organization: GitHub organization name
         headers: GitHub API headers
         repos: List of repository data
-        only_active_repos: Only collect traffic for recently active repos (default True)
-        max_repos: Maximum number of repos to process (default 30, None for all)
+        only_active_repos: Only collect traffic for recently active repos (default False)
+        max_repos: Maximum number of repos to process (default None for all)
     """
-    # Filter repositories to reduce API calls
+    # Filter repositories if requested
     filtered_repos = repos
 
     if only_active_repos:
@@ -79,6 +76,12 @@ def traffic_stats(
             and not repo["archived"]
         ]
         logger.info(f"Filtered to {len(filtered_repos)} active repositories (updated in last 6 months)")
+    else:
+        # Process all repos, but skip archived ones
+        filtered_repos = [repo for repo in repos if not repo["archived"]]
+        logger.info(
+            f"Processing {len(filtered_repos)} repositories (skipping {len(repos) - len(filtered_repos)} archived)"
+        )
 
     # Sort by stars/activity to prioritize important repos
     filtered_repos = sorted(filtered_repos, key=lambda x: x.get("stargazers_count", 0), reverse=True)
@@ -87,7 +90,7 @@ def traffic_stats(
         filtered_repos = filtered_repos[:max_repos]
         logger.info(f"Limited to top {max_repos} repositories by stars")
 
-    logger.info(f"Collecting traffic stats for {len(filtered_repos)} repositories (reduced from {len(repos)})")
+    logger.info(f"Collecting traffic stats for {len(filtered_repos)} repositories")
 
     successful_repos = 0
     failed_repos = 0
@@ -416,6 +419,7 @@ def commit_stats(organization: str, headers: dict, repos: list[dict]) -> Iterato
 
             commit_counts[week_timestamp] = commit_counts.get(week_timestamp, 0) + 1
 
+        # Yield all data for this repo
         for timestamp, commit_count in commit_counts.items():
             yield {
                 "pipeline_name": name,
@@ -426,7 +430,7 @@ def commit_stats(organization: str, headers: dict, repos: list[dict]) -> Iterato
 
 @dlt.resource(write_disposition="append", primary_key=["timestamp"])
 def modules_container_conversion(headers: dict) -> Iterator[dict]:
-    """Track nf-core/modules containing 'linux/amd64' in meta.yml files, to track new container syntax.    """
+    """Track nf-core/modules containing 'linux/amd64' in meta.yml files, to track new container syntax."""
     logger.info("Scanning nf-core/modules for linux/amd64 usage in meta.yml")
 
     try:
@@ -507,8 +511,8 @@ def main(
         ]
     ]
     | None = None,
-    traffic_only_active_repos: bool = True,
-    traffic_max_repos: int | None = 50,
+    traffic_only_active_repos: bool = False,
+    traffic_max_repos: int | None = None,
 ):
     """
     Run the github data ingestion pipeline
@@ -517,10 +521,8 @@ def main(
         destination: dlt backend. Use 'motherduck' for production. Can use 'duckdb' for local testing
         resources: Resources to run. If None, run all resources.
         traffic_only_active_repos:
-            Only collect traffic for repos updated in last 6 months.
-            Traffic stats optimization settings to reduce API burden.
-            This reduces API calls from ~100+ repos to ~30 most important active repos.
-        traffic_max_repos: Limit to top N repos by stars (None for all)
+            Only collect traffic for repos updated in last 6 months (default False - all repos).
+        traffic_max_repos: Limit to top N repos by stars (default None - all repos)
     """
     logger.info("Starting GitHub data pipeline...")
     pipeline = dlt.pipeline(pipeline_name="github", destination=destination, dataset_name="github")
