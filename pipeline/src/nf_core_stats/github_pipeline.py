@@ -7,7 +7,6 @@ from typing import Literal
 
 import dlt
 import requests
-from requests.utils import quote as requests_quote  # type: ignore[attr-defined]
 
 from ._github import check_rate_limit, get_github_headers, get_paginated_data, github_request
 
@@ -389,19 +388,44 @@ def pipelines(organization: str, headers: dict, repos: list[dict]) -> Iterator[d
 
 @dlt.resource(write_disposition="merge", primary_key=["pipeline_name", "timestamp"])
 def commit_stats(organization: str, headers: dict, repos: list[dict]) -> Iterator[dict]:
-    """Collect commit statistics over time"""
-    logger.info(f"Collecting commit statistics for {len(repos)} repositories")
+    """Collect commit statistics over time with incremental loading"""
+    # Get state for incremental loading
+    state = dlt.current.source_state()
+    last_commit_check = state.setdefault("last_commit_check", {})
+
+    logger.info(f"Collecting commit statistics for {len(repos)} repositories (incremental mode)")
+
     for repo in repos:
         name = repo["name"]
-        commits_url = f"https://api.github.com/repos/{organization}/{name}/commits"
+
+        # Check if we have a last check time for this repo
+        since_date = last_commit_check.get(name)
+
+        # Build URL - only use 'since' parameter if we have a previous state
+        if since_date:
+            commits_url = f"https://api.github.com/repos/{organization}/{name}/commits?since={since_date}&per_page=100"
+            logger.debug(f"Fetching commits for {name} since {since_date} (incremental)")
+        else:
+            commits_url = f"https://api.github.com/repos/{organization}/{name}/commits?per_page=100"
+            logger.info(f"Fetching all commits for {name} (first run)")
 
         try:
             commits = get_paginated_data(commits_url, headers)
             if not isinstance(commits, list):
                 continue
+
+            # Update last check time for this repo to now
+            last_commit_check[name] = datetime.now(timezone.utc).isoformat()
+
         except requests.RequestException as e:
             logger.warning(f"Failed to get commits for {name}: {e}")
             continue
+
+        if not commits:
+            logger.debug(f"No new commits for {name}")
+            continue
+
+        logger.info(f"Found {len(commits)} commits for {name}")
 
         # Group commits by week
         commit_counts: dict[int, int] = {}
@@ -426,7 +450,7 @@ def commit_stats(organization: str, headers: dict, repos: list[dict]) -> Iterato
 
 @dlt.resource(write_disposition="append", primary_key=["timestamp"])
 def modules_container_conversion(headers: dict) -> Iterator[dict]:
-    """Track nf-core/modules containing 'linux/amd64' in meta.yml files, to track new container syntax.    """
+    """Track nf-core/modules containing 'linux/amd64' in meta.yml files, to track new container syntax."""
     logger.info("Scanning nf-core/modules for linux/amd64 usage in meta.yml")
 
     try:
