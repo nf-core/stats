@@ -314,7 +314,7 @@ def org_members(organization: str, headers: dict) -> Iterator[dict]:
     yield {"timestamp": datetime.now(timezone.utc).timestamp(), "num_members": len(members)}
 
 
-@dlt.resource(write_disposition="merge", primary_key=["name"])
+@dlt.resource(write_disposition="merge", primary_key=["name"], name="nfcore_pipelines")
 def pipelines(organization: str, headers: dict, repos: list[dict]) -> Iterator[dict]:
     """Collect pipeline information"""
     logger.info(f"Collecting pipeline information for {len(repos)} repositories")

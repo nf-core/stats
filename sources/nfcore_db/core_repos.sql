@@ -12,8 +12,8 @@ SELECT
   LIST(t.value) as topics,
   p.default_branch,
   p.archived,
-FROM github.pipelines p
-LEFT JOIN github.pipelines__topics t ON p._dlt_id = t._dlt_parent_id
+FROM github.nfcore_pipelines p
+LEFT JOIN github.nfcore_pipelines__topics t ON p._dlt_id = t._dlt_parent_id
 WHERE p.category = 'core'
 GROUP BY ALL
 ORDER BY p.stargazers_count DESC;
