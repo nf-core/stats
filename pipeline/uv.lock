@@ -448,6 +448,7 @@ source = { editable = "." }
 dependencies = [
     { name = "cyclopts" },
     { name = "dlt", extra = ["cli", "duckdb", "motherduck"] },
+    { name = "pendulum" },
     { name = "python-dotenv" },
     { name = "requests" },
     { name = "semanticscholar" },

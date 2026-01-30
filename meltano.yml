@@ -1,0 +1,40 @@
+version: 1
+default_environment: dev
+project_id: 64e752dd-4728-4bbd-b8d0-9af37a481f6b
+environments:
+- name: dev
+- name: staging
+- name: prod
+send_anonymous_usage_stats: false
+plugins:
+  extractors:
+  - name: tap-gharchive
+    namespace: tap_gharchive
+    pip_url: -e .
+    executable: tap-gharchive
+    config:
+      api_url: https://data.gharchive.org
+      streams:
+      - name: github_events
+        path: /2023-10-01-0.json.gz
+        primary_keys:
+          - id
+        schema:
+          properties:
+            type:
+              type: string
+            actor:
+              type: object
+            repo:
+              type: object
+            created_at:
+              type: string
+            org:
+              type: object
+            payload:
+              type: object
+      start_date: '2023-10-01'
+  loaders:
+  - name: target-jsonl
+    variant: andyh1203
+    pip_url: target-jsonl
