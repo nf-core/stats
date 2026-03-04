@@ -49,7 +49,6 @@
             name: row.name,
             description: row.description,
             stargazers_count: row.stargazers_count,
-            watchers_count: row.watchers_count,
             forks_count: row.forks_count,
             open_issues_count: row.open_issues_count,
             archived: row.archived,

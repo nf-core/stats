@@ -4,7 +4,6 @@ SELECT
     name,
     description,
     stargazers_count,
-    watchers_count,
     forks_count,
     open_issues_count,
     archived,
