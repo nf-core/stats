@@ -10,3 +10,4 @@ static/data
 .evidence/meta
 *.pyc
 __pycache__
+regulatory
