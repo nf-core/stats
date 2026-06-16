@@ -4,9 +4,10 @@ from pathlib import Path
 from .._logging import logger
 from .git_utils import get_local_commit_hash, get_remote_head_sha
 from .lint import (
-    detect_publishdir,
-    detect_workflow_output,
+    find_publishdir_matches,
+    find_workflow_output_matches,
     generate_markdown_from_issues,
+    generate_workflow_output_report,
     lint_component,
     test_prints_help,
 )
@@ -66,7 +67,11 @@ def _cached_pipeline_row(pipeline: dict, cached: dict, commit: str) -> dict:
         "prints_help": cached.get("prints_help"),
         "workflow_output": cached.get("workflow_output"),
         "publishdir": cached.get("publishdir"),
+        "workflow_output_count": cached.get("workflow_output_count"),
+        "publishdir_count": cached.get("publishdir_count"),
+        "workflow_output_report": cached.get("workflow_output_report"),
         "lint_output": cached.get("lint_output"),
+        "help_output": cached.get("help_output"),
     }
 
 
@@ -77,7 +82,12 @@ def _needs_reprocess(cached: dict) -> bool:
         and cached.get("prints_help") is None
     )
     needs_output_detection = cached.get("workflow_output") is None or cached.get("publishdir") is None
-    return needs_prints_help or needs_output_detection
+    needs_output_report = (
+        cached.get("workflow_output_count") is None
+        or cached.get("publishdir_count") is None
+        or cached.get("workflow_output_report") is None
+    )
+    return needs_prints_help or needs_output_detection or needs_output_report
 
 
 def lint_pipelines(
@@ -118,8 +128,10 @@ def lint_pipelines(
             error_count = lint_result.get("summary", {}).get("errors", 0)
             warning_count = len(lint_result.get("warnings", []))
             parse_error = lint_result.get("parse_error", False)
-            workflow_output = detect_workflow_output(repo_path)
-            publishdir = detect_publishdir(repo_path)
+            workflow_output_matches = find_workflow_output_matches(repo_path)
+            publishdir_matches = find_publishdir_matches(repo_path)
+            workflow_output = bool(workflow_output_matches)
+            publishdir = bool(publishdir_matches)
 
             prints_help = None
             help_output = None
@@ -146,6 +158,14 @@ def lint_pipelines(
                 "prints_help": prints_help,
                 "workflow_output": workflow_output,
                 "publishdir": publishdir,
+                "workflow_output_count": len(workflow_output_matches),
+                "publishdir_count": len(publishdir_matches),
+                "workflow_output_report": generate_workflow_output_report(
+                    repo_name=name,
+                    nextflow_version=nextflow_version,
+                    workflow_output_matches=workflow_output_matches,
+                    publishdir_matches=publishdir_matches,
+                ),
                 "lint_output": lint_output,
                 "help_output": help_output,
             }
@@ -163,6 +183,9 @@ def lint_pipelines(
                 "prints_help": None,
                 "workflow_output": None,
                 "publishdir": None,
+                "workflow_output_count": None,
+                "publishdir_count": None,
+                "workflow_output_report": None,
                 "lint_output": None,
                 "help_output": None,
             }

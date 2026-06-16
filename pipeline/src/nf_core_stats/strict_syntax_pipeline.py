@@ -7,6 +7,7 @@ from typing import Annotated
 import dlt
 
 from ._logging import log_pipeline_stats, logger
+from .strict_syntax.backfill import load_history_backfill
 from .strict_syntax.fetch import fetch_pipelines
 from .strict_syntax.history import create_history_entry
 from .strict_syntax.lint import workflow_output_state
@@ -58,6 +59,9 @@ def strict_syntax_pipelines_resource(
             "workflow_output": row.get("workflow_output"),
             "publishdir": row.get("publishdir"),
             "workflow_output_state": workflow_output_state(row),
+            "workflow_output_count": row.get("workflow_output_count"),
+            "publishdir_count": row.get("publishdir_count"),
+            "workflow_output_report": row.get("workflow_output_report"),
             "commit_sha": row.get("commit_sha"),
             "nextflow_sha": nextflow_sha,
             "nextflow_version": nextflow_version,
@@ -317,8 +321,6 @@ def main(
     logger.info("Starting strict-syntax linting pipeline...")
 
     if backfill_history:
-        from .strict_syntax.backfill import load_history_backfill
-
         history_rows = load_history_backfill(backfill_history)
         pipeline = dlt.pipeline(
             pipeline_name="strict_syntax_pipeline",
