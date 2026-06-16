@@ -1,0 +1,98 @@
+name: Lint nf-core Pipelines (Strict Syntax)
+
+on:
+  push:
+    paths:
+      - ".github/workflows/lint_strict_syntax.yml"
+      - "pipeline/src/nf_core_stats/strict_syntax/**"
+      - "pipeline/src/nf_core_stats/strict_syntax_pipeline.py"
+  schedule:
+    - cron: "0 1 * * *"
+  workflow_dispatch:
+    inputs:
+      pipelines:
+        description: "Specific pipeline(s) to lint (comma-separated, leave empty for all)"
+        type: string
+        default: ""
+      modules:
+        description: "Specific module(s) to lint (comma-separated, leave empty for all)"
+        type: string
+        default: ""
+      subworkflows:
+        description: "Specific subworkflow(s) to lint (comma-separated, leave empty for all)"
+        type: string
+        default: ""
+      skip_pipelines:
+        description: "Skip linting pipelines"
+        type: boolean
+        default: false
+      skip_modules:
+        description: "Skip linting modules"
+        type: boolean
+        default: false
+      skip_subworkflows:
+        description: "Skip linting subworkflows"
+        type: boolean
+        default: false
+
+env:
+  SOURCES__GITHUB_PIPELINE__GITHUB__API_TOKEN: ${{ secrets.GH_TOKEN_STATS_PAGE }}
+  DESTINATION__MOTHERDUCK__CREDENTIALS__DATABASE: nf_core_stats_bot
+  DESTINATION__MOTHERDUCK__CREDENTIALS__PASSWORD: ${{ secrets.MOTHERDUCK_TOKEN }}
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    defaults:
+      run:
+        working-directory: pipeline
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Nextflow
+        uses: nf-core/setup-nextflow@b4ec1bc7c16a94435159de94a05253542fddf6ef
+        with:
+          version: latest-everything
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Install runitor
+        env:
+          RUNITOR_VERSION: "v1.3.0-build.4"
+        run: |
+          curl -fsSL -o runitor \
+            "https://github.com/bdd/runitor/releases/download/${RUNITOR_VERSION}/runitor-${RUNITOR_VERSION}-linux-amd64"
+          chmod +x runitor
+          ./runitor -version
+          sudo mv runitor /usr/local/bin/
+
+      - name: Run strict-syntax pipeline
+        run: |
+          CMD=(uv run nf_core_stats strict-syntax)
+          if [[ -n "${{ inputs.pipelines }}" ]]; then
+            CMD+=(--pipelines "${{ inputs.pipelines }}")
+          fi
+          if [[ -n "${{ inputs.modules }}" ]]; then
+            CMD+=(--modules "${{ inputs.modules }}")
+          fi
+          if [[ -n "${{ inputs.subworkflows }}" ]]; then
+            CMD+=(--subworkflows "${{ inputs.subworkflows }}")
+          fi
+          if [[ "${{ inputs.skip_pipelines }}" == "true" ]]; then
+            CMD+=(--skip-pipelines)
+          fi
+          if [[ "${{ inputs.skip_modules }}" == "true" ]]; then
+            CMD+=(--skip-modules)
+          fi
+          if [[ "${{ inputs.skip_subworkflows }}" == "true" ]]; then
+            CMD+=(--skip-subworkflows)
+          fi
+          runitor -uuid 4080223c-8257-4e7d-ad2b-c34ef493f42f -- "${CMD[@]}"
