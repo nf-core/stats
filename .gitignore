@@ -11,3 +11,5 @@ static/data
 *.pyc
 __pycache__
 regulatory
+pipeline/pipelines/
+pipeline/modules/

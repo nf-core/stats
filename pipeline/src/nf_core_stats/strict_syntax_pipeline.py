@@ -1,310 +1,334 @@
-"""DLT pipeline for strict-syntax linting of nf-core pipelines.
+"""DLT pipeline for Nextflow strict syntax linting across nf-core."""
 
-This pipeline:
-1. Fetches the list of nf-core pipelines from nf-co.re
-2. Clones each pipeline and runs `nextflow lint`
-3. Stores results in MotherDuck for visualization in Evidence.dev
-"""
-
-import json
-import subprocess
 from collections.abc import Iterator
 from datetime import datetime, timezone
-from pathlib import Path
 from typing import Annotated
 
 import dlt
-import httpx
 
 from ._logging import log_pipeline_stats, logger
-
-PIPELINES_URL = "https://nf-co.re/pipelines.json"
-PIPELINES_DIR = Path("pipelines")
-NEXTFLOW_REPO = "https://github.com/nextflow-io/nextflow.git"
-
-
-def get_nextflow_sha() -> str:
-    """Get Nextflow HEAD commit SHA from remote."""
-    result = subprocess.run(
-        ["git", "ls-remote", NEXTFLOW_REPO, "HEAD"],
-        capture_output=True,
-        text=True,
-        check=True,
-    )
-    return result.stdout.split()[0]
+from .strict_syntax.fetch import fetch_pipelines
+from .strict_syntax.history import create_history_entry
+from .strict_syntax.lint import workflow_output_state
+from .strict_syntax.modules import (
+    discover_modules,
+    discover_subworkflows,
+    lint_modules,
+    lint_subworkflows,
+    prepare_modules_repo,
+)
+from .strict_syntax.nextflow import get_nextflow_sha, get_nextflow_version
+from .strict_syntax.pipelines import lint_pipelines
 
 
-def get_remote_head_sha(repo_url: str) -> str | None:
-    """Get HEAD commit SHA from remote without cloning."""
-    try:
-        # Try dev branch first
-        result = subprocess.run(
-            ["git", "ls-remote", repo_url, "refs/heads/dev"],
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-        if result.stdout.strip():
-            return result.stdout.split()[0]
-        # Fallback to default branch
-        result = subprocess.run(
-            ["git", "ls-remote", repo_url, "HEAD"],
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-        return result.stdout.split()[0] if result.stdout.strip() else None
-    except subprocess.CalledProcessError:
-        return None
-
-
-def get_nextflow_version() -> str:
-    """Get the current nextflow version."""
-    try:
-        result = subprocess.run(["nextflow", "-version"], capture_output=True, text=True, check=False)
-        for line in result.stdout.split("\n"):
-            if "version" in line.lower():
-                parts = line.split()
-                for i, part in enumerate(parts):
-                    if part.lower() == "version" and i + 1 < len(parts):
-                        return parts[i + 1]
-    except FileNotFoundError:
-        logger.warning("Nextflow not found in PATH")
-    return "unknown"
-
-
-def fetch_pipelines() -> list[dict]:
-    """Fetch pipeline list from nf-co.re."""
-    logger.info(f"Fetching pipelines from {PIPELINES_URL}")
-    response = httpx.get(PIPELINES_URL, timeout=60)
-    response.raise_for_status()
-    data = response.json()
-
-    pipelines = []
-    for pipeline in data.get("remote_workflows", []):
-        if pipeline.get("archived", False):
-            continue
-        pipelines.append({
-            "name": pipeline["name"],
-            "full_name": pipeline["full_name"],
-            "html_url": f"https://github.com/{pipeline['full_name']}",
-        })
-
-    logger.info(f"Found {len(pipelines)} active pipelines")
-    return pipelines
-
-
-def clone_pipeline(pipeline: dict) -> Path:
-    """Clone a pipeline repository, preferring the 'dev' branch."""
-    repo_path = PIPELINES_DIR / pipeline["name"]
-
-    if repo_path.exists():
-        logger.debug(f"Pipeline already cloned: {pipeline['name']}")
-        try:
-            subprocess.run(
-                ["git", "-C", str(repo_path), "fetch", "--quiet", "origin", "dev"],
-                check=True,
-                capture_output=True,
-            )
-            subprocess.run(
-                ["git", "-C", str(repo_path), "checkout", "--quiet", "dev"],
-                check=True,
-                capture_output=True,
-            )
-        except subprocess.CalledProcessError:
-            pass
-        subprocess.run(
-            ["git", "-C", str(repo_path), "pull", "--quiet"],
-            check=True,
-            capture_output=True,
-        )
-    else:
-        logger.info(f"Cloning {pipeline['full_name']}...")
-        PIPELINES_DIR.mkdir(parents=True, exist_ok=True)
-        try:
-            subprocess.run(
-                ["git", "clone", "--quiet", "--depth", "1", "--branch", "dev", pipeline["html_url"], str(repo_path)],
-                check=True,
-                capture_output=True,
-            )
-        except subprocess.CalledProcessError:
-            subprocess.run(
-                ["git", "clone", "--quiet", "--depth", "1", pipeline["html_url"], str(repo_path)],
-                check=True,
-                capture_output=True,
-            )
-
-    return repo_path
-
-
-def lint_pipeline(repo_path: Path) -> dict:
-    """Run nextflow lint on a pipeline (JSON output for parsing)."""
-    result = subprocess.run(
-        ["nextflow", "lint", ".", "-o", "json"],
-        cwd=repo_path,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-
-    try:
-        lint_result = json.loads(result.stdout)
-        lint_result["parse_error"] = False
-        return lint_result
-    except json.JSONDecodeError:
-        logger.warning(f"Failed to parse lint output for {repo_path.name}")
-        logger.debug(f"stdout: {result.stdout}")
-        logger.debug(f"stderr: {result.stderr}")
-        return {"summary": {"errors": 0}, "errors": [], "warnings": [], "parse_error": True}
-
-
-@dlt.resource(write_disposition="replace", primary_key=["pipeline_name"])
-def strict_syntax_lint_results(
-    pipelines: list[dict],
-    nf_version: str,
-    nf_sha: str,
-) -> Iterator[dict]:
-    """Lint pipelines with caching based on (nf_sha, pipeline_sha).
-
-    State is accessed here (inside @dlt.resource) so it persists correctly.
-    Also stores aggregated stats in state for the history resource.
-    """
-    state = dlt.current.source_state()
-    last_analyzed = state.setdefault("last_analyzed", {})
-
-    skipped = 0
-    processed = 0
-    results_for_history: list[dict] = []
-
-    for pipeline in pipelines:
-        name = pipeline["name"]
-        repo_url = pipeline["html_url"]
-        pipeline_sha = get_remote_head_sha(repo_url)
-
-        # Check cache
-        cached = last_analyzed.get(name, {})
-        if (
-            pipeline_sha
-            and cached.get("nf_sha") == nf_sha
-            and cached.get("pipeline_sha") == pipeline_sha
-        ):
-            logger.info(f"Skipping unchanged: {name}")
-            skipped += 1
-            continue
-
-        logger.info(f"Processing {name}...")
-        try:
-            repo_path = clone_pipeline(pipeline)
-            lint_result = lint_pipeline(repo_path)
-            result = {
-                "name": name,
-                "full_name": pipeline["full_name"],
-                "html_url": repo_url,
-                "errors": lint_result.get("summary", {}).get("errors", 0),
-                "warnings": len(lint_result.get("warnings", [])),
-                "parse_error": lint_result.get("parse_error", False),
-                "commit_sha": pipeline_sha,
-                "nextflow_sha": nf_sha,
-            }
-            # Update state on success
-            last_analyzed[name] = {"nf_sha": nf_sha, "pipeline_sha": pipeline_sha}
-        except subprocess.CalledProcessError as e:
-            logger.error(f"Failed to process {name}: {e}")
-            result = {
-                "name": name,
-                "full_name": pipeline["full_name"],
-                "html_url": repo_url,
-                "errors": 0,
-                "warnings": 0,
-                "parse_error": True,
-                "commit_sha": pipeline_sha,
-                "nextflow_sha": nf_sha,
-            }
-
-        results_for_history.append(result)
-        processed += 1
-
-        # Yield pipeline result
-        yield {
-            "pipeline_name": result["name"],
-            "full_name": result["full_name"],
-            "html_url": result["html_url"],
-            "parse_error": result["parse_error"],
-            "errors": result["errors"] if not result["parse_error"] else None,
-            "warnings": result["warnings"] if not result["parse_error"] else None,
-            "commit_sha": result.get("commit_sha"),
-            "nextflow_sha": result.get("nextflow_sha"),
-            "updated_at": datetime.now(timezone.utc).isoformat(),
-        }
-
-    logger.info(f"Processed {processed} pipelines, skipped {skipped} unchanged")
-
-    # Store aggregated stats in state for history resource
-    valid_results = [r for r in results_for_history if not r.get("parse_error", False)]
-    state["history_data"] = {
-        "date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
-        "nextflow_version": nf_version,
-        "nextflow_sha": nf_sha,
-        "total_pipelines": processed,
-        "parse_errors": sum(1 for r in results_for_history if r.get("parse_error", False)),
-        "errors_zero": sum(1 for r in valid_results if r["errors"] == 0),
-        "errors_low": sum(1 for r in valid_results if 0 < r["errors"] <= 5),
-        "errors_high": sum(1 for r in valid_results if r["errors"] > 5),
-        "warnings_zero": sum(1 for r in valid_results if r["warnings"] == 0),
-        "warnings_low": sum(1 for r in valid_results if 0 < r["warnings"] <= 20),
-        "warnings_high": sum(1 for r in valid_results if r["warnings"] > 20),
-        "total_errors": sum(r["errors"] for r in valid_results),
-        "total_warnings": sum(r["warnings"] for r in valid_results),
+def _history_row(
+    *,
+    component_type: str,
+    date: str,
+    nextflow_version: str,
+    nextflow_sha: str,
+    entry: dict,
+) -> dict:
+    return {
+        "date": date,
+        "component_type": component_type,
+        "nextflow_version": nextflow_version,
+        "nextflow_sha": nextflow_sha,
+        **entry,
     }
 
 
-@dlt.resource(write_disposition="merge", primary_key=["date"])
-def strict_syntax_history() -> Iterator[dict]:
-    """Generate aggregated history entry from state (populated by lint_results)."""
-    state = dlt.current.source_state()
-    history_data = state.get("history_data")
-    if history_data:
-        yield history_data
+@dlt.resource(write_disposition="replace", primary_key=["pipeline_name"])
+def strict_syntax_pipelines_resource(
+    rows: list[dict],
+    *,
+    nextflow_version: str,
+    nextflow_sha: str,
+) -> Iterator[dict]:
+    now = datetime.now(timezone.utc).isoformat()
+    for row in rows:
+        yield {
+            "pipeline_name": row["name"],
+            "full_name": row["full_name"],
+            "html_url": row["html_url"],
+            "parse_error": row.get("parse_error", False),
+            "errors": row.get("errors") if not row.get("parse_error") else None,
+            "warnings": row.get("warnings") if not row.get("parse_error") else None,
+            "prints_help": row.get("prints_help"),
+            "workflow_output": row.get("workflow_output"),
+            "publishdir": row.get("publishdir"),
+            "workflow_output_state": workflow_output_state(row),
+            "commit_sha": row.get("commit_sha"),
+            "nextflow_sha": nextflow_sha,
+            "nextflow_version": nextflow_version,
+            "lint_output": row.get("lint_output"),
+            "help_output": row.get("help_output"),
+            "updated_at": now,
+        }
+
+
+@dlt.resource(write_disposition="replace", primary_key=["module_name"])
+def strict_syntax_modules_resource(
+    rows: list[dict],
+    *,
+    nextflow_version: str,
+    nextflow_sha: str,
+    repo_commit: str | None,
+) -> Iterator[dict]:
+    now = datetime.now(timezone.utc).isoformat()
+    for row in rows:
+        yield {
+            "module_name": row["name"],
+            "html_url": row["html_url"],
+            "parse_error": row.get("parse_error", False),
+            "errors": row.get("errors") if not row.get("parse_error") else None,
+            "warnings": row.get("warnings") if not row.get("parse_error") else None,
+            "commit_sha": repo_commit,
+            "nextflow_sha": nextflow_sha,
+            "nextflow_version": nextflow_version,
+            "lint_output": row.get("lint_output"),
+            "updated_at": now,
+        }
+
+
+@dlt.resource(write_disposition="replace", primary_key=["subworkflow_name"])
+def strict_syntax_subworkflows_resource(
+    rows: list[dict],
+    *,
+    nextflow_version: str,
+    nextflow_sha: str,
+    repo_commit: str | None,
+) -> Iterator[dict]:
+    now = datetime.now(timezone.utc).isoformat()
+    for row in rows:
+        yield {
+            "subworkflow_name": row["name"],
+            "html_url": row["html_url"],
+            "parse_error": row.get("parse_error", False),
+            "errors": row.get("errors") if not row.get("parse_error") else None,
+            "warnings": row.get("warnings") if not row.get("parse_error") else None,
+            "commit_sha": repo_commit,
+            "nextflow_sha": nextflow_sha,
+            "nextflow_version": nextflow_version,
+            "lint_output": row.get("lint_output"),
+            "updated_at": now,
+        }
+
+
+@dlt.resource(write_disposition="merge", primary_key=["date", "component_type"])
+def strict_syntax_history_resource(history_rows: list[dict]) -> Iterator[dict]:
+    yield from history_rows
 
 
 @dlt.source(name="strict_syntax")
-def strict_syntax_source(pipelines_filter: list[str] | None = None):
-    """DLT source for strict-syntax linting data."""
-    logger.info("Initialized strict-syntax linting source")
-
+def strict_syntax_source(
+    *,
+    pipelines_filter: list[str] | None = None,
+    modules_filter: list[str] | None = None,
+    subworkflows_filter: list[str] | None = None,
+    skip_pipelines: bool = False,
+    skip_modules: bool = False,
+    skip_subworkflows: bool = False,
+    no_cache: bool = False,
+):
+    """Collect strict syntax lint results for nf-core pipelines, modules, and subworkflows."""
+    state = dlt.current.source_state()
     nf_version = get_nextflow_version()
     nf_sha = get_nextflow_sha()
-    logger.info(f"Nextflow version: {nf_version} (sha: {nf_sha[:8]})")
+    date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    logger.info("Nextflow version: %s (sha: %s)", nf_version, nf_sha[:8])
 
-    pipelines = fetch_pipelines()
-    if pipelines_filter:
-        filter_set = set(pipelines_filter)
-        pipelines = [p for p in pipelines if p["name"] in filter_set]
-        logger.info(f"Filtered to {len(pipelines)} pipelines: {', '.join(p['name'] for p in pipelines)}")
+    resources = []
+    history_rows: list[dict] = []
 
-    # Return resources - state is accessed inside these (works correctly)
-    return [
-        strict_syntax_lint_results(pipelines, nf_version, nf_sha),
-        strict_syntax_history(),
-    ]
+    if not skip_pipelines:
+        pipelines = fetch_pipelines()
+        if pipelines_filter:
+            pipelines = [row for row in pipelines if row["name"] in pipelines_filter]
+            logger.info("Filtered to %d pipelines", len(pipelines))
+
+        pipeline_snapshot = state.setdefault("pipelines_snapshot", {})
+        pipeline_rows, pipeline_snapshot = lint_pipelines(
+            pipelines,
+            snapshot=pipeline_snapshot,
+            nextflow_version=nf_version,
+            no_cache=no_cache,
+        )
+        state["pipelines_snapshot"] = pipeline_snapshot
+
+        resources.append(
+            strict_syntax_pipelines_resource(pipeline_rows, nextflow_version=nf_version, nextflow_sha=nf_sha)
+        )
+        if not pipelines_filter:
+            entry = create_history_entry(pipeline_rows, include_prints_help=True)
+            history_rows.append(
+                _history_row(
+                    component_type="pipelines",
+                    date=date,
+                    nextflow_version=nf_version,
+                    nextflow_sha=nf_sha,
+                    entry=entry,
+                )
+            )
+
+    if not skip_modules or not skip_subworkflows:
+        modules_snapshot = state.setdefault("modules_snapshot", {})
+        repo_unchanged, repo_commit = prepare_modules_repo(
+            snapshot=modules_snapshot,
+            no_cache=no_cache,
+            check_modules=not skip_modules,
+            check_subworkflows=not skip_subworkflows,
+        )
+
+        if not skip_modules:
+            if repo_unchanged and not modules_filter:
+                discovered = discover_modules()
+                module_rows = [
+                    {
+                        "name": item["name"],
+                        "html_url": item["html_url"],
+                        "errors": modules_snapshot.get("modules", {}).get(item["name"], {}).get("errors", 0),
+                        "warnings": modules_snapshot.get("modules", {}).get(item["name"], {}).get("warnings", 0),
+                        "parse_error": modules_snapshot.get("modules", {})
+                        .get(item["name"], {})
+                        .get("parse_error", False),
+                        "lint_output": modules_snapshot.get("modules", {})
+                        .get(item["name"], {})
+                        .get("lint_output"),
+                    }
+                    for item in discovered
+                ]
+            else:
+                modules = discover_modules()
+                if modules_filter:
+                    modules = [row for row in modules if row["name"] in modules_filter]
+                module_rows, module_data = lint_modules(
+                    modules,
+                    snapshot=modules_snapshot.get("modules", {}),
+                    nextflow_version=nf_version,
+                    no_cache=no_cache or bool(modules_filter),
+                )
+                modules_snapshot["modules"] = module_data
+                if repo_commit:
+                    modules_snapshot["_repo_commit"] = repo_commit
+                state["modules_snapshot"] = modules_snapshot
+
+            resources.append(
+                strict_syntax_modules_resource(
+                    module_rows,
+                    nextflow_version=nf_version,
+                    nextflow_sha=nf_sha,
+                    repo_commit=modules_snapshot.get("_repo_commit"),
+                )
+            )
+            if not modules_filter:
+                entry = create_history_entry(module_rows)
+                history_rows.append(
+                    _history_row(
+                        component_type="modules",
+                        date=date,
+                        nextflow_version=nf_version,
+                        nextflow_sha=nf_sha,
+                        entry=entry,
+                    )
+                )
+
+        if not skip_subworkflows:
+            if repo_unchanged and not subworkflows_filter:
+                discovered = discover_subworkflows()
+                subworkflow_rows = [
+                    {
+                        "name": item["name"],
+                        "html_url": item["html_url"],
+                        "errors": modules_snapshot.get("subworkflows", {}).get(item["name"], {}).get("errors", 0),
+                        "warnings": modules_snapshot.get("subworkflows", {})
+                        .get(item["name"], {})
+                        .get("warnings", 0),
+                        "parse_error": modules_snapshot.get("subworkflows", {})
+                        .get(item["name"], {})
+                        .get("parse_error", False),
+                        "lint_output": modules_snapshot.get("subworkflows", {})
+                        .get(item["name"], {})
+                        .get("lint_output"),
+                    }
+                    for item in discovered
+                ]
+            else:
+                subworkflows = discover_subworkflows()
+                if subworkflows_filter:
+                    subworkflows = [row for row in subworkflows if row["name"] in subworkflows_filter]
+                subworkflow_rows, subworkflow_data = lint_subworkflows(
+                    subworkflows,
+                    snapshot=modules_snapshot.get("subworkflows", {}),
+                    nextflow_version=nf_version,
+                    no_cache=no_cache or bool(subworkflows_filter),
+                )
+                modules_snapshot["subworkflows"] = subworkflow_data
+                if repo_commit:
+                    modules_snapshot["_repo_commit"] = repo_commit
+                state["modules_snapshot"] = modules_snapshot
+
+            resources.append(
+                strict_syntax_subworkflows_resource(
+                    subworkflow_rows,
+                    nextflow_version=nf_version,
+                    nextflow_sha=nf_sha,
+                    repo_commit=modules_snapshot.get("_repo_commit"),
+                )
+            )
+            if not subworkflows_filter:
+                entry = create_history_entry(subworkflow_rows)
+                history_rows.append(
+                    _history_row(
+                        component_type="subworkflows",
+                        date=date,
+                        nextflow_version=nf_version,
+                        nextflow_sha=nf_sha,
+                        entry=entry,
+                    )
+                )
+
+    if history_rows:
+        resources.append(strict_syntax_history_resource(history_rows))
+
+    return resources
+
+
+def _split_csv(value: str | None) -> list[str] | None:
+    if not value:
+        return None
+    items = [part.strip() for part in value.split(",") if part.strip()]
+    return items or None
 
 
 def main(
     *,
     destination: str = "motherduck",
-    pipelines: Annotated[str | None, "Comma-separated list of pipelines to lint"] = None,
+    pipelines: Annotated[str | None, "Comma-separated pipeline names to lint"] = None,
+    modules: Annotated[str | None, "Comma-separated module names to lint"] = None,
+    subworkflows: Annotated[str | None, "Comma-separated subworkflow names to lint"] = None,
+    skip_pipelines: Annotated[bool, "Skip linting pipelines"] = False,
+    skip_modules: Annotated[bool, "Skip linting modules"] = False,
+    skip_subworkflows: Annotated[bool, "Skip linting subworkflows"] = False,
+    no_cache: Annotated[bool, "Ignore commit cache and re-lint everything"] = False,
+    backfill_history: Annotated[str | None, "Path to strict-syntax-health lint_results directory"] = None,
 ):
-    """Run the strict-syntax linting pipeline.
-
-    Args:
-        destination: dlt backend. Use 'motherduck' for production. Can use 'duckdb' for local testing
-        pipelines: Optional comma-separated list of pipeline names to lint (default: all)
-    """
+    """Run strict syntax linting and load results into MotherDuck."""
     logger.info("Starting strict-syntax linting pipeline...")
 
-    pipelines_filter = None
-    if pipelines:
-        pipelines_filter = [p.strip() for p in pipelines.split(",") if p.strip()]
+    if backfill_history:
+        from .strict_syntax.backfill import load_history_backfill
+
+        history_rows = load_history_backfill(backfill_history)
+        pipeline = dlt.pipeline(
+            pipeline_name="strict_syntax_pipeline",
+            destination=destination,
+            dataset_name="strict_syntax",
+        )
+        load_info = pipeline.run(strict_syntax_history_resource(history_rows))
+        log_pipeline_stats(pipeline, load_info)
+        logger.info("History backfill completed!")
+        return
 
     pipeline = dlt.pipeline(
         pipeline_name="strict_syntax_pipeline",
@@ -312,8 +336,17 @@ def main(
         dataset_name="strict_syntax",
     )
 
-    load_info = pipeline.run(strict_syntax_source(pipelines_filter))
+    load_info = pipeline.run(
+        strict_syntax_source(
+            pipelines_filter=_split_csv(pipelines),
+            modules_filter=_split_csv(modules),
+            subworkflows_filter=_split_csv(subworkflows),
+            skip_pipelines=skip_pipelines,
+            skip_modules=skip_modules,
+            skip_subworkflows=skip_subworkflows,
+            no_cache=no_cache,
+        )
+    )
 
     log_pipeline_stats(pipeline, load_info)
-
     logger.info("Strict-syntax linting pipeline completed successfully!")
