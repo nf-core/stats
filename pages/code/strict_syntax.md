@@ -62,6 +62,12 @@ select * from nfcore_db.strict_syntax_subworkflows
 select max(updated_at) as last_updated from nfcore_db.strict_syntax_pipelines
 ```
 
+<div style="position: absolute; left: -9999px;" aria-hidden="true">
+{#each pipelines as pipeline}
+<a href="/code/strict_syntax/{pipeline.pipeline_name}">Pipeline detail {pipeline.pipeline_name}</a>
+{/each}
+</div>
+
 <Tabs>
     <Tab label="Pipelines">
 
