@@ -19,9 +19,14 @@ The update script already installs `uv`, runs `npm install`, and `uv sync --proj
 
 The committed `sources/nfcore_db/connection.yaml` points at **MotherDuck** (cloud DuckDB, database
 `nf_core_stats_bot`). `npm run sources` and `npm run build` need a MotherDuck token to fetch data;
-without it those queries fail. Supply the token via the gitignored `sources/nfcore_db/connection.options.yaml`,
-a root `.env` (`MOTHERDUCK_TOKEN`), or the Evidence settings UI. There is no local Postgres/Redis to
-start — the only data backend is MotherDuck.
+without it those queries fail. There is no local Postgres/Redis to start — the only data backend is MotherDuck.
+
+Supply the token with the env var **`EVIDENCE_SOURCE__nfcore_db__token`** (set it to the MotherDuck
+token, e.g. `export EVIDENCE_SOURCE__nfcore_db__token="$MOTHERDUCK_TOKEN"`), then run `npm run sources`
+/ `npm run dev`. Gotcha: do **not** put the raw token in `sources/nfcore_db/connection.options.yaml` —
+Evidence runs that file's values through a base64 decode, so a raw JWT makes it throw
+"Error parsing connection.options.yaml". The env-var form is set verbatim and is the reliable path.
+With the token, all source queries (GitHub, Slack, Twitter, traffic, issues, contributors) populate.
 
 ### Running fully locally without MotherDuck
 
