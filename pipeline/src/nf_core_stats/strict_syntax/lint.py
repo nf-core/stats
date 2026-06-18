@@ -32,12 +32,68 @@ def _scan_lines(repo_path: Path, patterns: tuple[str, ...], regex: re.Pattern) -
     return matches
 
 
+def find_workflow_output_matches(repo_path: Path) -> list[tuple[str, int, str]]:
+    return _scan_lines(repo_path, ("*.nf",), WORKFLOW_OUTPUT_RE)
+
+
+def find_publishdir_matches(repo_path: Path) -> list[tuple[str, int, str]]:
+    return _scan_lines(repo_path, ("*.nf", "*.config"), PUBLISHDIR_RE)
+
+
 def detect_workflow_output(repo_path: Path) -> bool:
-    return bool(_scan_lines(repo_path, ("*.nf",), WORKFLOW_OUTPUT_RE))
+    return bool(find_workflow_output_matches(repo_path))
 
 
 def detect_publishdir(repo_path: Path) -> bool:
-    return bool(_scan_lines(repo_path, ("*.nf", "*.config"), PUBLISHDIR_RE))
+    return bool(find_publishdir_matches(repo_path))
+
+
+def _format_matches(matches: list[tuple[str, int, str]]) -> list[str]:
+    if not matches:
+        return ["- No matches found"]
+
+    lines = [f"- `{filename}:{line_num}`: `{line}`" for filename, line_num, line in matches[:_MAX_REPORT_MATCHES]]
+    if len(matches) > _MAX_REPORT_MATCHES:
+        lines.append(f"- ... {len(matches) - _MAX_REPORT_MATCHES} more matches omitted")
+    return lines
+
+
+def generate_workflow_output_report(
+    *,
+    repo_name: str,
+    nextflow_version: str,
+    workflow_output_matches: list[tuple[str, int, str]],
+    publishdir_matches: list[tuple[str, int, str]],
+) -> str:
+    now = datetime.now(timezone.utc).isoformat()
+    workflow_output_count = len(workflow_output_matches)
+    publishdir_count = len(publishdir_matches)
+    if workflow_output_count and not publishdir_count:
+        state = "Fully migrated"
+    elif workflow_output_count:
+        state = "In progress"
+    else:
+        state = "Not started"
+
+    lines = [
+        "# Workflow outputs migration report",
+        "",
+        f"- Pipeline: {repo_name}",
+        f"- Generated: {now}",
+        f"- Nextflow version: {nextflow_version}",
+        f"- Status: {state}",
+        f"- `output {{}}` matches: {workflow_output_count}",
+        f"- `publishDir` matches: {publishdir_count}",
+        "",
+        "## `output {}` matches",
+        "",
+        *_format_matches(workflow_output_matches),
+        "",
+        "## `publishDir` matches",
+        "",
+        *_format_matches(publishdir_matches),
+    ]
+    return "\n".join(lines)
 
 
 def workflow_output_state(result: dict) -> str | None:

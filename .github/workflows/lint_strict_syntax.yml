@@ -74,6 +74,12 @@ jobs:
           ./runitor -version
           sudo mv runitor /usr/local/bin/
 
+      - name: Backfill strict-syntax-health history
+        run: |
+          git clone --depth 1 https://github.com/nf-core/strict-syntax-health ../strict-syntax-health
+          uv run nf_core_stats strict-syntax \
+            --backfill-history ../strict-syntax-health/lint_results
+
       - name: Run strict-syntax pipeline
         run: |
           CMD=(uv run nf_core_stats strict-syntax)
