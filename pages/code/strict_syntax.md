@@ -429,7 +429,7 @@ select
     end as component,
     total,
     parse_errors,
-    errors_zero || ' (' || printf('%.1f%%', 100 * errors_zero / nullif(total - parse_errors, 0)::float) || ')' as zero_errors_label
+    errors_zero::INTEGER::VARCHAR || ' (' || printf('%.1f%%', 100 * errors_zero / nullif(total - parse_errors, 0)::float) || ')' as zero_errors_label
 from latest
 where row_num = 1
 order by
