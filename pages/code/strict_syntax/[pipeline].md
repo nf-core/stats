@@ -40,6 +40,7 @@ where pipeline_name = '${params.pipeline}'
     data={pipeline_detail}
     column="help_output"
     title="Help Output"
+    format="text"
     emptyMessage="Help output is only captured for pipelines with zero lint errors."
 />
 

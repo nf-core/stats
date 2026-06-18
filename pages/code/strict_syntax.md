@@ -46,6 +46,36 @@ order by date desc
 limit 1
 ```
 
+```sql current_summary
+with latest as (
+    select
+        *,
+        row_number() over (partition by component_type order by date desc) as row_num
+    from nfcore_db.strict_syntax_history
+)
+select
+    case component_type
+        when 'pipelines' then 'Pipelines'
+        when 'modules' then 'Modules'
+        when 'subworkflows' then 'Subworkflows'
+    end as component,
+    total,
+    parse_errors,
+    errors_zero,
+    errors_zero / nullif(total - parse_errors, 0)::float as zero_errors_pct,
+    total_errors,
+    total_warnings,
+    nextflow_version
+from latest
+where row_num = 1
+order by
+    case component_type
+        when 'pipelines' then 1
+        when 'modules' then 2
+        when 'subworkflows' then 3
+    end
+```
+
 ```sql pipelines
 select * from nfcore_db.strict_syntax_pipelines
 ```
@@ -62,11 +92,18 @@ select * from nfcore_db.strict_syntax_subworkflows
 select max(updated_at) as last_updated from nfcore_db.strict_syntax_pipelines
 ```
 
-<div style="position: absolute; left: -9999px;" aria-hidden="true">
-{#each pipelines as pipeline}
-<a href="/code/strict_syntax/{pipeline.pipeline_name}">Pipeline detail {pipeline.pipeline_name}</a>
-{/each}
-</div>
+## Current Snapshot
+
+<DataTable data={current_summary} rows=all>
+    <Column id=component title="Component" />
+    <Column id=total title="Total" />
+    <Column id=parse_errors title="Parse Errors" />
+    <Column id=errors_zero title="Zero Errors" />
+    <Column id=zero_errors_pct title="Zero Errors %" fmt=pct1 />
+    <Column id=total_errors title="Errors" contentType=colorscale colorScale=negative />
+    <Column id=total_warnings title="Warnings" contentType=colorscale colorScale=warning />
+    <Column id=nextflow_version title="Nextflow" />
+</DataTable>
 
 <Tabs>
     <Tab label="Pipelines">
@@ -426,3 +463,9 @@ nextflow lint . -exclude ".git,.nf-test,nf-test.config"
 ## Getting Help
 
 If you need help fixing strict syntax errors, ask in the [Seqera community forum](https://community.seqera.io/).
+
+<div style="position: absolute; left: -9999px;" aria-hidden="true">
+{#each pipelines as pipeline}
+<a href="/code/strict_syntax/{pipeline.pipeline_name}">Pipeline detail {pipeline.pipeline_name}</a>
+{/each}
+</div>
