@@ -13,11 +13,7 @@ This page tracks adoption of [Nextflow strict syntax](https://www.nextflow.io/do
     <Column id=component title="Component" />
     <Column id=total title="Total" />
     <Column id=parse_errors title="Parse Errors" />
-    <Column id=errors_zero title="Zero Errors" />
-    <Column id=zero_errors_pct title="Zero Errors %" fmt=pct1 />
-    <Column id=total_errors title="Errors" contentType=colorscale colorScale=negative />
-    <Column id=total_warnings title="Warnings" contentType=colorscale colorScale=warning />
-    <Column id=nextflow_version title="Nextflow" />
+    <Column id=zero_errors_label title="Zero Errors" />
 </DataTable>
 
 <Tabs>
@@ -433,11 +429,7 @@ select
     end as component,
     total,
     parse_errors,
-    errors_zero,
-    errors_zero / nullif(total - parse_errors, 0)::float as zero_errors_pct,
-    total_errors,
-    total_warnings,
-    nextflow_version
+    errors_zero || ' (' || printf('%.1f%%', 100 * errors_zero / nullif(total - parse_errors, 0)::float) || ')' as zero_errors_label
 from latest
 where row_num = 1
 order by

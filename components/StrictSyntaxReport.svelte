@@ -1,103 +1,28 @@
 <script>
+    import MarkdownIt from "markdown-it";
+
     export let data = [];
     export let column;
     export let title;
     export let emptyMessage = "No output captured.";
     export let format = "markdown";
 
-    const htmlReplacements = {
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#39;",
-    };
-
-    function escapeHtml(value) {
-        return String(value).replace(/[&<>"']/g, (char) => htmlReplacements[char]);
-    }
-
-    function renderInlineMarkdown(value) {
-        return escapeHtml(value)
-            .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>')
-            .replace(/`([^`]+)`/g, "<code>$1</code>")
-            .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
-    }
-
-    function closeList(html, inList) {
-        if (inList) {
-            html.push("</ul>");
-        }
-        return false;
-    }
-
-    function renderMarkdown(value) {
-        const html = [];
-        let inList = false;
-        let inCodeBlock = false;
-
-        for (const line of String(value).split("\n")) {
-            const trimmed = line.trim();
-
-            if (trimmed.startsWith("```")) {
-                inList = closeList(html, inList);
-                if (inCodeBlock) {
-                    html.push("</code></pre>");
-                } else {
-                    html.push("<pre><code>");
-                }
-                inCodeBlock = !inCodeBlock;
-                continue;
-            }
-
-            if (inCodeBlock) {
-                html.push(`${escapeHtml(line.replace(/^    /, ""))}\n`);
-                continue;
-            }
-
-            if (!trimmed) {
-                inList = closeList(html, inList);
-                continue;
-            }
-
-            const headingMatch = trimmed.match(/^(#{1,4})\s+(.+)$/);
-            if (headingMatch) {
-                inList = closeList(html, inList);
-                const level = headingMatch[1].length + 2;
-                html.push(`<h${level}>${renderInlineMarkdown(headingMatch[2])}</h${level}>`);
-                continue;
-            }
-
-            if (trimmed.startsWith("- ")) {
-                if (!inList) {
-                    html.push("<ul>");
-                    inList = true;
-                }
-                html.push(`<li>${renderInlineMarkdown(trimmed.slice(2))}</li>`);
-                continue;
-            }
-
-            inList = closeList(html, inList);
-            html.push(`<p>${renderInlineMarkdown(trimmed)}</p>`);
-        }
-
-        closeList(html, inList);
-        if (inCodeBlock) {
-            html.push("</code></pre>");
-        }
-        return html.join("\n");
-    }
+    const markdown = new MarkdownIt({
+        breaks: true,
+        html: false,
+        linkify: true,
+    });
 
     $: row = Array.isArray(data) ? data[0] : data?.[0];
     $: content = row?.[column] ?? "";
-    $: renderedContent = format === "markdown" ? renderMarkdown(content) : escapeHtml(content);
+    $: renderedContent = markdown.render(content);
 </script>
 
 <section class="strict-syntax-report">
     <h2>{title}</h2>
     {#if content}
         {#if format === "markdown"}
-            <div class="markdown report-body">
+            <div class="strict-syntax-markdown report-body">
                 {@html renderedContent}
             </div>
         {:else}
@@ -129,8 +54,28 @@
         white-space: pre-wrap;
     }
 
+    :global(.report-body h1) {
+        margin-top: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+
+    :global(.report-body h2) {
+        margin-top: 1.5rem;
+        font-size: 1.25rem;
+        font-weight: 650;
+    }
+
+    :global(.report-body ul) {
+        margin-left: 1.25rem;
+        list-style: disc;
+    }
+
     :global(.report-body code) {
         font-size: 0.9em;
+        padding: 0.1rem 0.25rem;
+        border-radius: 0.25rem;
+        background: var(--grey-100, #f3f4f6);
     }
 
     pre {
