@@ -7,91 +7,6 @@ sidebar_position: 10
 
 This page tracks adoption of [Nextflow strict syntax](https://www.nextflow.io/docs/latest/strict-syntax.html) across nf-core pipelines, modules, and subworkflows. **Fixing all errors from `nextflow lint` will be required by early spring 2026.**
 
-```sql pipeline_history
-select * from nfcore_db.strict_syntax_history
-where component_type = 'pipelines'
-order by date
-```
-
-```sql pipeline_latest
-select * from nfcore_db.strict_syntax_history
-where component_type = 'pipelines'
-order by date desc
-limit 1
-```
-
-```sql module_history
-select * from nfcore_db.strict_syntax_history
-where component_type = 'modules'
-order by date
-```
-
-```sql module_latest
-select * from nfcore_db.strict_syntax_history
-where component_type = 'modules'
-order by date desc
-limit 1
-```
-
-```sql subworkflow_history
-select * from nfcore_db.strict_syntax_history
-where component_type = 'subworkflows'
-order by date
-```
-
-```sql subworkflow_latest
-select * from nfcore_db.strict_syntax_history
-where component_type = 'subworkflows'
-order by date desc
-limit 1
-```
-
-```sql current_summary
-with latest as (
-    select
-        *,
-        row_number() over (partition by component_type order by date desc) as row_num
-    from nfcore_db.strict_syntax_history
-)
-select
-    case component_type
-        when 'pipelines' then 'Pipelines'
-        when 'modules' then 'Modules'
-        when 'subworkflows' then 'Subworkflows'
-    end as component,
-    total,
-    parse_errors,
-    errors_zero,
-    errors_zero / nullif(total - parse_errors, 0)::float as zero_errors_pct,
-    total_errors,
-    total_warnings,
-    nextflow_version
-from latest
-where row_num = 1
-order by
-    case component_type
-        when 'pipelines' then 1
-        when 'modules' then 2
-        when 'subworkflows' then 3
-    end
-```
-
-```sql pipelines
-select * from nfcore_db.strict_syntax_pipelines
-```
-
-```sql modules
-select * from nfcore_db.strict_syntax_modules
-```
-
-```sql subworkflows
-select * from nfcore_db.strict_syntax_subworkflows
-```
-
-```sql pipeline_updated_at
-select max(updated_at) as last_updated from nfcore_db.strict_syntax_pipelines
-```
-
 ## Current Snapshot
 
 <DataTable data={current_summary} rows=all>
@@ -463,6 +378,91 @@ nextflow lint . -exclude ".git,.nf-test,nf-test.config"
 ## Getting Help
 
 If you need help fixing strict syntax errors, ask in the [Seqera community forum](https://community.seqera.io/).
+
+```sql pipeline_history
+select * from nfcore_db.strict_syntax_history
+where component_type = 'pipelines'
+order by date
+```
+
+```sql pipeline_latest
+select * from nfcore_db.strict_syntax_history
+where component_type = 'pipelines'
+order by date desc
+limit 1
+```
+
+```sql module_history
+select * from nfcore_db.strict_syntax_history
+where component_type = 'modules'
+order by date
+```
+
+```sql module_latest
+select * from nfcore_db.strict_syntax_history
+where component_type = 'modules'
+order by date desc
+limit 1
+```
+
+```sql subworkflow_history
+select * from nfcore_db.strict_syntax_history
+where component_type = 'subworkflows'
+order by date
+```
+
+```sql subworkflow_latest
+select * from nfcore_db.strict_syntax_history
+where component_type = 'subworkflows'
+order by date desc
+limit 1
+```
+
+```sql current_summary
+with latest as (
+    select
+        *,
+        row_number() over (partition by component_type order by date desc) as row_num
+    from nfcore_db.strict_syntax_history
+)
+select
+    case component_type
+        when 'pipelines' then 'Pipelines'
+        when 'modules' then 'Modules'
+        when 'subworkflows' then 'Subworkflows'
+    end as component,
+    total,
+    parse_errors,
+    errors_zero,
+    errors_zero / nullif(total - parse_errors, 0)::float as zero_errors_pct,
+    total_errors,
+    total_warnings,
+    nextflow_version
+from latest
+where row_num = 1
+order by
+    case component_type
+        when 'pipelines' then 1
+        when 'modules' then 2
+        when 'subworkflows' then 3
+    end
+```
+
+```sql pipelines
+select * from nfcore_db.strict_syntax_pipelines
+```
+
+```sql modules
+select * from nfcore_db.strict_syntax_modules
+```
+
+```sql subworkflows
+select * from nfcore_db.strict_syntax_subworkflows
+```
+
+```sql pipeline_updated_at
+select max(updated_at) as last_updated from nfcore_db.strict_syntax_pipelines
+```
 
 <div style="position: absolute; left: -9999px;" aria-hidden="true">
 {#each pipelines as pipeline}
