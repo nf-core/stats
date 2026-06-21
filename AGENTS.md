@@ -28,6 +28,12 @@ Evidence runs that file's values through a base64 decode, so a raw JWT makes it 
 "Error parsing connection.options.yaml". The env-var form is set verbatim and is the reliable path.
 With the token, all source queries (GitHub, Slack, Twitter, traffic, issues, contributors) populate.
 
+**DuckDB version pin (gotcha):** MotherDuck only supports DuckDB **≤ v1.5.3**, but
+`@evidence-dev/duckdb` pulls an older `@duckdb/node-api` (DuckDB 1.4.2). `package.json` carries an
+`overrides` entry forcing `@duckdb/node-api` to `1.5.3-r.3` so `evidence sources` can connect. If a
+MotherDuck error reports an unsupported DuckDB version (too old **or** too new), change that override
+to the version MotherDuck names and re-run `npm install`.
+
 #### Supplying the token via 1Password + direnv (recommended)
 
 The token lives in **1Password**; share it between developers and agents by *reference*, never by
