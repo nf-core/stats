@@ -7,6 +7,7 @@ static/data
 *.options.yaml
 .vscode/settings.json
 .env
+.direnv
 .evidence/meta
 .claude/settings.local.json
 *.pyc
