@@ -5,7 +5,7 @@
     "build": "evidence build",
     "build:strict": "evidence build:strict",
     "dev": "evidence dev --open /",
-    "dev:preview": "evidence dev",
+    "dev:preview": "sh scripts/dev-preview.sh",
     "test": "evidence build",
     "sources": "evidence sources",
     "preview": "evidence preview"
