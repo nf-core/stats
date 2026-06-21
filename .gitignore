@@ -8,6 +8,7 @@ static/data
 .vscode/settings.json
 .env
 .evidence/meta
+.claude/settings.local.json
 *.pyc
 __pycache__
 regulatory
