@@ -1,0 +1,90 @@
+name: Pipeline Debugger
+
+on:
+  repository_dispatch:
+    types: [pipeline_down]
+  workflow_dispatch:
+    inputs:
+      pipeline_name:
+        description: "Name of the failed pipeline check"
+        required: true
+        default: "GitHub Pipeline Stats"
+      exit_code:
+        description: "Exit code from the failed run"
+        required: false
+        default: "1"
+      error_output:
+        description: "Error output from the failed run"
+        required: false
+        default: ""
+
+jobs:
+  debug_and_fix:
+    name: Debug ${{ github.event.client_payload.pipeline_name || inputs.pipeline_name }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write
+      actions: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          fetch-depth: 0
+
+      - name: Run Claude Code debugger
+        uses: anthropics/claude-code-action@2817c54db8f44f3a0485d57292566bf07d428a25 # v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          additional_permissions: |
+            actions: read
+          direct_prompt: |
+            A DLT pipeline has failed and needs investigation and repair.
+
+            ## Failure Summary
+
+            - **Failed Check**: ${{ github.event.client_payload.pipeline_name || inputs.pipeline_name }}
+            - **Failed At**: ${{ github.event.client_payload.failed_at || 'unknown' }} UTC
+            - **Exit Code**: ${{ github.event.client_payload.exit_code || inputs.exit_code }}
+            - **Check UUID**: ${{ github.event.client_payload.check_uuid || 'manual trigger' }}
+
+            ## Pipeline Error Output
+
+            ```
+            ${{ github.event.client_payload.error_output || inputs.error_output || 'No output captured — check the GitHub Actions logs for the most recent run_pipelines.yml run.' }}
+            ```
+
+            ## Your Task
+
+            Investigate the failure, fix the root cause, and open a pull request. Work through these steps:
+
+            1. **Triage**: Read the error output above. If it's truncated or missing, fetch the
+               most recent failing run from GitHub Actions (`run_pipelines.yml`) to get the full logs.
+
+            2. **Locate the bug**: The pipelines live in `pipeline/src/nf_core_stats/`. The check
+               name maps to these files:
+               - "GitHub Pipeline Stats" → `github_pipeline.py` (and `_github.py`)
+               - "Slack Pipeline Stats" → `slack_pipeline.py`
+               - "Citations Pipeline Stats" → `citations_pipeline.py`
+
+            3. **Fix the code**: Make the minimal change needed to fix the bug. Add defensive
+               handling only where it prevents the same class of failure — don't add speculative
+               error handling for unrelated scenarios.
+
+            4. **Check data integrity**: DLT uses merge disposition, so a partial run may have
+               left some records stale or missing. Assess whether a data repair is needed:
+               - If the failure was early in the run (before any rows were written), no repair needed.
+               - If the failure was mid-run, the next successful run will naturally backfill via
+                 the merge primary keys — document this in the PR description.
+               - Only write an explicit repair script if records are actually corrupted (e.g.,
+                 wrong values were merged in). Add it to `pipeline/` as `repair_<pipeline>.py`.
+
+            5. **Open a PR**: Commit your changes to a new branch named
+               `fix/pipeline-<pipeline-name>-<short-description>` and open a pull request.
+               The PR title should follow the format: `fix: <what broke> in <pipeline> pipeline`.
+               In the PR body, include:
+               - Root cause (one sentence)
+               - What the fix does
+               - Data impact assessment (was any data corrupted? will the next run repair it?)
