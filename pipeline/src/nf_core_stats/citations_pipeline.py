@@ -90,6 +90,10 @@ def _get_citations_for_pipeline(pipeline_name: str, github_headers: dict):
             }
         except SemanticScholarException.ObjectNotFoundException:
             logger.warning(f"DOI not found: {doi}")
+        except Exception as e:
+            # Network errors (SSL, connection timeouts, etc.) should not crash the whole pipeline.
+            # Log and skip this DOI so the remaining pipelines are still processed.
+            logger.warning(f"Failed to fetch paper for DOI {doi} in {pipeline_name}: {e}")
 
 
 @dlt.source(name="semanticscholar")
