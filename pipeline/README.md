@@ -44,6 +44,19 @@ DESTINATION__MOTHERDUCK__CREDENTIALS__PASSWORD                        # motherdu
 DESTINATION__DUCKDB__CREDENTIALS="./nf_core_stats.duckdb"
 ```
 
+The `ses` pipeline (newsletter subscriber counts) reads the AWS SES contact list
+via `boto3`, so it uses standard AWS credentials from the environment rather than
+a `dlt` secret. In GitHub Actions these come from OIDC role assumption
+(`secrets.AWS_ROLE_ARN`); locally, set the usual AWS variables:
+
+```bash
+AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY
+# region is hard-coded to eu-west-1 to match the nf-core/newsletter list
+```
+
+The credentials need `ses:ListContacts` on the `nf-core-newsletter` contact list.
+
 `dotenv` can retrieve them from 1password automatically, see `.envrc` for more details. If you
 are not using `dotenv`, you need to set these env vars manually.
 
@@ -98,6 +111,10 @@ Database: nf_core_stats
 ├── Schema: slack
 │   └── Table: workspace_stats
 │       └── (user counts, activity metrics)
+│
+├── Schema: ses
+│   └── Table: newsletter_stats
+│       └── (newsletter subscriber counts: subscribed, pending, unsubscribed)
 │
 └── Schema: twitter
     └── Table: account_stats
