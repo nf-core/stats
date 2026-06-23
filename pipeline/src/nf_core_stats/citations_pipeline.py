@@ -89,7 +89,11 @@ def _get_citations_for_pipeline(pipeline_name: str, github_headers: dict):
                 "influencial_paper_citation_count": paper.influentialCitationCount,
             }
         except SemanticScholarException.ObjectNotFoundException:
-            logger.warning(f"DOI not found: {doi}")
+            logger.warning(f"DOI not found in Semantic Scholar: {doi}")
+        except Exception as e:
+            # Network errors (SSL cert expiry, timeouts, etc.) should not crash the whole pipeline.
+            # Log and skip this DOI; the next nightly run will retry it.
+            logger.warning(f"Failed to fetch citation data for {pipeline_name}/{doi}: {type(e).__name__}: {e}")
 
 
 @dlt.source(name="semanticscholar")

@@ -67,14 +67,27 @@ def github_request(url: str, headers: dict) -> requests.Response:
     """
     response = http_client.get(url, headers=headers)
 
-    # Check for rate limit exhaustion using GitHub-specific headers
-    # 403 with X-RateLimit-Remaining: 0 indicates true rate limit exhaustion
+    # Check for rate limit exhaustion using GitHub-specific headers.
+    # GitHub uses two distinct limits:
+    #   Primary (403 + X-RateLimit-Remaining: 0, no Retry-After): hourly quota gone.
+    #     → Fail fast; DLT's incremental state lets the next run resume where we left off.
+    #   Secondary (403 + Retry-After): per-endpoint or concurrency limit.
+    #     → Sleep for the instructed period and retry once; these are transient and common
+    #       when multiple parallel CI jobs share the same token.
     if response.status_code == 403:
         remaining = response.headers.get("X-RateLimit-Remaining")
         reset_time = response.headers.get("X-RateLimit-Reset")
+        retry_after = response.headers.get("Retry-After")
 
-        # Only fail fast if we're truly rate limited (remaining = 0)
-        # Other 403s (permissions, etc.) will be handled by raise_for_status
+        if retry_after:
+            # Secondary rate limit — wait and retry once rather than aborting the run.
+            wait = min(int(retry_after) if retry_after.isdigit() else 60, 120)
+            logger.warning(f"GitHub secondary rate limit hit. Waiting {wait}s before retry.")
+            import time
+
+            time.sleep(wait)
+            return github_request(url, headers)
+
         if remaining is not None and int(remaining) == 0:
             reset_datetime = datetime.fromtimestamp(int(reset_time), tz=timezone.utc) if reset_time else "unknown"
             logger.error(f"Rate limit exhausted. Resets at {reset_datetime}. Failing fast to resume on next run.")
