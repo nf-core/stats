@@ -75,6 +75,9 @@ jobs:
         with:
           python-version: "3.10"
           enable-cache: true
+          # Per-pipeline suffix so concurrent matrix jobs don't race to save the
+          # same cache key when the lockfile changes (all 4 miss, then collide).
+          cache-suffix: ${{ matrix.pipeline }}
           cache-dependency-glob: |
             **/pyproject.toml
             **/uv.lock
