@@ -3,6 +3,8 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 2 * * *" # Once a day
+permissions: {}
+
 jobs:
   build:
     name: Request Netlify Webhook
