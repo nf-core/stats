@@ -56,11 +56,11 @@ jobs:
             uuid: 585d7c4f-abc9-49fa-980f-64d950d6fd2b
           - pipeline: citations
             uuid: 40694d0-50ed-4bb7-919d-463d3555b23f
-          - pipeline: ses
+          - pipeline: newsletter
             uuid: aed8f97c-1c53-4cca-923e-7b969acee876
     permissions:
       contents: read
-      id-token: write # AWS OIDC (SES pipeline only)
+      id-token: write # AWS OIDC (newsletter pipeline only)
     defaults:
       run:
         working-directory: pipeline
@@ -74,10 +74,10 @@ jobs:
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7
         with:
           python-version: "3.10"
-          # The SES leg's run step is skipped on PRs, so uv never installs
+          # The newsletter leg's run step is skipped on PRs, so uv never installs
           # anything and no cache dir is created — enabling the cache would then
           # make setup-uv's post step fail on the missing dir. Disable it there.
-          enable-cache: ${{ !(matrix.pipeline == 'ses' && github.event_name == 'pull_request') }}
+          enable-cache: ${{ !(matrix.pipeline == 'newsletter' && github.event_name == 'pull_request') }}
           cache-dependency-glob: |
             **/pyproject.toml
             **/uv.lock
@@ -94,17 +94,17 @@ jobs:
           ./runitor -version
           sudo mv runitor /usr/local/bin/
 
-      # The SES pipeline reads the newsletter contact list via the AWS SES API.
+      # The newsletter pipeline reads the contact list via the AWS SES API.
       - name: Configure AWS credentials
-        if: matrix.pipeline == 'ses' && github.event_name != 'pull_request'
+        if: matrix.pipeline == 'newsletter' && github.event_name != 'pull_request'
         uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b # v6.2.0
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: eu-west-1
 
       - name: Get ${{ matrix.pipeline }} stats
-        # SES has no credentials on PRs (OIDC isn't available to forks), so skip it there.
-        if: ${{ !(matrix.pipeline == 'ses' && github.event_name == 'pull_request') }}
+        # newsletter has no credentials on PRs (OIDC isn't available to forks), so skip it there.
+        if: ${{ !(matrix.pipeline == 'newsletter' && github.event_name == 'pull_request') }}
         run: |
           runitor -uuid ${{ matrix.uuid }} -- \
               uv run nf_core_stats ${{ matrix.pipeline }} ${{ github.event_name == 'pull_request' && '--destination duckdb' || '' }}

@@ -6,7 +6,7 @@ USE nf_core_stats_bot;
 SELECT timestamp::date AS timestamp, value, category
 FROM (
     SELECT timestamp::date AS timestamp, MAX(subscribed) AS subscribed, MAX(pending) AS pending
-    FROM ses.newsletter_stats
+    FROM newsletter.subscriber_stats
     GROUP BY 1
 )
 UNPIVOT (value FOR category IN (subscribed, pending))

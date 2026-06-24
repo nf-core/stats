@@ -70,15 +70,15 @@ def _iter_all_contacts(client: Any) -> Iterator[dict[str, Any]]:
             return
 
 
-@dlt.source(name="ses")
-def ses_source() -> list[Any]:
+@dlt.source(name="newsletter")
+def newsletter_source() -> list[Any]:
     """DLT source for AWS SES newsletter list statistics."""
     client = boto3.client("sesv2", region_name=AWS_REGION)
-    return [ses_stats_resource(client)]
+    return [subscriber_stats_resource(client)]
 
 
-@dlt.resource(name="newsletter_stats", write_disposition="merge", primary_key=["timestamp"])
-def ses_stats_resource(client: Any) -> Iterator[dict[str, Any]]:
+@dlt.resource(name="subscriber_stats", write_disposition="merge", primary_key=["timestamp"])
+def subscriber_stats_resource(client: Any) -> Iterator[dict[str, Any]]:
     """Snapshot the newsletter contact list: subscribed, pending and unsubscribed counts."""
     total = 0
     subscribed = 0
@@ -118,12 +118,12 @@ def main(*, destination="motherduck"):
     logger.info("Starting AWS SES newsletter data pipeline...")
 
     pipeline = dlt.pipeline(
-        pipeline_name="ses_stats",
+        pipeline_name="newsletter_stats",
         destination=destination,
-        dataset_name="ses",
+        dataset_name="newsletter",
     )
 
-    load_info = pipeline.run(ses_source())
+    load_info = pipeline.run(newsletter_source())
     log_pipeline_stats(pipeline, load_info)
 
     logger.info("AWS SES newsletter data pipeline completed successfully!")

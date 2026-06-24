@@ -53,7 +53,7 @@ The MotherDuck database contains tables for:
 - `github_issue_stats` - Issues and pull requests
 - `slack_messages` - Slack channel message counts
 - `slack_members` - Slack member statistics
-- `ses.newsletter_stats` - AWS SES newsletter subscriber counts (subscribed, pending, unsubscribed)
+- `newsletter.subscriber_stats` - AWS SES newsletter subscriber counts (subscribed, pending, unsubscribed)
 
 ### Environment Variables
 
@@ -63,7 +63,7 @@ Required secrets for pipelines (set in GitHub Actions or local `.env`):
 - `SOURCES__SLACK_PIPELINE__SLACK__API_TOKEN` - Slack user token
 - `DESTINATION__MOTHERDUCK__CREDENTIALS__DATABASE` - MotherDuck database name
 - `DESTINATION__MOTHERDUCK__CREDENTIALS__PASSWORD` - MotherDuck token
-- `AWS_ROLE_ARN` - IAM role (assumed via OIDC in CI) with `ses:ListContacts` for the `ses` pipeline
+- `AWS_ROLE_ARN` - IAM role (assumed via OIDC in CI) with `ses:ListContacts` for the `newsletter` pipeline
 
 ## Development Notes
 
