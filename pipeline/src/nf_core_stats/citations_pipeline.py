@@ -90,6 +90,8 @@ def _get_citations_for_pipeline(pipeline_name: str, github_headers: dict):
             }
         except SemanticScholarException.ObjectNotFoundException:
             logger.warning(f"DOI not found: {doi}")
+        except Exception as e:
+            logger.warning(f"Failed to fetch citations for DOI {doi} in {pipeline_name}: {e}")
 
 
 @dlt.source(name="semanticscholar")
