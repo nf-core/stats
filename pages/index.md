@@ -4,6 +4,7 @@ queries:
   - community/growth_gh_members.sql
   - community/growth_slack_users.sql
   - community/growth_gh_contributors.sql
+  - community/growth_newsletter_subscribers.sql
   - code/growth_gh_repos.sql
   - code/growth_gh_released_repos.sql
   - code/growth_gh_commits.sql
@@ -42,6 +43,16 @@ The numbers below track our growth over the various channels that the nf-core co
   title="GitHub Contributors"
   sparkline=month
   link="/community/github"
+  fmt=num0
+  minWidth=30%
+/>
+
+<BigValue
+  data={community_growth_newsletter_subscribers}
+  value=subscribers
+  title="Newsletter Subscribers"
+  sparkline=month
+  link="/community/newsletter"
   fmt=num0
   minWidth=30%
 />
