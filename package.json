@@ -5,6 +5,7 @@
     "build": "evidence build",
     "build:strict": "evidence build:strict",
     "dev": "evidence dev --open /",
+    "dev:preview": "sh scripts/dev-preview.sh",
     "test": "evidence build",
     "sources": "evidence sources",
     "preview": "evidence preview"
@@ -21,5 +22,8 @@
     "@evidence-dev/duckdb": "^2.0.0",
     "@evidence-dev/evidence": "^40.1.6",
     "@evidence-dev/motherduck": "^1.0.5"
+  },
+  "overrides": {
+    "@duckdb/node-api": "1.5.3-r.3"
   }
 }
