@@ -36,8 +36,7 @@ def check_rate_limit(headers: dict, min_remaining: int = 100) -> dict:
     Returns:
         dict with 'remaining', 'limit', 'reset' keys
     """
-    response = http_client.get("https://api.github.com/rate_limit", headers=headers)
-    response.raise_for_status()
+    response = github_request("https://api.github.com/rate_limit", headers)
     rate_limit = response.json()["resources"]["core"]
 
     remaining = rate_limit["remaining"]
@@ -93,6 +92,15 @@ def github_request(url: str, headers: dict) -> requests.Response:
         raise requests.HTTPError(
             f"GitHub API rate limit hit after automatic retries. Resets at {reset_datetime}.",
             response=response,
+        )
+
+    # A 401 here means the token itself is invalid/expired/revoked, not a rate limit issue.
+    # Surface this distinctly so it isn't mistaken for a transient rate-limit failure that
+    # will resolve itself on the next scheduled run.
+    if response.status_code == 401:
+        logger.error(
+            f"GitHub API returned 401 Unauthorized for {url}. The configured API token appears to be "
+            "invalid, expired, or revoked - check SOURCES__GITHUB_PIPELINE__GITHUB__API_TOKEN."
         )
 
     response.raise_for_status()

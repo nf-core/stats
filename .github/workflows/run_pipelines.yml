@@ -104,7 +104,10 @@ jobs:
 
       - name: Get ${{ matrix.pipeline }} stats
         # newsletter has no credentials on PRs (OIDC isn't available to forks), so skip it there.
-        if: ${{ !(matrix.pipeline == 'newsletter' && github.event_name == 'pull_request') }}
+        # github/slack/citations need SOURCES__GITHUB_PIPELINE__GITHUB__API_TOKEN /
+        # SOURCES__SLACK_PIPELINE__SLACK__API_TOKEN, which GitHub Actions withholds from
+        # pull_request runs triggered by a fork - skip rather than crash with a stack trace.
+        if: ${{ !(matrix.pipeline == 'newsletter' && github.event_name == 'pull_request') && !(github.event_name == 'pull_request' && secrets.GH_TOKEN_STATS_PAGE == '') }}
         run: |
           runitor -uuid ${{ matrix.uuid }} -- \
               uv run nf_core_stats ${{ matrix.pipeline }} ${{ github.event_name == 'pull_request' && '--destination duckdb' || '' }}

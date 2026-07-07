@@ -1,4 +1,5 @@
 import itertools
+import time
 from datetime import datetime, timezone
 
 import dlt
@@ -9,13 +10,26 @@ from ._github import get_file_contents, get_github_headers, github_request
 from ._logging import log_pipeline_stats, logger
 
 
-def _get_pipeline_names(headers) -> list[str]:
+def _get_pipeline_names(headers, max_attempts: int = 3, retry_delay: float = 2.0) -> list[str]:
+    """Fetch the list of nf-core pipeline names from the nf-core website.
+
+    Retries a few times before giving up: this endpoint is served from a CDN behind
+    the website's deploys, and has been observed to return a spurious 404 for a few
+    seconds around a deploy even though the file exists moments before and after.
+    """
     pipeline_names_url = "https://raw.githubusercontent.com/nf-core/website/main/public/pipeline_names.json"
-    try:
-        return github_request(pipeline_names_url, headers).json()["pipeline"]
-    except (requests.RequestException, KeyError) as e:
-        logger.warning(f"Failed to get pipeline names from nf-core website: {e}")
-        raise
+    last_error = None
+    for attempt in range(1, max_attempts + 1):
+        try:
+            return github_request(pipeline_names_url, headers).json()["pipeline"]
+        except (requests.RequestException, KeyError) as e:
+            last_error = e
+            logger.warning(
+                f"Failed to get pipeline names from nf-core website (attempt {attempt}/{max_attempts}): {e}"
+            )
+            if attempt < max_attempts:
+                time.sleep(retry_delay * attempt)
+    raise last_error
 
 
 def _parse_doi_from_nextflow_config(file_contents) -> str | None:
