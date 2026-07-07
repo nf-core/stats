@@ -1,19 +1,22 @@
 import itertools
+import json
 from datetime import datetime, timezone
 
 import dlt
 import requests
 from semanticscholar import SemanticScholar, SemanticScholarException
 
-from ._github import get_file_contents, get_github_headers, github_request
+from ._github import get_file_contents, get_github_headers
 from ._logging import log_pipeline_stats, logger
 
 
 def _get_pipeline_names(headers) -> list[str]:
-    pipeline_names_url = "https://raw.githubusercontent.com/nf-core/website/main/public/pipeline_names.json"
+    # Use the authenticated Contents API (not raw.githubusercontent.com) - the raw CDN
+    # can 404 for a short window right after nf-core/website regenerates this file.
     try:
-        return github_request(pipeline_names_url, headers).json()["pipeline"]
-    except (requests.RequestException, KeyError) as e:
+        content = get_file_contents("nf-core", "website", "public/pipeline_names.json", headers)
+        return json.loads(content)["pipeline"]
+    except (requests.RequestException, ValueError, KeyError) as e:
         logger.warning(f"Failed to get pipeline names from nf-core website: {e}")
         raise
 

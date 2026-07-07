@@ -36,8 +36,7 @@ def check_rate_limit(headers: dict, min_remaining: int = 100) -> dict:
     Returns:
         dict with 'remaining', 'limit', 'reset' keys
     """
-    response = http_client.get("https://api.github.com/rate_limit", headers=headers)
-    response.raise_for_status()
+    response = github_request("https://api.github.com/rate_limit", headers)
     rate_limit = response.json()["resources"]["core"]
 
     remaining = rate_limit["remaining"]
@@ -66,6 +65,17 @@ def github_request(url: str, headers: dict) -> requests.Response:
     we fail fast to let DLT's incremental loading resume on the next run.
     """
     response = http_client.get(url, headers=headers)
+
+    if response.status_code == 401:
+        logger.error(
+            "GitHub API returned 401 Unauthorized - the API token is invalid, revoked, or expired. "
+            "Rotate the GH_TOKEN_STATS_PAGE repository secret."
+        )
+        raise requests.HTTPError(
+            "GitHub API authentication failed (401 Unauthorized). "
+            "The token is invalid or expired - rotate the GH_TOKEN_STATS_PAGE repository secret.",
+            response=response,
+        )
 
     # Check for rate limit exhaustion using GitHub-specific headers
     # 403 with X-RateLimit-Remaining: 0 indicates true rate limit exhaustion
