@@ -5,14 +5,13 @@ import dlt
 import requests
 from semanticscholar import SemanticScholar, SemanticScholarException
 
-from ._github import get_file_contents, get_github_headers, github_request
+from ._github import get_file_contents, get_github_headers, get_pipeline_names
 from ._logging import log_pipeline_stats, logger
 
 
-def _get_pipeline_names(headers) -> list[str]:
-    pipeline_names_url = "https://raw.githubusercontent.com/nf-core/website/main/public/pipeline_names.json"
+def _get_pipeline_names() -> list[str]:
     try:
-        return github_request(pipeline_names_url, headers).json()["pipeline"]
+        return get_pipeline_names()
     except (requests.RequestException, KeyError) as e:
         logger.warning(f"Failed to get pipeline names from nf-core website: {e}")
         raise
@@ -95,7 +94,7 @@ def _get_citations_for_pipeline(pipeline_name: str, github_headers: dict):
 @dlt.source(name="semanticscholar")
 def semanticscholar_source():
     github_headers = get_github_headers()
-    pipelines = _get_pipeline_names(github_headers)
+    pipelines = _get_pipeline_names()
 
     return [dlt.resource(pipeline_citations(pipelines, github_headers), name="pipeline_citations")]
 

@@ -8,7 +8,7 @@ from typing import Literal
 import dlt
 import requests
 
-from ._github import check_rate_limit, get_github_headers, get_paginated_data, github_request
+from ._github import check_rate_limit, get_github_headers, get_paginated_data, get_pipeline_names, github_request
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -322,14 +322,13 @@ def pipelines(organization: str, headers: dict, repos: list[dict]) -> Iterator[d
     """Collect pipeline information"""
     logger.info(f"Collecting pipeline information for {len(repos)} repositories")
     # Get pipeline names from nf-core website
-    pipeline_names_url = "https://raw.githubusercontent.com/nf-core/website/main/public/pipeline_names.json"
     try:
-        pipeline_names = github_request(pipeline_names_url, headers).json()
+        pipeline_names = get_pipeline_names()
     except requests.RequestException as e:
         logger.warning(f"Failed to get pipeline names from nf-core website: {e}")
         return
 
-    for pipeline_name in pipeline_names.get("pipeline", []):
+    for pipeline_name in pipeline_names:
         pipeline = next((repo for repo in repos if repo["name"] == pipeline_name), None)
         if not pipeline:
             logger.warning(f"{pipeline_name} is not a pipeline")

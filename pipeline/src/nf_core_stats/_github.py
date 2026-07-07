@@ -99,6 +99,20 @@ def github_request(url: str, headers: dict) -> requests.Response:
     return response
 
 
+def get_pipeline_names() -> list[str]:
+    """Get the list of active nf-core pipeline names from the nf-core website.
+
+    This is a static file served over GitHub's raw content CDN, not the GitHub
+    API, so it does not need (and must not send) GitHub API auth headers: an
+    expired/invalid token turns this into a 404 instead of a 401, masking the
+    real problem.
+    """
+    url = "https://raw.githubusercontent.com/nf-core/website/main/public/pipeline_names.json"
+    response = http_client.get(url)
+    response.raise_for_status()
+    return response.json()["pipeline"]
+
+
 def get_paginated_data(url: str, headers: dict):
     """Get all paginated results from GitHub API"""
     all_results = []
