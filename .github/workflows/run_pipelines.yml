@@ -83,6 +83,7 @@ jobs:
             **/uv.lock
 
       - name: Install runitor
+        if: github.event_name != 'pull_request'
         env:
           RUNITOR_VERSION: "v1.3.0-build.4"
         run: |
@@ -105,9 +106,16 @@ jobs:
       - name: Get ${{ matrix.pipeline }} stats
         # newsletter has no credentials on PRs (OIDC isn't available to forks), so skip it there.
         if: ${{ !(matrix.pipeline == 'newsletter' && github.event_name == 'pull_request') }}
+        # PR runs (e.g. from forks without secrets) are expected to fail auth and must
+        # not go through runitor: that pings the production healthchecks.io monitor with
+        # the real UUID, turning an expected PR failure into a false "pipeline is down" alert.
         run: |
-          runitor -uuid ${{ matrix.uuid }} -- \
-              uv run nf_core_stats ${{ matrix.pipeline }} ${{ github.event_name == 'pull_request' && '--destination duckdb' || '' }}
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            uv run nf_core_stats ${{ matrix.pipeline }} --destination duckdb
+          else
+            runitor -uuid ${{ matrix.uuid }} -- \
+                uv run nf_core_stats ${{ matrix.pipeline }}
+          fi
 
       - name: Upload DuckDB artifacts
         if: github.event_name == 'pull_request'
