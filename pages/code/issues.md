@@ -13,6 +13,20 @@ from nfcore_db.issues_and_prs_over_time
 where type = 'issue'
 ```
 
+```sql issues_cumulative
+select
+    timestamp,
+    round(sum(closed_merged) over (order by timestamp)) as "Closed",
+    round(sum(open) over (order by timestamp)) as "Open",
+    round(sum(closed_merged + open) over (order by timestamp)) as "Total"
+from nfcore_db.issues_and_prs_over_time
+where type = 'issue'
+```
+
+<Tabs>
+
+<Tab label="Per week">
+
 <LineChart
 data={issues_over_time}
 x=timestamp
@@ -20,6 +34,24 @@ y={["Closed", "Open"]}
 title="GitHub Issues over time"
 yAxisTitle="Number of Issues"
 />
+
+</Tab>
+
+<Tab label="Cumulative">
+
+<LineChart
+data={issues_cumulative}
+x=timestamp
+y={[ "Total"]}
+seriesColors={{"Total": "warning"}}
+yLog=true
+title="Cumulative GitHub Issues over time"
+yAxisTitle="Number of Issues"
+/>
+
+</Tab>
+
+</Tabs>
 
 ## Issue Response Times
 
