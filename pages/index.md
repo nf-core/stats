@@ -88,7 +88,7 @@ Whilst we always prefer quality over quantity, these numbers reflect the work ou
 <BigValue
     data={code_growth_gh_prs}
     value=num_prs
-    title="Total Pull Requests"
+    title="Total Open Pull Requests"
     sparkline=month
     link="/code/pull_requests"
     minWidth=30%
@@ -96,7 +96,7 @@ Whilst we always prefer quality over quantity, these numbers reflect the work ou
 <BigValue
     data={code_growth_gh_issues}
     value=num_issues
-    title="Total Issues"
+    title="Total Open Issues"
     sparkline=month
     fmt=num0
     minWidth=30%
