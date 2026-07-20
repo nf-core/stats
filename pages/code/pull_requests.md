@@ -13,6 +13,20 @@ from nfcore_db.issues_and_prs_over_time
 where type = 'pr'
 ```
 
+```sql pull_requests_cumulative
+select
+    timestamp,
+    round(sum(closed_merged) over (order by timestamp)) as "Closed / Merged",
+    round(sum(open) over (order by timestamp)) as "Open",
+    round(sum(closed_merged + open) over (order by timestamp)) as "Total"
+from nfcore_db.issues_and_prs_over_time
+where type = 'pr'
+```
+
+<Tabs>
+
+<Tab label="Per week">
+
 <LineChart
 data={pull_requests_over_time}
 x=timestamp
@@ -20,6 +34,24 @@ y={["Closed / Merged", "Open"]}
 title="GitHub Pull Requests over time"
 yAxisTitle="Number of Pull Requests"
 />
+
+</Tab>
+
+<Tab label="Cumulative">
+
+<LineChart
+data={pull_requests_cumulative}
+x=timestamp
+y={[ "Total"]}
+seriesColors={{"Total": "warning"}}
+yLog=true
+title="Cumulative GitHub Pull Requests over time"
+yAxisTitle="Number of Pull Requests"
+/>
+
+</Tab>
+
+</Tabs>
 
 ## Pull Request Response Times
 
