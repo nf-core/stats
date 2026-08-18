@@ -65,6 +65,9 @@ jobs:
           - pipeline: slack
             uuid: 585d7c4f-abc9-49fa-980f-64d950d6fd2b
           - pipeline: citations
+            # KNOWN BAD (#148): 7 hex chars in the first group, not 8 — fails
+            # "Validate healthcheck UUID format" below. Needs the real value
+            # from the healthchecks.io dashboard; do not guess the missing char.
             uuid: 40694d0-50ed-4bb7-919d-463d3555b23f
           - pipeline: newsletter
             uuid: aed8f97c-1c53-4cca-923e-7b969acee876
@@ -75,6 +78,18 @@ jobs:
       run:
         working-directory: pipeline
     steps:
+      # Runs on every event, including PRs, so a typo'd UUID fails CI loudly
+      # instead of silently no-op'ing (or worse, pinging the wrong monitor)
+      # once it reaches a real schedule/push run.
+      - name: Validate healthcheck UUID format
+        env:
+          UUID: ${{ matrix.uuid }}
+        run: |
+          if ! [[ "$UUID" =~ ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$ ]]; then
+            echo "::error::Malformed healthchecks.io UUID for '${{ matrix.pipeline }}': '$UUID' is not a valid UUID (expected 8-4-4-4-12 hex groups). Recover the correct value from the healthchecks.io dashboard rather than guessing."
+            exit 1
+          fi
+
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
