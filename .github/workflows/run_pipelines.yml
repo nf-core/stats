@@ -38,7 +38,11 @@ jobs:
       - id: skip_check
         uses: fkirc/skip-duplicate-actions@f75f66ce1886f00957d99748a42c724f4330bdcf # v5
         with:
-          concurrent_skipping: always
+          # `always` skips a run whenever ANY other run is in flight, which made a
+          # lone PR run get skipped when it raced a push run — the pipeline job never
+          # executed and the PR reported a vacuous green. Only skip runs that a newer
+          # commit on the same branch has superseded.
+          concurrent_skipping: outdated_runs
           skip_after_successful_duplicate: false
 
   run_pipelines:
