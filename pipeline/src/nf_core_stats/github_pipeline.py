@@ -591,6 +591,7 @@ def main(
     resources_to_run = all_resources if resources is None else filter(lambda x: x[0] in resources, all_resources)
 
     total_rows_processed = 0
+    failed_resources = []
 
     for resource_name, resource_func in resources_to_run:
         try:
@@ -623,12 +624,18 @@ def main(
                 break
             logger.error(f"❌ Failed to process {resource_name}: {e}")
             logger.info("Continuing with next resource...")
+            failed_resources.append(resource_name)
             continue
         except Exception as e:
             logger.error(f"❌ Failed to process {resource_name}: {e}")
             logger.info("Continuing with next resource...")
+            failed_resources.append(resource_name)
             continue
 
     logger.info("=== PIPELINE COMPLETION SUMMARY ===")
     logger.info(f"Total rows processed across all resources: {total_rows_processed}")
+
+    if failed_resources:
+        raise RuntimeError(f"GitHub data pipeline completed with failed resources: {', '.join(failed_resources)}")
+
     logger.info("GitHub data pipeline completed!")
