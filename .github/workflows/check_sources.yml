@@ -5,8 +5,8 @@ name: Check Sources
   pull_request:
     paths:
       - "sources/**"
+      # Evidence version bumps can break the source build.
       - "package.json"
-      - "scripts/check-sources.mjs"
       - ".github/workflows/check_sources.yml"
 
 permissions:
@@ -16,32 +16,17 @@ jobs:
   check_sources:
     name: Build sources
     runs-on: ubuntu-latest
+    # Forks cannot read secrets, so the build would fail for reasons unrelated
+    # to the change.
+    if: ${{ !github.event.pull_request.head.repo.fork }}
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
-      # Forks cannot read secrets, so the sources build would fail for reasons
-      # unrelated to the change. Skip with a notice rather than a red X.
-      - name: Check for datasource credentials
-        id: creds
-        env:
-          MOTHERDUCK_TOKEN: ${{ secrets.MOTHERDUCK_TOKEN }}
-        run: |
-          if [ -n "$MOTHERDUCK_TOKEN" ]; then
-            echo "available=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "available=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::No MotherDuck token available (likely a fork PR); skipping source build."
-          fi
-
-      - name: Install dependencies
-        if: steps.creds.outputs.available == 'true'
-        run: npm ci
+      - run: npm ci
 
       # Plain `evidence sources` exits 0 even when a query fails; --strict does not.
-      - name: Build sources
-        if: steps.creds.outputs.available == 'true'
-        env:
+      - env:
           EVIDENCE_SOURCE__nfcore_db__token: ${{ secrets.MOTHERDUCK_TOKEN }}
         run: npx evidence sources --strict
