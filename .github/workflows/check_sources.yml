@@ -39,14 +39,9 @@ jobs:
         if: steps.creds.outputs.available == 'true'
         run: npm ci
 
-      # `evidence sources` exits 0 even when a query fails, so the exit code is
-      # not a usable signal; check-sources.mjs compares built output instead.
+      # Plain `evidence sources` exits 0 even when a query fails; --strict does not.
       - name: Build sources
         if: steps.creds.outputs.available == 'true'
         env:
           EVIDENCE_SOURCE__nfcore_db__token: ${{ secrets.MOTHERDUCK_TOKEN }}
-        run: npm run sources
-
-      - name: Verify every source query produced output
-        if: steps.creds.outputs.available == 'true'
-        run: node scripts/check-sources.mjs
+        run: npx evidence sources --strict

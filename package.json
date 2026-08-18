@@ -7,7 +7,6 @@
     "dev": "evidence dev --open /",
     "test": "evidence build",
     "sources": "evidence sources",
-    "check:sources": "node scripts/check-sources.mjs",
     "preview": "evidence preview"
   },
   "engines": {
