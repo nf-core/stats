@@ -61,13 +61,9 @@ jobs:
       matrix:
         include:
           - pipeline: github
-            uuid: 73f22c65-592a-4368-8fc5-23787c1dc67d
           - pipeline: slack
-            uuid: 585d7c4f-abc9-49fa-980f-64d950d6fd2b
           - pipeline: citations
-            uuid: 40694d0-50ed-4bb7-919d-463d3555b23f
           - pipeline: newsletter
-            uuid: aed8f97c-1c53-4cca-923e-7b969acee876
     permissions:
       contents: read
       id-token: write # AWS OIDC (newsletter pipeline only)
@@ -75,6 +71,39 @@ jobs:
       run:
         working-directory: pipeline
     steps:
+      # Production runitor UUIDs live in repository secrets (not the workflow file) so
+      # public readers cannot forge pings. Validate format here so a typo in a secret
+      # fails loudly instead of silently no-op'ing at ping time.
+      - name: Resolve healthcheck UUID
+        if: env.USE_RUNITOR == 'true'
+        id: healthcheck
+        env:
+          PIPELINE: ${{ matrix.pipeline }}
+          HEALTHCHECK_UUID_GITHUB: ${{ secrets.HEALTHCHECK_UUID_GITHUB }}
+          HEALTHCHECK_UUID_SLACK: ${{ secrets.HEALTHCHECK_UUID_SLACK }}
+          HEALTHCHECK_UUID_CITATIONS: ${{ secrets.HEALTHCHECK_UUID_CITATIONS }}
+          HEALTHCHECK_UUID_NEWSLETTER: ${{ secrets.HEALTHCHECK_UUID_NEWSLETTER }}
+        run: |
+          case "$PIPELINE" in
+            github) UUID="$HEALTHCHECK_UUID_GITHUB" ;;
+            slack) UUID="$HEALTHCHECK_UUID_SLACK" ;;
+            citations) UUID="$HEALTHCHECK_UUID_CITATIONS" ;;
+            newsletter) UUID="$HEALTHCHECK_UUID_NEWSLETTER" ;;
+            *)
+              echo "::error::Unknown pipeline: $PIPELINE"
+              exit 1
+              ;;
+          esac
+          if [ -z "$UUID" ]; then
+            echo "::error::Missing HEALTHCHECK_UUID_${PIPELINE^^} repository secret for production runitor monitoring."
+            exit 1
+          fi
+          if ! [[ "$UUID" =~ ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$ ]]; then
+            echo "::error::Malformed healthchecks.io UUID for '$PIPELINE': '$UUID' is not valid 8-4-4-4-12 hex format. Recover the correct value from the healthchecks.io dashboard rather than guessing."
+            exit 1
+          fi
+          echo "uuid=$UUID" >> "$GITHUB_OUTPUT"
+
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
@@ -118,7 +147,7 @@ jobs:
         if: ${{ !(matrix.pipeline == 'newsletter' && github.event_name == 'pull_request') }}
         env:
           PIPELINE: ${{ matrix.pipeline }}
-          UUID: ${{ matrix.uuid }}
+          UUID: ${{ steps.healthcheck.outputs.uuid }}
         run: |
           if [ "$USE_RUNITOR" = "true" ]; then
             runitor -uuid "$UUID" -- \
