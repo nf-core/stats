@@ -179,6 +179,10 @@ def contributor_stats(organization: str, headers: dict, repos: list[dict]) -> It
 
         # Process commit stats
         for contributor in stats:
+            # GitHub returns author: null for contributors whose account was deleted
+            if not contributor.get("author"):
+                continue
+
             author = contributor["author"]["login"]
             avatar_url = contributor["author"]["avatar_url"]
 
