@@ -1,0 +1,52 @@
+name: Check Sources
+
+"on":
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "sources/**"
+      - "package.json"
+      - "scripts/check-sources.mjs"
+      - ".github/workflows/check_sources.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  check_sources:
+    name: Build sources
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      # Forks cannot read secrets, so the sources build would fail for reasons
+      # unrelated to the change. Skip with a notice rather than a red X.
+      - name: Check for datasource credentials
+        id: creds
+        env:
+          MOTHERDUCK_TOKEN: ${{ secrets.MOTHERDUCK_TOKEN }}
+        run: |
+          if [ -n "$MOTHERDUCK_TOKEN" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No MotherDuck token available (likely a fork PR); skipping source build."
+          fi
+
+      - name: Install dependencies
+        if: steps.creds.outputs.available == 'true'
+        run: npm ci
+
+      # `evidence sources` exits 0 even when a query fails, so the exit code is
+      # not a usable signal; check-sources.mjs compares built output instead.
+      - name: Build sources
+        if: steps.creds.outputs.available == 'true'
+        env:
+          EVIDENCE_SOURCE__nfcore_db__token: ${{ secrets.MOTHERDUCK_TOKEN }}
+        run: npm run sources
+
+      - name: Verify every source query produced output
+        if: steps.creds.outputs.available == 'true'
+        run: node scripts/check-sources.mjs
