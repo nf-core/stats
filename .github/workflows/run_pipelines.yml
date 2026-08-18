@@ -46,6 +46,12 @@ jobs:
     needs: maybe_skip
     if: needs.maybe_skip.outputs.should_skip != 'true'
     runs-on: ubuntu-latest
+    # Single source of truth for "is this a real run?". PR runs (e.g. from forks
+    # without secrets) are expected to fail auth and must not go through runitor:
+    # that pings the production healthchecks.io monitor with the real UUID, turning
+    # an expected PR failure into a false "pipeline is down" alert.
+    env:
+      USE_RUNITOR: ${{ github.event_name != 'pull_request' }}
     strategy:
       fail-fast: false
       matrix:
@@ -83,7 +89,7 @@ jobs:
             **/uv.lock
 
       - name: Install runitor
-        if: github.event_name != 'pull_request'
+        if: env.USE_RUNITOR == 'true'
         env:
           RUNITOR_VERSION: "v1.3.0-build.4"
         run: |
@@ -106,15 +112,15 @@ jobs:
       - name: Get ${{ matrix.pipeline }} stats
         # newsletter has no credentials on PRs (OIDC isn't available to forks), so skip it there.
         if: ${{ !(matrix.pipeline == 'newsletter' && github.event_name == 'pull_request') }}
-        # PR runs (e.g. from forks without secrets) are expected to fail auth and must
-        # not go through runitor: that pings the production healthchecks.io monitor with
-        # the real UUID, turning an expected PR failure into a false "pipeline is down" alert.
+        env:
+          PIPELINE: ${{ matrix.pipeline }}
+          UUID: ${{ matrix.uuid }}
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            uv run nf_core_stats ${{ matrix.pipeline }} --destination duckdb
+          if [ "$USE_RUNITOR" = "true" ]; then
+            runitor -uuid "$UUID" -- \
+                uv run nf_core_stats "$PIPELINE"
           else
-            runitor -uuid ${{ matrix.uuid }} -- \
-                uv run nf_core_stats ${{ matrix.pipeline }}
+            uv run nf_core_stats "$PIPELINE" --destination duckdb
           fi
 
       - name: Upload DuckDB artifacts
