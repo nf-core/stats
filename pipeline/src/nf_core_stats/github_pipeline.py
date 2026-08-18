@@ -335,26 +335,26 @@ def pipelines(organization: str, headers: dict, repos: list[dict]) -> Iterator[d
             logger.warning(f"{pipeline_name} is not a pipeline")
             continue
 
-        # Get latest release
-        release_url = f"https://api.github.com/repos/{organization}/{pipeline_name}/releases"
+        # Get releases (stable only: excludes drafts, prereleases and unpublished)
+        release_url = f"https://api.github.com/repos/{organization}/{pipeline_name}/releases?per_page=100"
         try:
             releases = get_paginated_data(release_url, headers)
-            # Exclude drafts and prereleases so release reflect stable releases
-            releases = [r for r in releases if r.get("published_at") and not r.get("draft") and not r.get("prerelease")]
-            number_of_releases = len(releases)
-            if number_of_releases:
-                # releases are sorted by date, starting with the most recent one
-                last_release_date = releases[0].get("published_at")
-                first_release_date = releases[-1].get("published_at")
-            else:
-                logger.info(f"No releases found for {pipeline_name} (this is expected for new repositories)")
-                last_release_date = None
-                first_release_date = None
         except requests.RequestException as e:
-            logger.warning(f"Failed to get latest release for {pipeline_name}: {e}")
-            last_release_date = None
-            first_release_date = None
-            number_of_releases = None
+            # Resource merges on primary_key=["name"], so yielding NULLs here would
+            # overwrite good release data. Skip the row instead and retry next run.
+            logger.warning(f"Failed to get releases for {pipeline_name}, skipping: {e}")
+            continue
+
+        # GitHub sorts /releases by created_at, not published_at, so derive the
+        # bounds from the dates themselves rather than the list order.
+        release_dates = [
+            r["published_at"]
+            for r in releases
+            if r.get("published_at") and not r.get("draft") and not r.get("prerelease")
+        ]
+        number_of_releases = len(release_dates)
+        first_release_date = min(release_dates) if release_dates else None
+        last_release_date = max(release_dates) if release_dates else None
 
         yield {
             "name": pipeline["name"],

@@ -2,7 +2,7 @@ USE nf_core_stats_bot;
 
 -- Pipeline development timeline - showing development periods for each pipeline
 -- Uses first_release_date/number_of_releases collected directly by the GitHub pipeline
--- (previously joined against the external nf_core_dev.tap_github.releases
+-- (previously joined against the external nf_core_dev.tap_github.releases table)
 SELECT
     p.name as pipeline_name,
     p.gh_created_at as development_start,
