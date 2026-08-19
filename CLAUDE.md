@@ -71,3 +71,17 @@ Required secrets for pipelines (set in GitHub Actions or local `.env`):
 - The GitHub pipeline uses incremental loading with merge strategy to update existing records
 - Pipelines run daily via GitHub Actions and are monitored with runitor
 - The frontend is deployed to Netlify and rebuilt daily after pipeline runs
+
+## Agent skills
+
+### Issue tracker
+
+Issues live in GitHub Issues for `nf-core/stats`, via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+The five canonical roles, using default label strings. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
