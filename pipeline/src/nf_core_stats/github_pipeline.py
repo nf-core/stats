@@ -603,12 +603,6 @@ def main(
         try:
             logger.info(f"Processing resource: {resource_name}")
 
-            # Check rate limit before processing resource
-            rate_status = check_rate_limit(headers, min_remaining=100)
-            if rate_status["remaining"] < 100:
-                logger.warning(f"Low rate limit before {resource_name}. Stopping pipeline to resume on next run.")
-                break
-
             # Run just this resource
             pipeline.run(resource_func())
 
