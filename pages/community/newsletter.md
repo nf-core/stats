@@ -33,6 +33,7 @@ y=value
 series=category
 title="nf-core newsletter subscribers over time"
 subtitle="Per day from {inputs.range_filtering_a_query.start} to {inputs.range_filtering_a_query.end}"
+echartsOptions={{legend: {selected: {inactive: false}}}}
 />
 
-ℹ️ **Subscribed** contacts have confirmed their email address (completed double opt-in) and receive the newsletter. **Pending** contacts have signed up but not yet confirmed.
+ℹ️ **Subscribed** contacts have confirmed their email address (completed double opt-in) and receive the newsletter. **Pending** contacts have signed up in the last 7 days but not yet confirmed. **Inactive** contacts never confirmed and are now more than 7 days old — hidden by default, click the legend to show them.

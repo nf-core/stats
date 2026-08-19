@@ -18,7 +18,7 @@ Authentication:
 """
 
 from collections.abc import Iterator
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 import boto3
@@ -36,6 +36,9 @@ OPT_IN = "OPT_IN"
 
 # Max page size accepted by the SES v2 ListContacts API.
 SES_PAGE_SIZE = 1000
+
+# Unconfirmed contacts older than this are treated as inactive and not counted as pending.
+PENDING_MAX_AGE = timedelta(days=7)
 
 
 def _is_subscribed(contact: dict[str, Any]) -> bool:
@@ -83,6 +86,11 @@ def subscriber_stats_resource(client: Any) -> Iterator[dict[str, Any]]:
     total = 0
     subscribed = 0
     unsubscribed = 0
+    pending = 0
+
+    # ListContacts gives no CreatedTimestamp, but an unconfirmed contact has had no
+    # updates since signup, so LastUpdatedTimestamp is its signup time.
+    pending_cutoff = datetime.now(timezone.utc) - PENDING_MAX_AGE
 
     for contact in _iter_all_contacts(client):
         total += 1
@@ -90,13 +98,14 @@ def subscriber_stats_resource(client: Any) -> Iterator[dict[str, Any]]:
             unsubscribed += 1
         elif _is_subscribed(contact):
             subscribed += 1
-
-    # On the list but neither confirmed nor globally unsubscribed (double opt-in pending).
-    pending = total - subscribed - unsubscribed
+        elif contact.get("LastUpdatedTimestamp", pending_cutoff) >= pending_cutoff:
+            # Signed up but not yet confirmed (double opt-in). Older ones are inactive.
+            pending += 1
 
     logger.info(
         f"SES list '{CONTACT_LIST_NAME}': {total} contacts "
-        f"({subscribed} subscribed, {pending} pending, {unsubscribed} unsubscribed)"
+        f"({subscribed} subscribed, {pending} pending, {unsubscribed} unsubscribed; "
+        f"{total - subscribed - pending - unsubscribed} stale unconfirmed)"
     )
 
     yield {
