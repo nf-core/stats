@@ -29,6 +29,23 @@ class RateLimitError(requests.HTTPError):
     """GitHub primary or secondary rate limit hit. Abort the run; dlt resumes next schedule."""
 
 
+def find_rate_limit_error(exc: BaseException) -> RateLimitError | None:
+    """Find a RateLimitError in an exception's cause chain.
+
+    dlt wraps exceptions raised inside a resource generator as
+    PipelineStepFailed -> ResourceExtractionError -> RateLimitError, so callers of
+    `pipeline.run()` cannot catch RateLimitError directly.
+    """
+    seen = set()
+    current: BaseException | None = exc
+    while current is not None and id(current) not in seen:
+        if isinstance(current, RateLimitError):
+            return current
+        seen.add(id(current))
+        current = current.__cause__ or current.__context__
+    return None
+
+
 def get_github_headers(api_token: str = dlt.secrets["sources.github_pipeline.github.api_token"]) -> dict:
     """Get GitHub API headers with authentication"""
     if not api_token:

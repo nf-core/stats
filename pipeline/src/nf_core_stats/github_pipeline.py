@@ -11,6 +11,7 @@ import requests
 from ._github import (
     RateLimitError,
     check_rate_limit,
+    find_rate_limit_error,
     get_github_headers,
     get_paginated_data,
     github_request,
@@ -654,10 +655,11 @@ def main(
             else:
                 logger.info(f"✅ {resource_name} completed (no row count info)")
 
-        except RateLimitError as e:
-            logger.error(f"❌ Rate limit hit during {resource_name}: {e}. Stopping pipeline.")
-            break
         except Exception as e:
+            rate_limit_error = find_rate_limit_error(e)
+            if rate_limit_error is not None:
+                logger.error(f"❌ Rate limit hit during {resource_name}: {rate_limit_error}. Stopping pipeline.")
+                break
             logger.error(f"❌ Failed to process {resource_name}: {e}")
             logger.info("Continuing with next resource...")
             failed_resources.append(resource_name)
