@@ -49,7 +49,7 @@ SELECT
     END as release_duration
 FROM nfcore_db.pipeline_timeline
 WHERE development_start >= '2017-01-01'
-ORDER BY start_year DESC, development_start DESC
+ORDER BY start_year DESC, total_days_tracked DESC
 ```
 
 <DataTable
