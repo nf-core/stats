@@ -26,11 +26,12 @@ where timestamp between '${inputs.range_filtering_a_query.start}' and ('${inputs
 order by 1 desc
 ```
 
-<LineChart
+<AreaChart
 data={subscribers_filtered}
 x=timestamp
 y=value
 series=category
+seriesOrder={['subscribed', 'pending', 'inactive']}
 title="nf-core newsletter subscribers over time"
 subtitle="Per day from {inputs.range_filtering_a_query.start} to {inputs.range_filtering_a_query.end}"
 echartsOptions={{legend: {selected: {inactive: false}}}}
