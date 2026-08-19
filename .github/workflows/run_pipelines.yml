@@ -121,9 +121,16 @@ jobs:
           UUID: ${{ matrix.uuid }}
         run: |
           if [ "$USE_RUNITOR" = "true" ]; then
+            # Production (push/schedule): full crawl of every org repo into motherduck.
+            # Deliberately NOT capped — a capped run would leave the dataset incomplete.
+            # Rate limits are handled in code: the helpers raise RateLimitError and
+            # main() stops the run, which resumes on the next schedule (merge writes).
             runitor -uuid "$UUID" -- \
                 uv run nf_core_stats "$PIPELINE"
           else
+            # PR runs only: smoke mode. Caps the github pipeline at 25 repos so PR
+            # feedback takes minutes instead of ~an hour, and writes to local duckdb.
+            # Full-scale volume is therefore never exercised before merge.
             EXTRA_ARGS=""
             if [ "$PIPELINE" = "github" ]; then EXTRA_ARGS="--max-repos 25"; fi
             uv run nf_core_stats "$PIPELINE" --destination duckdb $EXTRA_ARGS
