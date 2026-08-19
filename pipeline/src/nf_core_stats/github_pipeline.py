@@ -590,7 +590,10 @@ def main(
         traffic_only_active_repos:
             Only collect traffic for repos updated in last 6 months (default False - all repos).
         traffic_max_repos: Limit to top N repos by stars (default None - all repos)
-        max_repos: Limit to the first N org repos across all resources — CI smoke mode
+        max_repos:
+            Limit to the first N org repos across all resources (default None - all repos).
+            CI smoke mode: used on PR runs only, to keep feedback fast. Production
+            push/schedule runs leave this unset so the dataset stays complete.
     """
     logger.info("Starting GitHub data pipeline...")
     pipeline = dlt.pipeline(pipeline_name="github", destination=destination, dataset_name="github")

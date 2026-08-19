@@ -108,9 +108,7 @@ def raise_for_github_errors(response: requests.Response) -> None:
         resource = response.headers.get("X-RateLimit-Resource")
         retry_after = response.headers.get("Retry-After")
 
-        is_rate_limited = (
-            remaining == "0" or retry_after is not None or "secondary rate limit" in response.text.lower()
-        )
+        is_rate_limited = remaining == "0" or retry_after is not None or "secondary rate limit" in response.text.lower()
         if is_rate_limited:
             reset_datetime = (
                 datetime.fromtimestamp(int(reset_time), tz=timezone.utc)
