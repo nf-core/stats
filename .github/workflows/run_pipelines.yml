@@ -124,7 +124,9 @@ jobs:
             runitor -uuid "$UUID" -- \
                 uv run nf_core_stats "$PIPELINE"
           else
-            uv run nf_core_stats "$PIPELINE" --destination duckdb
+            EXTRA_ARGS=""
+            if [ "$PIPELINE" = "github" ]; then EXTRA_ARGS="--max-repos 25"; fi
+            uv run nf_core_stats "$PIPELINE" --destination duckdb $EXTRA_ARGS
           fi
 
       - name: Upload DuckDB artifacts

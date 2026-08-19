@@ -26,11 +26,20 @@ state, so the declarative config is reference material, not a drop-in.
 
 `_github.py` configures the dlt requests client (`request_max_attempts=5`, backoff,
 `raise_for_status=False`), so 429s are retried with `Retry-After` honoured automatically.
-On a `403` with `X-RateLimit-Remaining: 0`, `github_request` fails fast on purpose: every
-resource is `write_disposition="merge"` with a `primary_key`, so an aborted run resumes
-cleanly on the next schedule. Do not convert that fail-fast into a silent `continue`.
 
 Do **not** gate work on `GET /rate_limit` as a preflight. Its reported `remaining`/`used`
 can diverge substantially from the quota actually charged to subsequent calls, so a
 "healthy" reading does not mean the next request will succeed. React to real `403`/`429`
 responses instead.
+
+GitHub also enforces **secondary rate limits** on bursty sequential traffic. These 403 with
+their own `Retry-After`/reset, independent of the core bucket — a core bucket that still
+reports thousands of remaining calls proves nothing about a secondary limit.
+
+On any rate-limit-shaped `403` (remaining `0`, a `Retry-After` header, or a "secondary rate
+limit" body marker) or a post-retry `429`, `raise_for_github_errors` raises `RateLimitError`.
+Per-repo/per-item handlers **must** re-raise it (`except RateLimitError: raise` above the
+existing `except requests.RequestException`) instead of swallowing it into a `continue`, so
+`main()` stops the run. Otherwise a limited run fires thousands of doomed requests and still
+goes green. Every resource is `write_disposition="merge"` with a `primary_key`, so an aborted
+run resumes cleanly on the next schedule.

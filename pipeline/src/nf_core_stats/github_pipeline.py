@@ -8,7 +8,13 @@ from typing import Literal
 import dlt
 import requests
 
-from ._github import check_rate_limit, get_github_headers, get_paginated_data, github_request
+from ._github import (
+    RateLimitError,
+    check_rate_limit,
+    get_github_headers,
+    get_paginated_data,
+    github_request,
+)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -106,6 +112,8 @@ def traffic_stats(
             views_data = github_request(views_url, headers).json()
             clones_data = github_request(clones_url, headers).json()
             successful_repos += 1
+        except RateLimitError:
+            raise
         except requests.RequestException as e:
             # Traffic data requires push access - skip if not available
             if "403" in str(e) or "Forbidden" in str(e):
@@ -173,6 +181,8 @@ def contributor_stats(organization: str, headers: dict, repos: list[dict]) -> It
             stats = get_paginated_data(stats_url, headers)
             if not isinstance(stats, list):
                 continue
+        except RateLimitError:
+            raise
         except requests.RequestException as e:
             logger.warning(f"Failed to get contributor stats for {name}: {e}")
             continue
@@ -206,7 +216,14 @@ def contributor_stats(organization: str, headers: dict, repos: list[dict]) -> It
 
 
 @dlt.resource(write_disposition="merge", primary_key=["pipeline_name", "issue_number"])
-def issue_stats(organization: str, headers: dict, repos: list[dict]) -> Iterator[dict]:
+def issue_stats(
+    organization: str,
+    headers: dict,
+    repos: list[dict],
+    updated_at: dlt.sources.incremental[str] = dlt.sources.incremental(
+        "updated_at", initial_value="2010-01-01T00:00:00Z"
+    ),
+) -> Iterator[dict]:
     """Collect issue and PR stats with incremental comment loading"""
     logger.info(f"Collecting issue and PR stats for {len(repos)} repositories")
 
@@ -226,12 +243,17 @@ def issue_stats(organization: str, headers: dict, repos: list[dict]) -> Iterator
 
     for repo in repos:
         name = repo["name"]
-        issues_url = f"https://api.github.com/repos/{organization}/{name}/issues?state=all"
+        issues_url = (
+            f"https://api.github.com/repos/{organization}/{name}/issues"
+            f"?state=all&per_page=100&since={updated_at.last_value}"
+        )
 
         try:
             issues = get_paginated_data(issues_url, headers)
             if not isinstance(issues, list):
                 continue
+        except RateLimitError:
+            raise
         except requests.RequestException as e:
             logger.warning(f"Failed to get issues for {name}: {e}")
             continue
@@ -281,6 +303,8 @@ def issue_stats(organization: str, headers: dict, repos: list[dict]) -> Iterator
                                 first_response_time = (comment_time - created_at).total_seconds()
                                 first_responder = comment["user"]["login"]
                                 break
+                except RateLimitError:
+                    raise
                 except requests.RequestException as e:
                     logger.warning(f"Failed to get comments for issue {issue['number']} in {name}: {e}")
                     # Don't fail the whole pipeline, just skip this issue's comments
@@ -329,6 +353,8 @@ def pipelines(organization: str, headers: dict, repos: list[dict]) -> Iterator[d
     pipeline_names_url = "https://raw.githubusercontent.com/nf-core/website/main/public/pipeline_names.json"
     try:
         pipeline_names = github_request(pipeline_names_url, headers).json()
+    except RateLimitError:
+        raise
     except requests.RequestException as e:
         logger.warning(f"Failed to get pipeline names from nf-core website: {e}")
         return
@@ -343,6 +369,8 @@ def pipelines(organization: str, headers: dict, repos: list[dict]) -> Iterator[d
         release_url = f"https://api.github.com/repos/{organization}/{pipeline_name}/releases?per_page=100"
         try:
             releases = get_paginated_data(release_url, headers)
+        except RateLimitError:
+            raise
         except requests.RequestException as e:
             # Resource merges on primary_key=["name"], so yielding NULLs here would
             # overwrite good release data. Skip the row instead and retry next run.
@@ -431,6 +459,8 @@ def commit_stats(organization: str, headers: dict, repos: list[dict]) -> Iterato
             # Update last check time for this repo to now
             last_commit_check[name] = datetime.now(timezone.utc).isoformat()
 
+        except RateLimitError:
+            raise
         except requests.RequestException as e:
             logger.warning(f"Failed to get commits for {name}: {e}")
             continue
@@ -548,6 +578,7 @@ def main(
     | None = None,
     traffic_only_active_repos: bool = False,
     traffic_max_repos: int | None = None,
+    max_repos: int | None = None,
 ):
     """
     Run the github data ingestion pipeline
@@ -558,6 +589,7 @@ def main(
         traffic_only_active_repos:
             Only collect traffic for repos updated in last 6 months (default False - all repos).
         traffic_max_repos: Limit to top N repos by stars (default None - all repos)
+        max_repos: Limit to the first N org repos across all resources — CI smoke mode
     """
     logger.info("Starting GitHub data pipeline...")
     pipeline = dlt.pipeline(pipeline_name="github", destination=destination, dataset_name="github")
@@ -575,6 +607,10 @@ def main(
     repos_url = f"https://api.github.com/orgs/{organization}/repos"
     repos = get_paginated_data(repos_url, headers)
     logger.info(f"Successfully fetched {len(repos)} repositories from GitHub API")
+
+    if max_repos:
+        repos = repos[:max_repos]
+        logger.info(f"Smoke mode: limited to {len(repos)} repositories")
 
     # Define resources to run (ordered by API call intensity - least to most)
     all_resources = [
@@ -618,14 +654,9 @@ def main(
             else:
                 logger.info(f"✅ {resource_name} completed (no row count info)")
 
-        except requests.HTTPError as e:
-            if "rate limit" in str(e).lower():
-                logger.error(f"❌ Rate limit hit during {resource_name}. Stopping pipeline.")
-                break
-            logger.error(f"❌ Failed to process {resource_name}: {e}")
-            logger.info("Continuing with next resource...")
-            failed_resources.append(resource_name)
-            continue
+        except RateLimitError as e:
+            logger.error(f"❌ Rate limit hit during {resource_name}: {e}. Stopping pipeline.")
+            break
         except Exception as e:
             logger.error(f"❌ Failed to process {resource_name}: {e}")
             logger.info("Continuing with next resource...")
