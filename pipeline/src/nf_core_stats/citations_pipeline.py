@@ -5,7 +5,7 @@ import dlt
 import requests
 from semanticscholar import SemanticScholar, SemanticScholarException
 
-from ._github import get_file_contents, get_github_headers, github_request
+from ._github import RateLimitError, get_file_contents, get_github_headers, github_request
 from ._logging import log_pipeline_stats, logger
 
 
@@ -57,6 +57,8 @@ def _parse_doi_from_nextflow_config(file_contents) -> str | None:
 def _get_citations_for_pipeline(pipeline_name: str, github_headers: dict):
     try:
         nextflow_config = get_file_contents("nf-core", pipeline_name, "nextflow.config", github_headers)
+    except RateLimitError:
+        raise
     except (requests.HTTPError, ValueError) as e:
         logger.error(f"Failed to get nextflow.config for {pipeline_name}: {e}")
         return

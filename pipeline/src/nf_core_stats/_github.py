@@ -3,6 +3,8 @@ from datetime import datetime, timezone
 import dlt
 import requests
 from dlt.sources.helpers.requests import Client
+from dlt.sources.helpers.rest_client import RESTClient
+from dlt.sources.helpers.rest_client.paginators import HeaderLinkPaginator
 
 from ._logging import logger
 
@@ -15,6 +17,16 @@ http_client = Client(
     request_max_retry_delay=300,
     raise_for_status=False,  # We'll handle status codes manually for better error messages
 )
+
+rest_client = RESTClient(
+    base_url="https://api.github.com",
+    paginator=HeaderLinkPaginator(),
+    session=http_client.session,
+)
+
+
+class RateLimitError(requests.HTTPError):
+    """GitHub primary or secondary rate limit hit. Abort the run; dlt resumes next schedule."""
 
 
 def get_github_headers(api_token: str = dlt.secrets["sources.github_pipeline.github.api_token"]) -> dict:
@@ -52,20 +64,13 @@ def check_rate_limit(headers: dict, min_remaining: int = 100) -> dict:
     return {"remaining": remaining, "limit": limit, "reset": reset_time}
 
 
-def github_request(url: str, headers: dict) -> requests.Response:
-    """Make GitHub API request with rate limit handling using DLT's retry-enabled client
+def raise_for_github_errors(response: requests.Response) -> None:
+    """Raise a diagnosable error for GitHub auth failures and rate limits.
 
-    The http_client automatically:
-    - Retries 429 (rate limit) errors with exponential backoff
-    - Respects Retry-After headers from GitHub
-    - Retries transient network errors and 5xx server errors
-    - Uses configurable backoff (1s, 2s, 4s, 8s, 16s)
-
-    Note: For actual rate limit exhaustion (403 with X-RateLimit-Remaining: 0),
-    we fail fast to let DLT's incremental loading resume on the next run.
+    Rate-limit-shaped 403s and 429s raise `RateLimitError` so callers can abort the run
+    instead of firing thousands of doomed requests. Other statuses are left alone for
+    `raise_for_status()`.
     """
-    response = http_client.get(url, headers=headers)
-
     if response.status_code == 401:
         logger.error(
             "GitHub API returned 401 Unauthorized - the API token is invalid, revoked, or expired. "
@@ -77,21 +82,30 @@ def github_request(url: str, headers: dict) -> requests.Response:
             response=response,
         )
 
-    # Check for rate limit exhaustion using GitHub-specific headers
-    # 403 with X-RateLimit-Remaining: 0 indicates true rate limit exhaustion
+    # 403 covers both primary quota exhaustion (X-RateLimit-Remaining: 0) and secondary
+    # rate limits (bursty traffic), which carry Retry-After and/or a body marker and have
+    # their own reset independent of the core bucket.
     if response.status_code == 403:
         remaining = response.headers.get("X-RateLimit-Remaining")
         reset_time = response.headers.get("X-RateLimit-Reset")
+        resource = response.headers.get("X-RateLimit-Resource")
+        retry_after = response.headers.get("Retry-After")
 
-        # Only fail fast if we're truly rate limited (remaining = 0)
-        # Other 403s (permissions, etc.) will be handled by raise_for_status
-        if remaining is not None and int(remaining) == 0:
-            reset_datetime = datetime.fromtimestamp(int(reset_time), tz=timezone.utc) if reset_time else "unknown"
-            logger.error(f"Rate limit exhausted. Resets at {reset_datetime}. Failing fast to resume on next run.")
-            raise requests.HTTPError(
-                f"GitHub API rate limit exhausted. Resets at {reset_datetime}. Pipeline will resume on next scheduled run.",
-                response=response,
+        is_rate_limited = (
+            remaining == "0" or retry_after is not None or "secondary rate limit" in response.text.lower()
+        )
+        if is_rate_limited:
+            reset_datetime = (
+                datetime.fromtimestamp(int(reset_time), tz=timezone.utc)
+                if reset_time and reset_time.isdigit()
+                else "unknown"
             )
+            message = (
+                f"Rate limited (403). resource={resource} remaining={remaining} "
+                f"reset={reset_datetime} retry_after={retry_after}. Aborting run; resumes next schedule."
+            )
+            logger.error(message)
+            raise RateLimitError(message, response=response)
 
     # DLT client handles 429 automatically with retries, but if it still fails after retries, we should fail fast
     if response.status_code == 429:
@@ -100,11 +114,26 @@ def github_request(url: str, headers: dict) -> requests.Response:
             datetime.fromtimestamp(int(reset_time), tz=timezone.utc) if reset_time.isdigit() else reset_time
         )
         logger.error(f"Rate limit hit after retries. Resets at {reset_datetime}. Failing fast.")
-        raise requests.HTTPError(
+        raise RateLimitError(
             f"GitHub API rate limit hit after automatic retries. Resets at {reset_datetime}.",
             response=response,
         )
 
+
+def github_request(url: str, headers: dict) -> requests.Response:
+    """Make GitHub API request with rate limit handling using DLT's retry-enabled client
+
+    The http_client automatically:
+    - Retries 429 (rate limit) errors with exponential backoff
+    - Respects Retry-After headers from GitHub
+    - Retries transient network errors and 5xx server errors
+    - Uses configurable backoff (1s, 2s, 4s, 8s, 16s)
+
+    Note: For rate limit hits (403/429 with rate-limit markers), we fail fast with
+    `RateLimitError` to let DLT's incremental loading resume on the next run.
+    """
+    response = http_client.get(url, headers=headers)
+    raise_for_github_errors(response)
     response.raise_for_status()
     return response
 
@@ -113,19 +142,16 @@ def get_paginated_data(url: str, headers: dict):
     """Get all paginated results from GitHub API"""
     all_results = []
 
-    while url:
-        response = github_request(url, headers)
-        data = response.json()
-
-        # Handle different response formats
-        if isinstance(data, dict) and "items" in data:
-            all_results.extend(data["items"])
-        elif isinstance(data, list):
-            all_results.extend(data)
-        else:
-            return data  # Non-paginated response
-
-        url = response.links.get("next", {}).get("url")
+    try:
+        for page in rest_client.paginate(url, headers=headers):
+            if isinstance(page, list):
+                all_results.extend(page)
+            else:
+                return page  # Non-paginated response
+    except requests.HTTPError as e:
+        if e.response is not None:
+            raise_for_github_errors(e.response)
+        raise
 
     return all_results
 
