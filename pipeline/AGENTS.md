@@ -43,3 +43,8 @@ existing `except requests.RequestException`) instead of swallowing it into a `co
 `main()` stops the run. Otherwise a limited run fires thousands of doomed requests and still
 goes green. Every resource is `write_disposition="merge"` with a `primary_key`, so an aborted
 run resumes cleanly on the next schedule.
+
+At the `pipeline.run()` boundary you cannot catch `RateLimitError` directly: dlt wraps
+exceptions raised inside a resource generator as `PipelineStepFailed` ->
+`ResourceExtractionError` -> `RateLimitError`. Use `find_rate_limit_error(exc)` to walk the
+cause chain instead (never string-match the message).
