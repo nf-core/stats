@@ -48,3 +48,10 @@ At the `pipeline.run()` boundary you cannot catch `RateLimitError` directly: dlt
 exceptions raised inside a resource generator as `PipelineStepFailed` ->
 `ResourceExtractionError` -> `RateLimitError`. Use `find_rate_limit_error(exc)` to walk the
 cause chain instead (never string-match the message).
+
+`github` and `citations` both authenticate to `api.github.com` with the same
+`GH_TOKEN_STATS_PAGE` token, so `.github/workflows/run_pipelines.yml` runs the pipeline
+matrix with `max-parallel: 1` — running them concurrently lets citations' per-pipeline
+`nextflow.config` lookups collide with github's crawl on the same token and trip a
+secondary rate limit even when the primary quota looks fine. Keep new GitHub-API-calling
+pipelines in that same serialized matrix rather than splitting them into a parallel job.
