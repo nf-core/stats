@@ -87,8 +87,11 @@ Add to `.github/workflows/run_pipelines.yml` matrix:
 
 ```yaml
 - pipeline: <source>
-  uuid: <generate-new-uuid> # for runitor monitoring
 ```
+
+Then create a matching `HEALTHCHECK_UUID_<SOURCE>` repository secret (uppercase) with the
+healthchecks.io ping UUID. Production runs resolve and validate the secret before runitor
+pings; do not commit UUIDs in the workflow file.
 
 Or create separate workflow if pipeline needs special dependencies (like Nextflow).
 
