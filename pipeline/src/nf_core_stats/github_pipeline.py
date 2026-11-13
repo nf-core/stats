@@ -181,6 +181,11 @@ def contributor_stats(organization: str, headers: dict, repos: list[dict]) -> It
         yield from contributor_data.values()
 
 
+# Reviews are only fetched for PRs updated from this date on: one API call per PR,
+# too many for a full-history load (e.g. PR smoke runs).
+REVIEWS_SINCE = "2026-11-13T00:00:00Z"
+
+
 @dlt.resource(write_disposition="merge", primary_key=["pipeline_name", "issue_number"])
 def issue_stats(
     organization: str,
@@ -277,7 +282,7 @@ def issue_stats(
                     pass
 
             reviews = []
-            if is_pr:
+            if is_pr and issue["updated_at"] >= REVIEWS_SINCE:
                 reviews_url = f"https://api.github.com/repos/{organization}/{name}/pulls/{issue['number']}/reviews"
                 reviews = get_paginated_data(reviews_url, headers)
 
