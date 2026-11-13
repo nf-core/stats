@@ -44,7 +44,7 @@ You can exercise both services end-to-end without the MotherDuck token:
   source directory** (e.g. `../../pipeline/nf_core_stats_bot.duckdb`), then `npm run sources && npm run dev`.
 
 Note: several source queries reference tables only filled by heavier pipeline runs
-(`github.traffic_stats`, `github.issue_stats`, `github.pr_reviews`, `github.contributor_stats`, `slack.workspace_stats`,
+(`github.traffic_stats`, `github.issue_stats`, `github.contributor_stats`, `slack.workspace_stats`,
 legacy `twitter.account_stats`) and one references a legacy `nf_core_dev` catalog (`pipeline_timeline`).
 These error when that data is absent — that is expected, not a setup failure. Pages backed only by
 `github.nfcore_pipelines` / `github.org_members` (e.g. `/code/pipelines`) render fully with just the
