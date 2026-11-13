@@ -2,7 +2,7 @@ import io
 import logging
 import zipfile
 from collections.abc import Iterator
-from datetime import date, datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Literal
 
 import dlt
@@ -14,7 +14,6 @@ from ._github import (
     find_rate_limit_error,
     get_github_headers,
     get_paginated_data,
-    github_graphql,
     github_request,
 )
 
@@ -277,6 +276,11 @@ def issue_stats(
                     # Don't fail the whole pipeline, just skip this issue's comments
                     pass
 
+            reviews = []
+            if is_pr:
+                reviews_url = f"https://api.github.com/repos/{organization}/{name}/pulls/{issue['number']}/reviews"
+                reviews = get_paginated_data(reviews_url, headers)
+
             # Store this issue in our state
             repo_processed[issue_key] = {
                 "num_comments": current_comment_count,
@@ -299,78 +303,14 @@ def issue_stats(
                 "first_responder": first_responder,
                 "num_comments": issue["comments"],
                 "html_url": issue["html_url"],
-            }
-
-
-PR_REVIEWS_QUERY = """
-query($q: String!, $cursor: String) {
-  search(query: $q, type: ISSUE, first: 100, after: $cursor) {
-    issueCount
-    pageInfo { hasNextPage endCursor }
-    nodes {
-      ... on PullRequest {
-        number
-        repository { name }
-        author { login __typename }
-        reviews(first: 100) { nodes { id state submittedAt author { login __typename } } }
-      }
-    }
-  }
-}
-"""
-SEARCH_LIMIT = 1000  # GitHub search returns at most 1000 results per query
-
-
-def _search_prs(organization: str, headers: dict, start: date, end: date) -> Iterator[dict]:
-    """Yield PRs updated in [start, end], splitting the range to stay under the search limit."""
-    q = f"org:{organization} is:pr updated:{start}..{end}"
-    page = github_graphql(PR_REVIEWS_QUERY, {"q": q, "cursor": None}, headers)["search"]
-    if page["issueCount"] > SEARCH_LIMIT and start < end:
-        mid = start + (end - start) // 2
-        yield from _search_prs(organization, headers, start, mid)
-        yield from _search_prs(organization, headers, mid + timedelta(days=1), end)
-        return
-    if page["issueCount"] > SEARCH_LIMIT:
-        logger.warning(f"{page['issueCount']} PRs updated on {start}: only the first {SEARCH_LIMIT} are read")
-    yield from page["nodes"]
-    while page["pageInfo"]["hasNextPage"]:
-        page = github_graphql(PR_REVIEWS_QUERY, {"q": q, "cursor": page["pageInfo"]["endCursor"]}, headers)["search"]
-        yield from page["nodes"]
-
-
-def _login(actor: dict | None) -> str | None:
-    """GitHub login, with the `[bot]` suffix the REST API gives GitHub App accounts."""
-    if not actor:
-        return None
-    return f"{actor['login']}[bot]" if actor["__typename"] == "Bot" else actor["login"]
-
-
-@dlt.resource(write_disposition="merge", primary_key="review_id")
-def pr_reviews(
-    organization: str,
-    headers: dict,
-    # Review collection starts on this date: earlier reviews are not backfilled.
-    submitted_at: dlt.sources.incremental[str] = dlt.sources.incremental(
-        "submitted_at", initial_value="2026-11-13T00:00:00Z"
-    ),
-) -> Iterator[dict]:
-    """Collect PR reviews submitted since the last run, through GitHub GraphQL search"""
-    # A new review bumps its PR's updatedAt, so searching PRs updated since the cursor date finds it.
-    start = date.fromisoformat(submitted_at.last_value[:10])
-    logger.info(f"Collecting PR reviews submitted since {start}")
-    for pr in _search_prs(organization, headers, start, datetime.now(timezone.utc).date()):
-        # shortcut: only the first 100 reviews of a PR are read, enough for nf-core PRs so far
-        for review in pr["reviews"]["nodes"]:
-            if review["state"] == "PENDING":
-                continue
-            yield {
-                "review_id": review["id"],
-                "pipeline_name": pr["repository"]["name"],
-                "pr_number": pr["number"],
-                "pr_author": _login(pr["author"]),
-                "reviewer": _login(review["author"]),
-                "state": review["state"],
-                "submitted_at": review["submittedAt"],
+                "reviews": [
+                    {
+                        "reviewer": review["user"]["login"] if review["user"] else None,
+                        "state": review["state"],
+                        "submitted_at": review["submitted_at"],
+                    }
+                    for review in reviews
+                ],
             }
 
 
@@ -611,7 +551,6 @@ def main(
             "commit_stats",
             "traffic_stats",
             "issue_stats",
-            "pr_reviews",
             "contributor_stats",
             "modules_container_conversion",
         ]
@@ -660,7 +599,6 @@ def main(
     all_resources = [
         ("org_members", lambda: org_members(organization, headers)),
         ("modules_container_conversion", lambda: modules_container_conversion(headers)),
-        ("pr_reviews", lambda: pr_reviews(organization, headers)),
         ("nfcore_pipelines", lambda: pipelines(organization, headers, repos)),
         ("commit_stats", lambda: commit_stats(organization, headers, repos)),
         (
