@@ -22,41 +22,6 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
-@dlt.source(name="github")
-def github_source(organization: str = "nf-core", api_token: str = dlt.secrets.value):
-    """GitHub data source"""
-    headers = get_github_headers(api_token)
-    logger.info(f"Initialized GitHub source for organization: {organization}")
-
-    # Test authentication with a simple API call
-    test_url = "https://api.github.com/user"
-    test_response = github_request(test_url, headers)
-    user_info = test_response.json()
-    logger.info(f"GitHub authentication successful. Authenticated as: {user_info.get('login', 'unknown')}")
-
-    # Get all repositories
-    repos_url = f"https://api.github.com/orgs/{organization}/repos"
-    logger.info(f"Fetching repositories from: {repos_url}")
-
-    repos = get_paginated_data(repos_url, headers)
-    logger.info(f"Successfully fetched {len(repos)} repositories from GitHub API")
-
-    if not repos:
-        logger.warning(
-            f"No repositories found for organization '{organization}'. Check if the organization exists and your token has access."
-        )
-
-    return [
-        dlt.resource(traffic_stats(organization, headers, repos), name="traffic_stats"),
-        dlt.resource(contributor_stats(organization, headers, repos), name="contributor_stats"),
-        dlt.resource(issue_stats(organization, headers, repos), name="issue_stats"),
-        dlt.resource(org_members(organization, headers), name="org_members"),
-        dlt.resource(commit_stats(organization, headers, repos), name="commit_stats"),
-        dlt.resource(pipelines(organization, headers, repos), name="nfcore_pipelines"),
-        dlt.resource(modules_container_conversion(headers), name="modules_container_conversion"),
-    ]
-
-
 @dlt.resource(write_disposition="merge", primary_key=["pipeline_name", "timestamp"])
 def traffic_stats(
     organization: str, headers: dict, repos: list[dict], only_active_repos: bool = False, max_repos: int | None = None
