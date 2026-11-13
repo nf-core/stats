@@ -3,7 +3,7 @@ title: Karma
 sidebar_position: 3
 ---
 
-Karma points reward the work that keeps nf-core going, reviews included. They count since 13 November 2026, when review collection started.
+Karma points reward the work that keeps nf-core going, reviews included. They count since 13 November 2026.
 
 | Activity                                       | Points |
 | ---------------------------------------------- | ------ |

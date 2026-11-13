@@ -1,8 +1,7 @@
 USE nf_core_stats_bot;
 
--- Karma points per GitHub user since review collection started:
+-- Karma points per GitHub user since 2026-11-13:
 -- merged PR 3, review of someone else's PR 2 (once per PR), opened issue 1.
--- github.pr_reviews only holds reviews from that date on (see pr_reviews in github_pipeline.py).
 -- Bot and LLM accounts follow BOT_NAMES in https://github.com/ewels/contributor-graphs/blob/main/src/identity.rs
 WITH params AS (
     SELECT TIMESTAMPTZ '2026-11-13 00:00:00+00' AS since
@@ -16,9 +15,10 @@ events AS (
 
     SELECT reviewer AS login, 'review' AS kind
     FROM (
-        SELECT DISTINCT pipeline_name, pr_number, reviewer
-        FROM github.pr_reviews
-        WHERE reviewer <> pr_author
+        SELECT DISTINCT i.pipeline_name, i.issue_number, r.reviewer
+        FROM github.issue_stats__reviews r
+        JOIN github.issue_stats i ON r._dlt_parent_id = i._dlt_id, params
+        WHERE r.reviewer <> i.created_by AND r.submitted_at >= since
     )
 
     UNION ALL
