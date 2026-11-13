@@ -50,7 +50,7 @@ The MotherDuck database contains tables for:
 
 - `github_traffic_stats` - Repository views and clones
 - `github_contributor_stats` - Contributor activity by week
-- `github_issue_stats` - Issues and pull requests
+- `github_issue_stats` - Issues and pull requests, with PR reviews in `github_issue_stats__reviews`
 - `slack_messages` - Slack channel message counts
 - `slack_members` - Slack member statistics
 - `newsletter.subscriber_stats` - AWS SES newsletter subscriber counts (subscribed, pending, unsubscribed)

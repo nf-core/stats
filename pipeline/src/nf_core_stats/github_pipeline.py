@@ -22,41 +22,6 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
-@dlt.source(name="github")
-def github_source(organization: str = "nf-core", api_token: str = dlt.secrets.value):
-    """GitHub data source"""
-    headers = get_github_headers(api_token)
-    logger.info(f"Initialized GitHub source for organization: {organization}")
-
-    # Test authentication with a simple API call
-    test_url = "https://api.github.com/user"
-    test_response = github_request(test_url, headers)
-    user_info = test_response.json()
-    logger.info(f"GitHub authentication successful. Authenticated as: {user_info.get('login', 'unknown')}")
-
-    # Get all repositories
-    repos_url = f"https://api.github.com/orgs/{organization}/repos"
-    logger.info(f"Fetching repositories from: {repos_url}")
-
-    repos = get_paginated_data(repos_url, headers)
-    logger.info(f"Successfully fetched {len(repos)} repositories from GitHub API")
-
-    if not repos:
-        logger.warning(
-            f"No repositories found for organization '{organization}'. Check if the organization exists and your token has access."
-        )
-
-    return [
-        dlt.resource(traffic_stats(organization, headers, repos), name="traffic_stats"),
-        dlt.resource(contributor_stats(organization, headers, repos), name="contributor_stats"),
-        dlt.resource(issue_stats(organization, headers, repos), name="issue_stats"),
-        dlt.resource(org_members(organization, headers), name="org_members"),
-        dlt.resource(commit_stats(organization, headers, repos), name="commit_stats"),
-        dlt.resource(pipelines(organization, headers, repos), name="nfcore_pipelines"),
-        dlt.resource(modules_container_conversion(headers), name="modules_container_conversion"),
-    ]
-
-
 @dlt.resource(write_disposition="merge", primary_key=["pipeline_name", "timestamp"])
 def traffic_stats(
     organization: str, headers: dict, repos: list[dict], only_active_repos: bool = False, max_repos: int | None = None
@@ -216,6 +181,11 @@ def contributor_stats(organization: str, headers: dict, repos: list[dict]) -> It
         yield from contributor_data.values()
 
 
+# Reviews are only fetched for PRs updated from this date on: one API call per PR,
+# too many for a full-history load (e.g. PR smoke runs).
+REVIEWS_SINCE = "2026-11-13T00:00:00Z"
+
+
 @dlt.resource(write_disposition="merge", primary_key=["pipeline_name", "issue_number"])
 def issue_stats(
     organization: str,
@@ -311,6 +281,11 @@ def issue_stats(
                     # Don't fail the whole pipeline, just skip this issue's comments
                     pass
 
+            reviews = []
+            if is_pr and issue["updated_at"] >= REVIEWS_SINCE:
+                reviews_url = f"https://api.github.com/repos/{organization}/{name}/pulls/{issue['number']}/reviews"
+                reviews = get_paginated_data(reviews_url, headers)
+
             # Store this issue in our state
             repo_processed[issue_key] = {
                 "num_comments": current_comment_count,
@@ -327,11 +302,20 @@ def issue_stats(
                 "created_at": issue["created_at"],
                 "updated_at": issue["updated_at"],
                 "closed_at": issue["closed_at"],
+                "merged_at": issue.get("pull_request", {}).get("merged_at"),
                 "closed_wait_seconds": closed_wait,
                 "first_response_seconds": first_response_time,
                 "first_responder": first_responder,
                 "num_comments": issue["comments"],
                 "html_url": issue["html_url"],
+                "reviews": [
+                    {
+                        "reviewer": review["user"]["login"] if review["user"] else None,
+                        "state": review["state"],
+                        "submitted_at": review["submitted_at"],
+                    }
+                    for review in reviews
+                ],
             }
 
 
