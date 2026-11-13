@@ -2,7 +2,7 @@ import io
 import logging
 import zipfile
 from collections.abc import Iterator
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from typing import Literal
 
 import dlt
@@ -14,6 +14,7 @@ from ._github import (
     find_rate_limit_error,
     get_github_headers,
     get_paginated_data,
+    github_graphql,
     github_request,
 )
 
@@ -335,6 +336,174 @@ def issue_stats(
             }
 
 
+# nf-core was created on 2018-01-17. Reviews on pull requests updated before this are not collected.
+PR_REVIEW_HISTORY_START = date(2018, 1, 1)
+# 100 PRs per page. 50 pages is a few busy weeks and stays far under the GraphQL point budget,
+# so the daily run can walk backward through history without a burst that trips a secondary limit.
+PR_REVIEW_PAGE_BUDGET = 50
+_SEARCH_RESULT_CAP = 1000
+
+_PR_SEARCH = """
+query($q: String!, $cursor: String) {
+  search(query: $q, type: ISSUE, first: 100, after: $cursor) {
+    issueCount
+    pageInfo { hasNextPage endCursor }
+    nodes {
+      ... on PullRequest {
+        id
+        number
+        repository { name }
+        author { login __typename }
+        reviews(first: 100) {
+          pageInfo { hasNextPage endCursor }
+          nodes { id state submittedAt author { login __typename } }
+        }
+      }
+    }
+  }
+}
+"""
+
+_REVIEW_PAGE = """
+query($id: ID!, $cursor: String) {
+  node(id: $id) {
+    ... on PullRequest {
+      reviews(first: 100, after: $cursor) {
+        pageInfo { hasNextPage endCursor }
+        nodes { id state submittedAt author { login __typename } }
+      }
+    }
+  }
+}
+"""
+
+
+class _PageBudgetExhaustedError(Exception):
+    """This run's GraphQL page budget is spent. Older history waits for the next run."""
+
+
+class _PageBudget:
+    def __init__(self, limit: int | None):
+        self.limit = limit
+        self.used = 0
+
+    def charge(self) -> None:
+        if self.limit is not None and self.used >= self.limit:
+            raise _PageBudgetExhaustedError
+        self.used += 1
+
+
+def _actor_login(actor: dict | None) -> str | None:
+    """GitHub login, with the `[bot]` suffix the REST API uses for GitHub App accounts."""
+    if not actor:
+        return None
+    login = actor.get("login")
+    if not login:
+        return None
+    if actor.get("__typename") == "Bot" and not login.endswith("[bot]"):
+        return f"{login}[bot]"
+    return login
+
+
+def _review_rows(pr: dict, reviews: list[dict]) -> Iterator[dict]:
+    for review in reviews:
+        if not review or review.get("state") == "PENDING" or not review.get("submittedAt") or not review.get("id"):
+            continue
+        yield {
+            "review_id": review["id"],
+            "pipeline_name": pr["repository"]["name"],
+            "pr_number": pr["number"],
+            "pr_author": _actor_login(pr.get("author")),
+            "reviewer": _actor_login(review.get("author")),
+            "state": review["state"],
+            "submitted_at": review["submittedAt"],
+        }
+
+
+def _reviews_updated(organization: str, headers: dict, start: date, end: date, budget: _PageBudget) -> Iterator[dict]:
+    """Yield submitted reviews on PRs updated in [start, end], splitting ranges over the search cap."""
+    if start > end:
+        return
+
+    query = f"org:{organization} is:pr updated:{start.isoformat()}..{end.isoformat()}"
+    cursor = None
+    saw_count = False
+    while True:
+        budget.charge()
+        search = github_graphql(_PR_SEARCH, {"q": query, "cursor": cursor}, headers)["search"]
+        if not saw_count:
+            saw_count = True
+            count = search["issueCount"]
+            if count > _SEARCH_RESULT_CAP and start < end:
+                mid = start + (end - start) // 2
+                logger.info(f"{count} PRs updated {start}..{end}; splitting the search")
+                yield from _reviews_updated(organization, headers, start, mid, budget)
+                yield from _reviews_updated(organization, headers, mid + timedelta(days=1), end, budget)
+                return
+            if count > _SEARCH_RESULT_CAP:
+                logger.warning(
+                    f"{count} PRs updated on {start}. GitHub search returns {_SEARCH_RESULT_CAP}, so the rest are skipped."
+                )
+            else:
+                logger.info(f"{count} PRs updated {start}..{end}")
+
+        for pr in search["nodes"]:
+            if not pr or "repository" not in pr:
+                continue
+            reviews = pr["reviews"]
+            yield from _review_rows(pr, reviews["nodes"])
+            page = reviews["pageInfo"]
+            while page["hasNextPage"]:
+                budget.charge()
+                reviews = github_graphql(_REVIEW_PAGE, {"id": pr["id"], "cursor": page["endCursor"]}, headers)["node"][
+                    "reviews"
+                ]
+                yield from _review_rows(pr, reviews["nodes"])
+                page = reviews["pageInfo"]
+
+        if not search["pageInfo"]["hasNextPage"]:
+            return
+        cursor = search["pageInfo"]["endCursor"]
+
+
+@dlt.resource(write_disposition="merge", primary_key="review_id", name="pr_reviews")
+def pr_reviews(
+    organization: str,
+    headers: dict,
+    page_budget: int | None = PR_REVIEW_PAGE_BUDGET,
+) -> Iterator[dict]:
+    """Collect submitted PR reviews.
+
+    One GraphQL search returns a page of pull requests with their reviews nested, instead of
+    one REST call per pull request. Each run re-reads pull requests updated in the last two days,
+    then walks older update dates back to `PR_REVIEW_HISTORY_START` within `page_budget` pages.
+    The older-date cursor is saved only after a week finishes, so a budget stop retries that week.
+    """
+    state = dlt.current.resource_state()
+    today = datetime.now(timezone.utc).date()
+    # The latest two days are always re-read: a new review bumps the pull request's update time.
+    yield from _reviews_updated(organization, headers, today - timedelta(days=1), today, _PageBudget(None))
+
+    history_before = date.fromisoformat(
+        state.setdefault("history_before", (today - timedelta(days=1)).isoformat())
+    )
+    budget = _PageBudget(page_budget)
+    while history_before > PR_REVIEW_HISTORY_START:
+        week_end = history_before - timedelta(days=1)
+        week_start = max(PR_REVIEW_HISTORY_START, week_end - timedelta(days=6))
+        try:
+            yield from _reviews_updated(organization, headers, week_start, week_end, budget)
+        except _PageBudgetExhaustedError:
+            logger.info(
+                f"PR review page budget reached while scanning {week_start}..{week_end}. "
+                "Older pull requests resume on the next run."
+            )
+            return
+        history_before = week_start
+        state["history_before"] = history_before.isoformat()
+        logger.info(f"PR review history scanned back to {week_start.isoformat()}")
+
+
 @dlt.resource(write_disposition="merge", primary_key=["timestamp"])
 def org_members(organization: str, headers: dict) -> Iterator[dict]:
     """Collect organization member count"""
@@ -574,6 +743,7 @@ def main(
             "issue_stats",
             "contributor_stats",
             "modules_container_conversion",
+            "pr_reviews",
         ]
     ]
     | None = None,
@@ -617,9 +787,14 @@ def main(
         logger.info(f"Smoke mode: limited to {len(repos)} repositories")
 
     # Define resources to run (ordered by API call intensity - least to most)
+    # GraphQL reviews sit with the cheap calls. The page budget keeps a backfill from
+    # bursting the shared token before the REST resources run. Smoke mode still refreshes
+    # the last two days, and caps the history walk at one page.
+    review_budget = 1 if max_repos else PR_REVIEW_PAGE_BUDGET
     all_resources = [
         ("org_members", lambda: org_members(organization, headers)),
         ("modules_container_conversion", lambda: modules_container_conversion(headers)),
+        ("pr_reviews", lambda: pr_reviews(organization, headers, page_budget=review_budget)),
         ("nfcore_pipelines", lambda: pipelines(organization, headers, repos)),
         ("commit_stats", lambda: commit_stats(organization, headers, repos)),
         (
