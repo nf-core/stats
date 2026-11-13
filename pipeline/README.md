@@ -105,8 +105,10 @@ Database: nf_core_stats
 │   │   └── (views, clones, timestamps per pipeline)
 │   ├── Table: contributor_stats
 │   │   └── (commits, additions, deletions per author/week)
-│   └── Table: issue_stats
-│       └── (issues and PRs details)
+│   ├── Table: issue_stats
+│   │   └── (issues and PRs details)
+│   └── Table: pr_reviews
+│       └── (PR reviews since 2026-11-13)
 │
 ├── Schema: slack
 │   └── Table: workspace_stats

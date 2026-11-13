@@ -153,6 +153,21 @@ def github_request(url: str, headers: dict) -> requests.Response:
     return response
 
 
+def github_graphql(query: str, variables: dict, headers: dict) -> dict:
+    """Run a GitHub GraphQL query and return its `data`, raising `RateLimitError` on rate-limit errors."""
+    response = http_client.post(
+        "https://api.github.com/graphql", json={"query": query, "variables": variables}, headers=headers
+    )
+    raise_for_github_errors(response)
+    response.raise_for_status()
+    body = response.json()
+    if errors := body.get("errors"):
+        if any(error.get("type") == "RATE_LIMITED" for error in errors):
+            raise RateLimitError(f"GraphQL rate limit hit: {errors}", response=response)
+        raise requests.HTTPError(f"GraphQL query failed: {errors}", response=response)
+    return body["data"]
+
+
 def get_paginated_data(url: str, headers: dict):
     """Get all paginated results from GitHub API"""
     all_results = []
