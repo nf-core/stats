@@ -105,8 +105,10 @@ Database: nf_core_stats
 │   │   └── (views, clones, timestamps per pipeline)
 │   ├── Table: contributor_stats
 │   │   └── (commits, additions, deletions per author/week)
-│   └── Table: issue_stats
-│       └── (issues and PRs details)
+│   ├── Table: issue_stats
+│   │   └── (issues and PRs details)
+│   └── Table: pr_reviews
+│       └── (submitted PR reviews, walked back to 2018-01-01)
 │
 ├── Schema: slack
 │   └── Table: workspace_stats
@@ -175,6 +177,20 @@ Database: nf_core_stats
 - `first_responder`: Username of first responder
 - `num_comments`: Number of comments
 - `html_url`: Link to issue/PR
+
+### PR Reviews
+
+Submitted reviews on nf-core pull requests. Pending reviews are skipped.
+
+- `review_id`: GitHub review node id
+- `pipeline_name`: Repository name
+- `pr_number`: Pull request number
+- `pr_author`: Login of the pull request author (`[bot]` suffix for GitHub Apps)
+- `reviewer`: Login of the reviewer (`[bot]` suffix for GitHub Apps)
+- `state`: Review state (`APPROVED`, `CHANGES_REQUESTED`, `COMMENTED`, `DISMISSED`)
+- `submitted_at`: When the review was submitted
+
+Collection uses one GraphQL search page (100 pull requests, reviews nested) instead of one REST call per pull request. Each run re-reads pull requests updated in the last two days, then scans older update weeks back to 2018-01-01, up to 50 search pages. The week cursor advances only after that week finishes, so the next run resumes there.
 
 **Note**: Comment fetching is incremental and only occurs when:
 
