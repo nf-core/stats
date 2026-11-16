@@ -17,6 +17,8 @@
       "automergeType": "branch"
     }
   ],
-  "dependencyDashboard": true,
+  "dependencyDashboard": {
+    "enabled": true
+  },
   "prCreation": "not-pending"
 }
