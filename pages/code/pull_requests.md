@@ -81,4 +81,46 @@ xLabelWrap=true
 legendPosition="bottom"
 />
 
+## Who opened them
+
+Each person is counted once per pull request they opened, across the full issue history. GitHub App accounts, nf-core-bot, and Copilot are left out.
+
+```sql pr_authors
+SELECT contributor, prs_opened
+FROM nfcore_db.pr_authors
+```
+
+<DataTable
+data={pr_authors}
+search=true
+rows=25
+defaultSort={[{ id: 'prs_opened', desc: true }]}>
+
+    <Column id="contributor" title="Contributor" align="left" contentType="html"/>
+    <Column id="prs_opened" title="PRs opened" align="right"/>
+
+</DataTable>
+
+## Who reviewed them
+
+A person is counted once per pull request they reviewed. Pending reviews are skipped. GitHub App accounts, nf-core-bot, and Copilot are left out.
+
+The pipeline loads this with one GraphQL search per page of pull requests, rather than one REST call per pull request. Every run re-reads pull requests updated in the last two days, then walks older update dates back to January 2018, a few weeks at a time. A pull request contributes its full review history when its update week is scanned, so recent pull requests bring their older reviews along. Reviews on pull requests that have been quiet since then fill in as the walk proceeds.
+
+```sql pr_reviewers
+SELECT contributor, prs_reviewed
+FROM nfcore_db.pr_reviewers
+```
+
+<DataTable
+data={pr_reviewers}
+search=true
+rows=25
+defaultSort={[{ id: 'prs_reviewed', desc: true }]}>
+
+    <Column id="contributor" title="Contributor" align="left" contentType="html"/>
+    <Column id="prs_reviewed" title="PRs reviewed" align="right"/>
+
+</DataTable>
+
 <LastRefreshed prefix="Data last updated"/>
