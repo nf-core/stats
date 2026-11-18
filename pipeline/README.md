@@ -106,7 +106,7 @@ Database: nf_core_stats
 │   ├── Table: contributor_stats
 │   │   └── (commits, additions, deletions per author/week)
 │   └── Table: issue_stats
-│       └── (issues and PRs details)
+│       └── (issues and PRs details, PR reviews in issue_stats__reviews)
 │
 ├── Schema: slack
 │   └── Table: workspace_stats
