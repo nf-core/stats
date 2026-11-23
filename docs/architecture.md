@@ -14,7 +14,7 @@ The nf-core stats page follows a multi-stage data pipeline architecture:
 
 - All collected data is stored in MotherDuck (a cloud-native DuckDB service)
 - Database structure:
-  - `github` schema: traffic_stats, contributor_stats, issue_stats, org_members
+  - `github` schema: traffic_stats, contributor_stats, issue_stats, pr_reviews, org_members
   - `slack` schema: workspace_stats
   - `twitter` schema: account_stats
 - Could alternatively use local DuckDB or even CSV files
