@@ -58,6 +58,14 @@ jobs:
       USE_RUNITOR: ${{ github.event_name != 'pull_request' }}
     strategy:
       fail-fast: false
+      # github and citations both call api.github.com with the SAME GH_TOKEN_STATS_PAGE
+      # token. Running matrix legs concurrently lets citations' ~200-request burst
+      # (2 calls per nf-core pipeline for nextflow.config lookups) collide with github's
+      # crawl on the same token, which trips GitHub's secondary (abuse) rate limit even
+      # though the primary quota has thousands of requests left (see issue #153: the
+      # /rate_limit preflight read 4970/5000 remaining, then the very next request 403'd).
+      # Serialize the legs so no two ever hit the API at the same time.
+      max-parallel: 1
       matrix:
         include:
           - pipeline: github
