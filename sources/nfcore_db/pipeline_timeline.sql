@@ -1,8 +1,11 @@
 USE nf_core_stats_bot;
 
 -- Pipeline development timeline - showing development periods for each pipeline
--- Uses first_release_date/number_of_releases collected directly by the GitHub pipeline
--- (previously joined against the external nf_core_dev.tap_github.releases table)
+-- Rows loaded before the loader added first_release_date only have last_release_date, hence the COALESCE.
+WITH p AS (
+    SELECT * REPLACE (COALESCE(first_release_date, last_release_date) AS first_release_date)
+    FROM github.nfcore_pipelines
+)
 SELECT
     p.name as pipeline_name,
     p.gh_created_at as development_start,
@@ -21,6 +24,6 @@ SELECT
     EXTRACT(year FROM p.gh_created_at) as start_year,
     p.stargazers_count,
     p.archived
-FROM github.nfcore_pipelines p
+FROM p
 WHERE NOT p.archived AND p.category = 'pipeline'
 ORDER BY p.gh_created_at;
