@@ -2,7 +2,9 @@ name: Schedule Netlify Build
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 2 * * *" # Once a day
+    # Pipelines moved to 03:17 UTC (run_pipelines.yml); rebuild after they finish
+    # so the site embeds fresh MotherDuck data. See #159 / #163.
+    - cron: "30 4 * * *" # Once a day, after scheduled pipeline run
 permissions: {}
 
 jobs:
