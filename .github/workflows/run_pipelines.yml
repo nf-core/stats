@@ -1,7 +1,15 @@
 name: Run All Pipelines
 "on":
   schedule:
-    - cron: "0 0 * * *" # Run daily at midnight
+    # GitHub documents that scheduled workflows "can be delayed during periods
+    # of high loads of GitHub Actions workflow runs" and calls out "the start
+    # of every hour" specifically. Midnight (00:00) is both an hour boundary
+    # and the single most common cron target across all of GitHub, so it sees
+    # the worst congestion. Issues #159, #161, and #162: scheduled runs simply
+    # never fired within the healthchecks.io grace window, several hours after
+    # every other pipeline run this month landed within ~10-30 minutes of 00:00.
+    # Off-peak minute avoids that queueing without changing the "once a day" cadence.
+    - cron: "17 3 * * *" # Run daily at 03:17 UTC (off-peak, avoids hour-boundary queueing)
   workflow_dispatch: # Allow manual triggers
   pull_request:
     paths:
